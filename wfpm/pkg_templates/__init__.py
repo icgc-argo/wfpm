@@ -20,11 +20,12 @@
 """
 
 
-from .utils import Singleton
+import os
 
+# this may not work for zipped lib, but let's worry about it later
+tmplt_path = os.path.join(os.path.dirname(__file__))
 
-class Project(object):
-    __metaclass__ = Singleton
-
-    def __init__(self):
-        pass
+project_tmplt_path = os.path.join(tmplt_path, 'project')
+tool_tmplt_path = os.path.join(tmplt_path, 'tool')
+workflow_tmplt_path = os.path.join(tmplt_path, 'workflow')
+function_tmplt_path = os.path.join(tmplt_path, 'function')

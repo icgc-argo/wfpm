@@ -1,0 +1,5 @@
+.gitignore
+.nextflow*
+tests
+work
+outdir

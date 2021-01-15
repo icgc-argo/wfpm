@@ -42,9 +42,10 @@ setup(
     name='wfpm',
     version=version,
     description='WorkFlow Package Manager',
-    license='GNU Affero General Public License v3.0',
+    license='Apache Software License 2.0',
     url='https://github.com/icgc-argo/wfpm',
     packages=find_packages(exclude=["*.tests", "*.tests.*", "tests.*", "tests"]),
+    include_package_data=True,
     classifiers=[
         "Development Status :: 3 - Alpha",
         "Operating System :: OS Independent",
@@ -53,6 +54,7 @@ setup(
     python_requires='>=3',
     tests_require=tests_require,
     cmdclass={'test': PyTest},
+    zip_safe=True,
     entry_points={
         'console_scripts': [
             'wfpm=wfpm.cli:main',

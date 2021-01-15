@@ -1,0 +1,15 @@
+{
+    "full_name": "Your name or organization name",
+    "email": "you@example.com",
+    "project_name": "Workflow Package Project 1",
+    "github_account": "github-account",
+    "project_slug": "github-repo",
+    "open_source_license": [
+        "MIT",
+        "BSD",
+        "ISC",
+        "Apache Software License 2.0",
+        "GNU General Public License v3",
+        "Not open source" ],
+    "_copy_without_render": [".github"]
+}
