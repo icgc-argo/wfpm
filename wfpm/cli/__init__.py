@@ -23,6 +23,7 @@
 import click
 from wfpm import __version__ as ver
 from .init_cmd import init_cmd
+from .new_cmd import new_cmd
 from .install_cmd import install_cmd
 from .list_cmd import list_cmd
 from .uninstall_cmd import uninstall_cmd
@@ -55,12 +56,27 @@ def main(ctx, debug):
 
 
 @main.command()
+@click.option('-c', '--git-commit', is_flag=True, help='Also perform first \'git commit\'')
 @click.pass_context
-def init(ctx):
+def init(ctx, git_commit):
     """
-    Initialize a package with necessary scaffolding.
+    Init a project in an empty dir with necessary scaffolds.
     """
-    init_cmd(ctx)
+    init_cmd(ctx, git_commit)
+
+
+@main.command()
+@click.option(
+    '-p', '--pkg-type', required=True,
+    type=click.Choice(['tool', 'workflow', 'function'], case_sensitive=False),
+    help='Package type'
+)
+@click.pass_context
+def new(ctx, pkg_type):
+    """
+    Start a new package with necessary scaffolds.
+    """
+    new_cmd(ctx, pkg_type)
 
 
 @main.command()
@@ -94,7 +110,7 @@ def uninstall(ctx):
 @click.pass_context
 def outdated(ctx):
     """
-    List outdated packages.
+    List outdated dependent packages.
     """
     outdated_cmd(ctx)
 

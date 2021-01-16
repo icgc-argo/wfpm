@@ -20,16 +20,41 @@
 """
 
 
-import click
+import os
+import tempfile
+import subprocess
+from distutils.dir_util import copy_tree
+from click import echo
 from cookiecutter.main import cookiecutter
-from cookiecutter.config import get_user_config
-from cookiecutter.replay import load
-from ..pkg_templates import project_tmplt_path
-from ..pkg_templates import tool_tmplt_path
-from ..pkg_templates import workflow_tmplt_path
-from ..pkg_templates import function_tmplt_path
+from ..pkg_templates import project_tmplt
 
 
-def init_cmd(ctx):
-    # click.echo(project_tmplt_path)
-    cookiecutter(tool_tmplt_path)
+def init_cmd(ctx, git_commit):
+    cwd = os.getcwd()
+
+    # make sure the current directory is empty
+    if os.listdir(cwd):
+        echo('Current directory not empty, exit now.')
+        ctx.exit(0)
+
+    success = False
+
+    # create the project scaffold in a temp dir
+    with tempfile.TemporaryDirectory() as tmpdirname:
+        try:
+            os.chdir(tmpdirname)
+
+            project_dir = cookiecutter(project_tmplt)
+            copy_tree(project_dir, cwd)
+
+            success = True
+            echo(f"Project initialized in: {cwd}")
+
+        finally:
+            os.chdir(cwd)
+
+    if success and git_commit:
+        subprocess.run(['git', 'init'], check=True)
+        subprocess.run(['git', 'add', '.'], check=True)
+        subprocess.run(['git', 'commit', '-m', 'initial commit'], check=True)
+        subprocess.run(['git', 'branch', '-M', 'main'], check=True)

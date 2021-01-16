@@ -19,4 +19,20 @@
         Junjun Zhang <junjun.zhang@oicr.on.ca>
 """
 
-__version__ = "0.2.0"
+
+import click
+from cookiecutter.main import cookiecutter
+from cookiecutter.config import get_user_config
+from cookiecutter.replay import load
+from ..pkg_templates import tool_tmplt
+from ..pkg_templates import workflow_tmplt
+from ..pkg_templates import function_tmplt
+
+
+def new_cmd(ctx, pkg_type):
+    if pkg_type == 'tool':
+        cookiecutter(tool_tmplt)
+    elif pkg_type == 'workflow':
+        cookiecutter(workflow_tmplt)
+    elif pkg_type == 'function':
+        cookiecutter(function_tmplt)
