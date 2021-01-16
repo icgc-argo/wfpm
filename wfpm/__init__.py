@@ -19,4 +19,4 @@
         Junjun Zhang <junjun.zhang@oicr.on.ca>
 """
 
-__version__ = "0.2.0"
+__version__ = "0.2.1"

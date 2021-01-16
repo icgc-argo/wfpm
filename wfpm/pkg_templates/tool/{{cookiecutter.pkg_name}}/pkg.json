@@ -1,0 +1,52 @@
+{
+    "name": "{{ cookiecutter.pkg_name }}",
+    "version": "1.21.0",
+    "description": "BWA MEM Aligner",
+    "main": "{{ cookiecutter.pkg_name }}.nf",
+    "scripts": {
+        "test": "pushd tests && ./run_tests.sh; popd"
+    },
+    "deprecated": false,
+    "keywords": [
+        "bioinformatics",
+        "alignment",
+        "dna-seq",
+        "bwa"
+    ],
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/icgc-argo/demo-wfpkgs.git"
+    },
+    "container": {
+        "registries": [
+            {
+                "registry": "quay.io",
+                "type": "docker",
+                "org": "icgc-argo",
+                "default": true
+            },
+            {
+                "registry": "ghcr.io",
+                "type": "docker",
+                "org": "icgc-argo",
+                "default": false
+            }
+        ]
+    },
+    "dependencies": [],
+    "devDependencies": [
+    ],
+    "contributors": [
+        {
+            "name": "Junjun Zhang",
+            "email": "junjun.zhang@oicr.on.ca"
+        },
+        {
+            "name": "Linda Xiang",
+            "email": "linda.xiang@oicr.on.ca"
+        }
+    ],
+    "license": "AGPL-3.0",
+    "bugReport": "https://github.com/icgc-argo/demo-wfpkgs/issues",
+    "homepage": "https://github.com/icgc-argo/demo-wfpkgs#readme"
+}

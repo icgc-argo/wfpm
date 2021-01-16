@@ -20,10 +20,8 @@
 """
 
 
-import click
+from click import echo
 from cookiecutter.main import cookiecutter
-from cookiecutter.config import get_user_config
-from cookiecutter.replay import load
 from ..pkg_templates import tool_tmplt
 from ..pkg_templates import workflow_tmplt
 from ..pkg_templates import function_tmplt

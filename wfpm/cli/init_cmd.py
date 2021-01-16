@@ -29,7 +29,7 @@ from cookiecutter.main import cookiecutter
 from ..pkg_templates import project_tmplt
 
 
-def init_cmd(ctx, git_commit):
+def init_cmd(ctx):
     cwd = os.getcwd()
 
     # make sure the current directory is empty
@@ -37,9 +37,7 @@ def init_cmd(ctx, git_commit):
         echo('Current directory not empty, exit now.')
         ctx.exit(0)
 
-    success = False
-
-    # create the project scaffold in a temp dir
+    # create the project scaffold in a temp dir first then move to cwd
     with tempfile.TemporaryDirectory() as tmpdirname:
         try:
             os.chdir(tmpdirname)
@@ -47,14 +45,18 @@ def init_cmd(ctx, git_commit):
             project_dir = cookiecutter(project_tmplt)
             copy_tree(project_dir, cwd)
 
-            success = True
             echo(f"Project initialized in: {cwd}")
+
+        except Exception as ex:
+            echo("Project initiation failed: %s" % ex)
+            ctx.exit(1)
 
         finally:
             os.chdir(cwd)
 
-    if success and git_commit:
-        subprocess.run(['git', 'init'], check=True)
-        subprocess.run(['git', 'add', '.'], check=True)
-        subprocess.run(['git', 'commit', '-m', 'initial commit'], check=True)
-        subprocess.run(['git', 'branch', '-M', 'main'], check=True)
+    subprocess.run(['git', 'init'], check=True)
+    subprocess.run(['git', 'add', '.'], check=True)
+    subprocess.run(['git', 'commit', '-m', 'initial commit'], check=True)
+    subprocess.run(['git', 'branch', '-M', 'main'], check=True)
+
+    echo(f"Project initialized and first commit done in: {cwd}")

@@ -5,7 +5,7 @@
 */
 
 nextflow.enable.dsl = 2
-version = '{{ cookiecutter.module_version }}'  // tool version
+version = '{{ cookiecutter.pkg_version }}'  // tool version
 
 // universal params
 params.publish_dir = ""
@@ -15,7 +15,7 @@ params.container_version = ""
 params.input_file = ""
 params.expected_output = ""
 
-include { {{ cookiecutter.module_name }} } from '../{{ cookiecutter.module_name }}'
+include { {{ cookiecutter.pkg_name }} } from '../{{ cookiecutter.pkg_name }}'
 
 Channel
   .fromPath(params.input_file, checkIfExists: true)
@@ -23,7 +23,7 @@ Channel
 
 
 process file_diff {
-  container "quay.io/{{ cookiecutter.quay_io_account }}/{{ cookiecutter.module_name }}:{{ cookiecutter.module_name }}.${params.container_version ?: version}"
+  container "quay.io/icgc-argo/{{ cookiecutter.pkg_name }}:{{ cookiecutter.pkg_name }}.${params.container_version ?: version}"
 
   input:
     path file1
@@ -45,12 +45,12 @@ workflow checker {
     expected_output
 
   main:
-    {{ cookiecutter.module_name }}(
+    {{ cookiecutter.pkg_name }}(
       input_file
     )
 
     file_diff(
-      {{ cookiecutter.module_name }}.out.output,
+      {{ cookiecutter.pkg_name }}.out.output,
       expected_output
     )
 }

@@ -56,20 +56,18 @@ def main(ctx, debug):
 
 
 @main.command()
-@click.option('-c', '--git-commit', is_flag=True, help='Also perform first \'git commit\'')
 @click.pass_context
-def init(ctx, git_commit):
+def init(ctx):
     """
     Init a project in an empty dir with necessary scaffolds.
     """
-    init_cmd(ctx, git_commit)
+    init_cmd(ctx)
 
 
 @main.command()
-@click.option(
-    '-p', '--pkg-type', required=True,
-    type=click.Choice(['tool', 'workflow', 'function'], case_sensitive=False),
-    help='Package type'
+@click.argument(
+    'pkg_type', nargs=1,
+    type=click.Choice(['tool', 'workflow', 'function'], case_sensitive=False)
 )
 @click.pass_context
 def new(ctx, pkg_type):
