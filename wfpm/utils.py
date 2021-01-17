@@ -19,9 +19,17 @@
         Junjun Zhang <junjun.zhang@oicr.on.ca>
 """
 
+import os
+import subprocess
 
-def find_file_in_nearest_parent_dir(start_dir=None, file_name=None):
-    pass
+
+def locate_nearest_parent_dir_with_file(start_dir=None, filename=None):
+    paths = os.path.abspath(start_dir).split(os.path.sep)
+
+    for i in sorted(range(len(paths)), reverse=True):
+        path = os.path.sep.join(paths[:(i+1)])
+        if os.path.isfile(os.path.join(path, filename)):
+            return path
 
 
 class Singleton(type):
@@ -31,3 +39,21 @@ class Singleton(type):
         if cls not in cls._instances:
             cls._instances[cls] = super(Singleton, cls).__call__(*args, **kwargs)
         return cls._instances[cls]
+
+
+def run_cmd(cmd):
+    # keep this simple for now
+    proc = subprocess.Popen(
+                cmd,
+                shell=True,
+                stdin=subprocess.PIPE,
+                stdout=subprocess.PIPE,
+                stderr=subprocess.PIPE
+            )
+    stdout, stderr = proc.communicate()
+
+    return (
+        stdout.decode("utf-8").strip(),
+        stderr.decode("utf-8").strip(),
+        proc.returncode
+    )

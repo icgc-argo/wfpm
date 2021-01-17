@@ -19,7 +19,7 @@
         Junjun Zhang <junjun.zhang@oicr.on.ca>
 """
 
-
+import os
 import click
 from wfpm import __version__ as ver
 from .init_cmd import init_cmd
@@ -30,6 +30,9 @@ from .uninstall_cmd import uninstall_cmd
 from .outdated_cmd import outdated_cmd
 from .test_cmd import test_cmd
 from wfpm.config import Config
+from wfpm.project import Project
+
+
 
 
 def print_version(ctx, param, value):
@@ -37,6 +40,15 @@ def print_version(ctx, param, value):
         return
     click.echo(f'wfpm {ver}')
     ctx.exit()
+
+
+def init_project(ctx):
+    config = Config(os.getcwd())
+    ctx.obj['CONFIG'] = config
+
+    if config.root:
+        project = Project(config)
+        ctx.obj['PROJECT'] = project
 
 
 @click.group()
@@ -50,17 +62,19 @@ def main(ctx, debug):
     # initializing ctx.obj
     ctx.obj = {}
     ctx.obj['DEBUG'] = debug
-
-    # gether WFPM config / project / package info
-    ctx.obj['CONFIG'] = Config()
+    init_project(ctx)
 
 
 @main.command()
 @click.pass_context
 def init(ctx):
     """
-    Init a project in an empty dir with necessary scaffolds.
+    Start a workflow package project with necessary scaffolds.
     """
+    if ctx.obj.get('PROJECT'):
+        click.echo(f"Already under a project directory: {ctx.obj['PROJECT'].root}")
+        ctx.abort()
+
     init_cmd(ctx)
 
 
@@ -78,12 +92,15 @@ def new(ctx, pkg_type):
 
 
 @main.command()
+@click.argument('pkgs', nargs=-1, required=False)
+@click.option('--force', '-f', is_flag=True, help='Force installation even already installed.')
+@click.option('--include-tests', '-t', is_flag=True, help='Force installation even already installed.')
 @click.pass_context
-def install(ctx):
+def install(ctx, pkgs, force, include_tests):
     """
     Install packages.
     """
-    install_cmd(ctx)
+    install_cmd(ctx, pkgs, force, include_tests)
 
 
 @main.command()

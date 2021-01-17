@@ -19,18 +19,37 @@
         Junjun Zhang <junjun.zhang@oicr.on.ca>
 """
 
-
+import os
 from click import echo
 from cookiecutter.main import cookiecutter
 from ..pkg_templates import tool_tmplt
 from ..pkg_templates import workflow_tmplt
 from ..pkg_templates import function_tmplt
+from ..utils import run_cmd
 
 
 def new_cmd(ctx, pkg_type):
+    if not ctx.obj.get('PROJECT'):
+        echo("Not in a package project directory.")
+        ctx.abort()
+    else:
+        project = ctx.obj['PROJECT']
+
+    if project.root != os.getcwd():
+        echo(f"Must run this command under the project root dir: {project.root}")
+        ctx.abort()
+
     if pkg_type == 'tool':
-        cookiecutter(tool_tmplt)
+        path = cookiecutter(tool_tmplt)
+
     elif pkg_type == 'workflow':
-        cookiecutter(workflow_tmplt)
+        path = cookiecutter(workflow_tmplt)
+
     elif pkg_type == 'function':
-        cookiecutter(function_tmplt)
+        echo("Not implemented yet")
+        ctx.exit()
+
+    # create symlinks for 'wfpr_modules'
+    cmd = f"cd {path} && ln -s ../wfpr_modules && cd tests && ln -s ../wfpr_modules"
+    run_cmd(cmd)
+    echo(f"New package created in: {os.path.basename(path)}")

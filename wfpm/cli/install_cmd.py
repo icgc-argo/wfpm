@@ -19,10 +19,40 @@
         Junjun Zhang <junjun.zhang@oicr.on.ca>
 """
 
+from click import echo
+from wfpm.package import Package
 
-import click
 
+def install_cmd(ctx, pkgs, force, include_tests):
+    if not ctx.obj.get('PROJECT'):
+        echo("Not in a package project directory.")
+        ctx.abort()
+    else:
+        project = ctx.obj['PROJECT']
 
-def install_cmd(ctx):
-    click.echo('To be implemented, check back soon.\n')
-    ctx.exit()
+    if not project.root:
+        echo("Not in a package project directory.")
+        ctx.abort()
+
+    for pkg in pkgs:  # install command line specified package(s)
+        try:
+            package = Package(pkg_uri=pkg)
+        except Exception as ex:
+            echo(ex)
+            ctx.abort()
+
+        try:
+            package.install(
+                project.root,
+                include_tests=include_tests,
+                force=force
+            )
+        except Exception as ex:
+            echo(ex)
+            ctx.abort()
+
+        echo(f"Package installed: {pkg}")
+
+    else:  # install dependent packages(s) specified in pkg.json
+        # TODO: retrieve dependencies from pkg.json
+        pass

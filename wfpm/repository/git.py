@@ -19,15 +19,20 @@
         Junjun Zhang <junjun.zhang@oicr.on.ca>
 """
 
-from abc import ABCMeta, abstractmethod
+from . import RepoBase
+from ..utils import run_cmd
 
 
-class RepoBase(object):
-    __metaclass__ = ABCMeta
+class Git(RepoBase):
+    repotype = 'git'
 
     def __init__(self):
-        pass
+        super().__init__(self)
 
-    @abstractmethod
     def root(self):
-        pass
+        stdout, stderr, returncode = run_cmd('git rev-parse --show-toplevel')
+        if returncode:
+            if 'not a git repository' in stderr:
+                raise Exception('Not in a git repository')
+        else:
+            return stdout  # abspath of the git repo

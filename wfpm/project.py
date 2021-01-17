@@ -26,5 +26,30 @@ from .utils import Singleton
 class Project(object):
     __metaclass__ = Singleton
 
-    def __init__(self):
-        pass
+    def __init__(
+        self,
+        config=None,
+        repo_type=None,
+        repo_server=None,
+        repo_account=None,
+        repo_name=None
+    ):
+        # TODO: add validation of arguments
+        if config:
+            self.root = config.root
+            self.name = config.project_name
+            self.repo_type = config.repo_type
+            self.repo_server = config.repo_server
+            self.repo_account = config.repo_account
+
+        else:
+            self.root = None
+            self.name = repo_name
+            self.repo_type = repo_type
+            self.repo_server = repo_server
+            self.repo_account = repo_account
+
+        self.fullname = f"{self.repo_server}/{self.repo_account}/{self.name}"
+
+    def __repr__(self):
+        return self.fullname
