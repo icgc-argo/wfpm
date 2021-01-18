@@ -40,9 +40,9 @@ def print_version(ctx, param, value):
     ctx.exit()
 
 
-def initialize(ctx, cwd, debug):
+def initialize(ctx, debug):
     ctx.obj = dict()
-    ctx.obj['CONFIG'] = Config(cwd, debug)
+    ctx.obj['CONFIG'] = Config(debug)
     ctx.obj['PROJECT'] = Project(config=ctx.obj['CONFIG'])
 
 
@@ -55,7 +55,7 @@ def initialize(ctx, cwd, debug):
 @click.pass_context
 def main(ctx, debug):
     # initializing the project
-    initialize(ctx, os.getcwd(), debug)
+    initialize(ctx, debug)
 
 
 @main.command()

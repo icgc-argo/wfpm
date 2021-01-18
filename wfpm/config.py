@@ -33,20 +33,34 @@ class Config(object):
     repo_type: str = None
     repo_server: str = None
     repo_account: str = None
+    cwd: str = None
+    current_pkg: str = None
 
-    def __init__(self, cwd=os.getcwd(), debug=False) -> None:
+    def __init__(self, debug=False) -> None:
+        self.cwd = os.getcwd()
         self.debug = debug
 
         # locate project root
-        project_root = locate_nearest_parent_dir_with_file(start_dir=cwd, filename='.wfpm')
+        project_root = locate_nearest_parent_dir_with_file(
+            start_dir=self.cwd,
+            filename='.wfpm'
+        )
         if project_root:
             self.root = project_root
             self.config_file = os.path.join(self.root, '.wfpm')
-            self._set_repo_info()
-        else:
-            self.root = None  # indicate this is not a valid project yet
+            self._get_info_from_config()
 
-    def _set_repo_info(self) -> None:
+            current_pkg_path = locate_nearest_parent_dir_with_file(
+                start_dir=self.cwd,
+                filename='pkg.json'
+            )
+            if current_pkg_path:
+                self.current_pkg = os.path.basename(current_pkg_path)
+
+        else:
+            self.root = None  # indicate not in a valid project (yet)
+
+    def _get_info_from_config(self) -> None:
         with open(self.config_file, 'r') as c:
             conf = yaml.safe_load(c)
 

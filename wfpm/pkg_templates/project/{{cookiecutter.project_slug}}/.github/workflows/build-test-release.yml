@@ -18,16 +18,10 @@ jobs:
     steps:
     - uses: actions/checkout@v2
 
-    - name: Set up Python 3.5
+    - name: Set up Python 3.6
       uses: actions/setup-python@v2
       with:
-        python-version: 3.5
-
-    - name: Install dependencies
-      run: |
-        python -m pip install --upgrade pip
-        if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
-        if [ -f requirements-test.txt ]; then pip install -r requirements-test.txt; fi
+        python-version: 3.6
 
     - name: Extract package name and version from branch name
       id: get_pkg_info
@@ -106,14 +100,15 @@ jobs:
     steps:
     - uses: actions/checkout@v2
 
-    - name: Set up Python 3.5
+    - name: Set up Python 3.6
       uses: actions/setup-python@v2
       with:
-        python-version: 3.5
+        python-version: 3.6
 
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
+        pip install wfpm
         if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
         if [ -f requirements-test.txt ]; then pip install -r requirements-test.txt; fi
 
@@ -142,18 +137,13 @@ jobs:
     - name: Run tests for all packages
       if: ${{ needs.build.outputs.branch == 'main' }}
       run: |
-        for t in `find . -type d -name tests |sort`; do
-          pushd $t
-          pwd
-          ./run_tests.sh
-          popd
-        done
+        wfpm test
 
     - name: Run tests for the current package only
       if: ${{ needs.build.outputs.branch != 'main' }}
       run: |
-        cd ./${{needs.build.outputs.pkg_name}}/tests
-        ./run_tests.sh
+        cd ./${{needs.build.outputs.pkg_name}}
+        wfpm test
 
     - name: Check whether to proceed with release
       id: to_release
