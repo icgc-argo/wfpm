@@ -19,8 +19,14 @@
         Junjun Zhang <junjun.zhang@oicr.on.ca>
 """
 
-__version__ = "0.3.0"
+import re
+import sys
+from wfpm import PRJ_NAME_REGEX
 
-PRJ_NAME_REGEX = r'^[a-z][0-9a-z\-]*[0-9a-z]+$'
-PKG_NAME_REGEX = r'^[a-z][0-9a-z\-]*[0-9a-z]+$'
-PKG_VER_REGEX = r'^[0-9]+\.[0-9]+\.[0-9]+(?:-[0-9a-z\.]+)?$'
+project_name = '{{ cookiecutter.project_slug }}'
+
+if not re.match(PRJ_NAME_REGEX, project_name):
+    print(f"Error: '{project_name}' is not a valid project name (project_slug), expected name pattern: {PRJ_NAME_REGEX}")
+
+    # exits with status 1 to indicate failure
+    sys.exit(1)

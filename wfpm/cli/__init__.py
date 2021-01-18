@@ -33,8 +33,6 @@ from wfpm.config import Config
 from wfpm.project import Project
 
 
-
-
 def print_version(ctx, param, value):
     if not value or ctx.resilient_parsing:
         return
@@ -42,13 +40,10 @@ def print_version(ctx, param, value):
     ctx.exit()
 
 
-def init_project(ctx):
-    config = Config(os.getcwd())
-    ctx.obj['CONFIG'] = config
-
-    if config.root:
-        project = Project(config)
-        ctx.obj['PROJECT'] = project
+def initialize(ctx, cwd, debug):
+    ctx.obj = dict()
+    ctx.obj['CONFIG'] = Config(cwd, debug)
+    ctx.obj['PROJECT'] = Project(config=ctx.obj['CONFIG'])
 
 
 @click.group()
@@ -59,10 +54,8 @@ def init_project(ctx):
               help='Show wfpm version.')
 @click.pass_context
 def main(ctx, debug):
-    # initializing ctx.obj
-    ctx.obj = {}
-    ctx.obj['DEBUG'] = debug
-    init_project(ctx)
+    # initializing the project
+    initialize(ctx, os.getcwd(), debug)
 
 
 @main.command()
@@ -71,7 +64,7 @@ def init(ctx):
     """
     Start a workflow package project with necessary scaffolds.
     """
-    if ctx.obj.get('PROJECT'):
+    if ctx.obj['PROJECT'].root:
         click.echo(f"Already under a project directory: {ctx.obj['PROJECT'].root}")
         ctx.abort()
 

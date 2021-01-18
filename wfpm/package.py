@@ -55,7 +55,7 @@ class Package(object):
             raise Exception(f"Invalid package name: {name}, expected name pattern: {PKG_NAME_REGEX}")
 
         if not re.match(PKG_VER_REGEX, version):
-            raise Exception(f"Invalid package version: {version}, expected name pattern: {PKG_VER_REGEX}")
+            raise Exception(f"Invalid package version: {version}, expected version pattern: {PKG_VER_REGEX}")
 
         # create Project object
         self.project = Project(
@@ -111,6 +111,8 @@ class Package(object):
                 if ret != 0:
                     run_cmd(f"rm -fr {target_path}")  # undo partial installation
                     raise Exception(f"Package downloaded but installation failed: {err}")
+
+                return target_path  # return the path the package was installed
 
         else:
             raise Exception(f"Looks like this package has not been released: {self.pkg_uri}")

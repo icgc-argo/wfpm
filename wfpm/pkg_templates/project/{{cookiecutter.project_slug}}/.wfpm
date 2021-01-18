@@ -1,0 +1,4 @@
+project_name: {{ cookiecutter.project_slug }}
+repo_type: git
+repo_server: github.com
+repo_account: {{ cookiecutter.github_account }}

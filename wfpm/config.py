@@ -27,22 +27,32 @@ from .utils import Singleton, locate_nearest_parent_dir_with_file
 class Config(object):
     __metaclass__ = Singleton
 
-    def __init__(self, cwd):
+    debug: bool = False
+    root: str = None
+    project_name: str = None
+    repo_type: str = None
+    repo_server: str = None
+    repo_account: str = None
+
+    def __init__(self, cwd=os.getcwd(), debug=False) -> None:
+        self.debug = debug
+
         # locate project root
         project_root = locate_nearest_parent_dir_with_file(start_dir=cwd, filename='.wfpm')
         if project_root:
             self.root = project_root
             self.config_file = os.path.join(self.root, '.wfpm')
-            self._get_repo_type()
+            self._set_repo_info()
         else:
             self.root = None  # indicate this is not a valid project yet
 
-    def _get_repo_type(self):
+    def _set_repo_info(self) -> None:
         with open(self.config_file, 'r') as c:
             conf = yaml.safe_load(c)
 
-        if set(['project_name', 'repo_type', 'repo_server', 'repo_account']) != set(conf.keys()):
-            raise Exception("Invalid .wfpm file")
+        fields = ['project_name', 'repo_type', 'repo_server', 'repo_account']
+        if set(fields) - set(conf.keys()):
+            raise Exception(f"Invalid .wfpm file: {self.config_file}, expected fields: {', '.join(fields)}")
         else:
             self.project_name = conf['project_name']
             self.repo_type = conf['repo_type']

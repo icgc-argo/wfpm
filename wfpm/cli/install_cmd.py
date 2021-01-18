@@ -24,35 +24,35 @@ from wfpm.package import Package
 
 
 def install_cmd(ctx, pkgs, force, include_tests):
-    if not ctx.obj.get('PROJECT'):
-        echo("Not in a package project directory.")
-        ctx.abort()
-    else:
-        project = ctx.obj['PROJECT']
-
+    project = ctx.obj['PROJECT']
     if not project.root:
         echo("Not in a package project directory.")
         ctx.abort()
 
+    failed_pkgs = []
     for pkg in pkgs:  # install command line specified package(s)
         try:
             package = Package(pkg_uri=pkg)
         except Exception as ex:
-            echo(ex)
-            ctx.abort()
+            echo(f"Failed to initial package: {pkg}. {ex}")
+            failed_pkgs.append(pkg)
+            continue
 
         try:
-            package.install(
+            path = package.install(
                 project.root,
                 include_tests=include_tests,
                 force=force
             )
-        except Exception as ex:
-            echo(ex)
-            ctx.abort()
+            echo(f"Package installed in: {path}")
 
-        echo(f"Package installed: {pkg}")
+        except Exception as ex:
+            echo(f"Failed to install package: {pkg}. {ex}")
+            failed_pkgs.append(pkg)
 
     else:  # install dependent packages(s) specified in pkg.json
         # TODO: retrieve dependencies from pkg.json
         pass
+
+    if failed_pkgs:
+        ctx.exit(1)

@@ -19,44 +19,35 @@
         Junjun Zhang <junjun.zhang@oicr.on.ca>
 """
 
-
 import os
-import tempfile
 import subprocess
-from distutils.dir_util import copy_tree
 from click import echo
 from cookiecutter.main import cookiecutter
+from cookiecutter.exceptions import OutputDirExistsException, FailedHookException
 from ..pkg_templates import project_tmplt
+from ..utils import run_cmd
 
 
 def init_cmd(ctx):
-    cwd = os.getcwd()
+    project = ctx.obj['PROJECT']
+    if project.root:
+        echo(f"Already in a package project directory: {project.root}")
+        ctx.abort()
 
-    # make sure the current directory is empty
-    if os.listdir(cwd):
-        echo('Current directory not empty, exit now.')
-        ctx.exit(0)
+    try:
+        project_dir = cookiecutter(project_tmplt)
+        echo(f"Project initialized and first commit done in: {os.path.basename(project_dir)}")
+    except FailedHookException as ex:
+        echo(f"Failed to initialize the project. {ex}")
+        ctx.abort()
+    except OutputDirExistsException as ex:
+        echo(f"Failed to initialize the project. {ex}")
+        ctx.abort()
 
-    # create the project scaffold in a temp dir first then move to cwd
-    with tempfile.TemporaryDirectory() as tmpdirname:
-        try:
-            os.chdir(tmpdirname)
+    os.chdir(project_dir)
 
-            project_dir = cookiecutter(project_tmplt)
-            copy_tree(project_dir, cwd)
-
-            echo(f"Project initialized in: {cwd}")
-
-        except Exception as ex:
-            echo("Project initiation failed: %s" % ex)
-            ctx.exit(1)
-
-        finally:
-            os.chdir(cwd)
-
-    subprocess.run(['git', 'init'], check=True)
-    subprocess.run(['git', 'add', '.'], check=True)
-    subprocess.run(['git', 'commit', '-m', 'initial commit'], check=True)
-    subprocess.run(['git', 'branch', '-M', 'main'], check=True)
-
-    echo(f"Project initialized and first commit done in: {cwd}")
+    cmd = "git init && git add . && git commit -m 'inital commit' && git branch -M main"
+    out, err, ret = run_cmd(cmd)
+    if ret != 0:
+        echo("Git commands failed, please ensure 'git' is installed.")
+        ctx.exit(1)

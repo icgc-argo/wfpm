@@ -29,11 +29,10 @@ from ..utils import run_cmd
 
 
 def new_cmd(ctx, pkg_type):
-    if not ctx.obj.get('PROJECT'):
+    project = ctx.obj['PROJECT']
+    if not project.root:
         echo("Not in a package project directory.")
         ctx.abort()
-    else:
-        project = ctx.obj['PROJECT']
 
     if project.root != os.getcwd():
         echo(f"Must run this command under the project root dir: {project.root}")
