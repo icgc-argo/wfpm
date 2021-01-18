@@ -51,7 +51,7 @@ setup(
         "Operating System :: OS Independent",
     ],
     install_requires=install_reqs,
-    python_requires='>=3.7',
+    python_requires='>=3.6',
     tests_require=tests_require,
     cmdclass={'test': PyTest},
     zip_safe=True,
