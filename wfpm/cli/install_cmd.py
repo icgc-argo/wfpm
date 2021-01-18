@@ -50,7 +50,7 @@ def install_cmd(ctx, pkgs, force, include_tests):
             echo(f"Failed to install package: {pkg}. {ex}")
             failed_pkgs.append(pkg)
 
-    else:  # install dependent packages(s) specified in pkg.json
+    if not pkgs:  # install dependent package(s) specified in pkg.json
         # TODO: retrieve dependencies from pkg.json
         pass
 
