@@ -26,16 +26,20 @@ process file_diff {
   container "{{ cookiecutter.container_registry }}/{{ cookiecutter.registry_account|lower }}/{{ cookiecutter._repo_name }}.{{ cookiecutter._pkg_name }}:${params.container_version ?: version}"
 
   input:
-    path file1
-    path file2
+    path output_file
+    path expected_gzip
 
   output:
     stdout()
 
   script:
     """
-    # TODO: remove date field before comparison
-    diff ${file1} ${file2} && ( echo "Test PASSED" && exit 0 ) || ( echo "Test FAILED, output file mismatch." && exit 1 )
+    # remove date field before comparison eg, <div id="header_filename">Tue 19 Jan 2021<br/>test_rg_3.bam</div>
+    # sed -e 's#"header_filename">.*<br/>test_rg_3.bam#"header_filename"><br/>test_rg_3.bam</div>#'
+
+    diff <( cat ${output_file} | sed -e 's#"header_filename">.*<br/>test_rg_3.bam#"header_filename"><br/>test_rg_3.bam</div>#' ) \
+         <( gunzip -c ${expected_gzip} | sed -e 's#"header_filename">.*<br/>test_rg_3.bam#"header_filename"><br/>test_rg_3.bam</div>#' ) \
+    && ( echo "Test PASSED" && exit 0 ) || ( echo "Test FAILED, output file mismatch." && exit 1 )
     """
 }
 
