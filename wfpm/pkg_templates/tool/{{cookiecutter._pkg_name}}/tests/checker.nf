@@ -34,6 +34,7 @@ process file_diff {
 
   script:
     """
+    # TODO: remove date field before comparison
     diff ${file1} ${file2} && ( echo "Test PASSED" && exit 0 ) || ( echo "Test FAILED, output file mismatch." && exit 1 )
     """
 }
