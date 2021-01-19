@@ -19,7 +19,9 @@
         Junjun Zhang <junjun.zhang@oicr.on.ca>
 """
 
+import os
 from click import echo
+from glob import glob
 from wfpm.package import Package
 from ..utils import test_package
 
@@ -46,6 +48,7 @@ def install_cmd(ctx, pkgs, force, include_tests):
                 force=force
             )
             echo(f"Package installed in: {path}")
+
             if include_tests:
                 test_package(path)
 
@@ -54,8 +57,30 @@ def install_cmd(ctx, pkgs, force, include_tests):
             failed_pkgs.append(pkg)
 
     if not pkgs:  # install dependent package(s) specified in pkg.json
-        # TODO: retrieve dependencies from pkg.json
-        pass
+        # first find all local packages
+        pkg_jsons = sorted(glob(os.path.join(project.root, '*', 'pkg.json')))
+        for pkg_json in pkg_jsons:
+            package = Package(pkg_json=pkg_json)
+            dependencies = package.dependencies
+            devDependencies = package.devDependencies
+
+            # TODO: some duplicated code with the above section, need cleanup
+            # TODO: improvement: gather all dependencies first and combine them into a unique set to avoid duplicated install
+            for dep_pkg_uri in dependencies + devDependencies:
+                package = Package(pkg_uri=dep_pkg_uri)
+                try:
+                    path = package.install(
+                        project.root,
+                        include_tests=include_tests,
+                        force=force
+                    )
+                    echo(f"Package installed in: {path}")
+                except Exception as ex:
+                    echo(f"Failed to install package: {dep_pkg_uri}. {ex}")
+                    failed_pkgs.append(dep_pkg_uri)
+
+                if include_tests:
+                    test_package(path)
 
     if failed_pkgs:
         ctx.exit(1)

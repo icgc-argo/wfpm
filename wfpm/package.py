@@ -21,6 +21,7 @@
 
 import os
 import re
+import json
 import requests
 import tempfile
 from wfpm import PKG_NAME_REGEX, PKG_VER_REGEX
@@ -65,12 +66,32 @@ class Package(object):
             repo_name=repo_name
         )
 
-        self.fullname = pkg_fullname
         self.name = name
         self.version = version
+        self.fullname = '@'.join([self.name, self.version])
 
-    def _init_by_json(self, json):
-        pass
+    def _init_by_json(self, pkg_json):
+        with open(pkg_json, 'r') as f:
+            pkg_dict = json.load(f)
+
+        _, _, repo_server, repo_account,repo_name = \
+            pkg_dict['repository']['url'].split('/')
+
+        self.project = Project(
+            repo_type='git',  # hardcode for now
+            repo_server=repo_server,
+            repo_account=repo_account,
+            repo_name=repo_name.split('.')[0]  # repo_name.git
+        )
+
+        self.name = pkg_dict['name']
+        self.version = pkg_dict['version']
+        self.fullname = '@'.join([self.name, self.version])
+
+        self.main = pkg_dict['main']
+
+        self.dependencies = pkg_dict['dependencies']
+        self.devDependencies = pkg_dict['devDependencies']
 
     def install(self, target_project_root, include_tests=False, force=False):
         target_path = os.path.join(
