@@ -21,6 +21,7 @@
 
 from click import echo
 from wfpm.package import Package
+from ..utils import test_package
 
 
 def install_cmd(ctx, pkgs, force, include_tests):
@@ -45,6 +46,8 @@ def install_cmd(ctx, pkgs, force, include_tests):
                 force=force
             )
             echo(f"Package installed in: {path}")
+            if include_tests:
+                test_package(path)
 
         except Exception as ex:
             echo(f"Failed to install package: {pkg}. {ex}")

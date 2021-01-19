@@ -21,6 +21,8 @@
 
 import os
 import subprocess
+from glob import glob
+from click import echo
 
 
 def locate_nearest_parent_dir_with_file(start_dir=None, filename=None):
@@ -57,3 +59,28 @@ def run_cmd(cmd):
         stderr.decode("utf-8").strip(),
         proc.returncode
     )
+
+
+def test_package(pkg_path):
+    test_path = os.path.join(pkg_path, 'tests')
+    job_files = sorted(glob(os.path.join(test_path, 'test-*.json')))
+    test_count = len(job_files)
+    failed_count = 0
+    for i in range(test_count):
+        cmd = f"cd {test_path} && ./checker.nf -params-file {job_files[i]}"
+        echo(f"[{i+1}/{test_count}] Testing: {job_files[i]}. ", nl=False)
+        out, err, ret = run_cmd(cmd)
+        if ret != 0:
+            failed_count += 1
+            echo(f"FAILED")
+            echo(f"STDOUT: {out}")
+            echo(f"STDERR: {err}")
+        else:
+            echo(f"PASSED")
+
+    if not test_count:
+        echo(f"No test to run.")
+
+    echo(f"Tested package: {os.path.basename(pkg_path)}, PASSED: {test_count - failed_count}, FAILED: {failed_count}")
+
+    return failed_count  # return number of failed tests

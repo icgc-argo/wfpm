@@ -22,7 +22,7 @@
 import os
 from glob import glob
 from click import echo
-from ..utils import run_cmd
+from ..utils import run_cmd, test_package
 
 
 def test_cmd(ctx):
@@ -59,28 +59,3 @@ def test_cmd(ctx):
     else:
         echo(f"Must run test under the project root dir or a package dir.")
         ctx.abort()
-
-
-def test_package(pkg_path):
-    test_path = os.path.join(pkg_path, 'tests')
-    job_files = sorted(glob(os.path.join(test_path, 'test-*.json')))
-    test_count = len(job_files)
-    pass_count = 0
-    for i in range(test_count):
-        cmd = f"cd {test_path} && ./checker.nf -params-file {job_files[i]}"
-        echo(f"[{i+1}/{test_count}] Test: {job_files[i]}. ", nl=False)
-        out, err, ret = run_cmd(cmd)
-        if ret != 0:
-            echo(f"FAILED")
-            echo(f"STDOUT: {out}")
-            echo(f"STDERR: {err}")
-        else:
-            pass_count += 1
-            echo(f"PASSED")
-
-    if not test_count:
-        echo(f"No test to run.")
-
-    echo(f"Package: {os.path.basename(pkg_path)}, PASSED: {pass_count}, FAILED: {test_count - pass_count}")
-
-    return test_count - pass_count  # return number of failed tests

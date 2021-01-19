@@ -8,10 +8,7 @@
     },
     "deprecated": false,
     "keywords": [
-        "bioinformatics",
-        "alignment",
-        "dna-seq",
-        "bwa"
+        "bioinformatics"
     ],
     "repository": {
         "type": "{{ cookiecutter._repo_type }}",
