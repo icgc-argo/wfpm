@@ -76,12 +76,13 @@ def init(ctx):
     'pkg_type', nargs=1,
     type=click.Choice(['tool', 'workflow', 'function'], case_sensitive=False)
 )
+@click.argument('pkg_name', nargs=1)
 @click.pass_context
-def new(ctx, pkg_type):
+def new(ctx, pkg_type, pkg_name):
     """
     Start a new package with necessary scaffolds.
     """
-    new_cmd(ctx, pkg_type)
+    new_cmd(ctx, pkg_type, pkg_name)
 
 
 @main.command()

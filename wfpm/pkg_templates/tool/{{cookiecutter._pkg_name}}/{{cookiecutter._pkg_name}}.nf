@@ -14,8 +14,8 @@ params.input_file = ""
 params.output_pattern = "*.html"  // fastqc output html report
 
 
-process {{ cookiecutter.pkg_name }} {
-  container "quay.io/icgc-argo/{{ cookiecutter.pkg_name }}:{{ cookiecutter.pkg_name }}.${params.container_version ?: version}"
+process {{ cookiecutter._process_name }} {
+  container "{{ cookiecutter.container_registry }}/{{ cookiecutter.registry_account|lower }}/{{ cookiecutter._repo_name }}.{{ cookiecutter._pkg_name }}:${params.container_version ?: version}"
   publishDir "${params.publish_dir}/${task.process.replaceAll(':', '_')}", mode: "copy", enabled: "${params.publish_dir ? true : ''}"
 
   cpus params.cpus
@@ -33,7 +33,7 @@ process {{ cookiecutter.pkg_name }} {
     """
     mkdir -p output_dir
 
-    {{ cookiecutter.pkg_name }}.py \
+    {{ cookiecutter._pkg_name }}.py \
       -i ${input_file} \
       -o output_dir
 

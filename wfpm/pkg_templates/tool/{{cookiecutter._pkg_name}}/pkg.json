@@ -1,0 +1,42 @@
+{
+    "name": "{{ cookiecutter._pkg_name }}",
+    "version": "{{ cookiecutter.pkg_version }}",
+    "description": "{{ cookiecutter.pkg_description }}",
+    "main": "{{ cookiecutter.main }}",
+    "scripts": {
+        "test": "wfpm test"
+    },
+    "deprecated": false,
+    "keywords": [
+        "bioinformatics",
+        "alignment",
+        "dna-seq",
+        "bwa"
+    ],
+    "repository": {
+        "type": "{{ cookiecutter._repo_type }}",
+        "url": "https://{{ cookiecutter._repo_server }}/{{ cookiecutter._repo_account }}/{{ cookiecutter._repo_name }}.git"
+    },
+    "container": {
+        "registries": [
+            {
+                "registry": "{{ cookiecutter.container_registry }}",
+                "type": "docker",
+                "org": "{{ cookiecutter.registry_account|lower }}",
+                "default": true
+            }
+        ]
+    },
+    "dependencies": [],
+    "devDependencies": [
+    ],
+    "contributors": [
+        {
+            "name": "{{ cookiecutter.full_name }}",
+            "email": "{{ cookiecutter.email }}"
+        }
+    ],
+    "license": "AGPL-3.0",
+    "bugReport": "https://{{ cookiecutter._repo_server }}/{{ cookiecutter._repo_account }}/{{ cookiecutter._repo_name }}/issues",
+    "homepage": "https://{{ cookiecutter._repo_server }}/{{ cookiecutter._repo_account }}/{{ cookiecutter._repo_name }}#readme"
+}

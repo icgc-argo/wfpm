@@ -15,6 +15,7 @@ jobs:
       pkg_name: ${{ steps.get_pkg_info.outputs.pkg_name }}
       pkg_ver: ${{ steps.get_pkg_info.outputs.pkg_ver }}
       docker_file: ${{ steps.get_pkg_info.outputs.docker_file }}
+      repo_lowercase: ${{ steps.repo_lowercase.outputs.lowercase }}
     steps:
     - uses: actions/checkout@v2
 
@@ -46,13 +47,10 @@ jobs:
         username: ${{ github.repository_owner }}
         password: ${{ secrets.CR_PAT }}
 
-    - name: Login to Quay.io Registry
-      if: ${{ steps.get_pkg_info.outputs.branch != 'main' && steps.get_pkg_info.outputs.docker_file != ''}}
-      uses: docker/login-action@v1
+    - id: repo_lowercase
+      uses: ASzc/change-string-case-action@v1
       with:
-        registry: quay.io
-        username: "icgc-argo+github_actions"
-        password: ${{ secrets.QAUY_RT }}
+        string: ${{ github.repository }}
 
     - name: Build image
       if: ${{ steps.get_pkg_info.outputs.branch != 'main' && steps.get_pkg_info.outputs.docker_file != ''}}
@@ -63,35 +61,17 @@ jobs:
         platforms: linux/amd64
         load: true
         tags: |
-          ghcr.io/${{ github.repository }}.${{ steps.get_pkg_info.outputs.pkg_name }}:${{ steps.get_pkg_info.outputs.pkg_ver }}
-          quay.io/${{ github.repository }}.${{ steps.get_pkg_info.outputs.pkg_name }}:${{ steps.get_pkg_info.outputs.pkg_ver }}
+          ghcr.io/${{ steps.repo_lowercase.outputs.lowercase }}.${{ steps.get_pkg_info.outputs.pkg_name }}:${{ steps.get_pkg_info.outputs.pkg_ver }}
 
     - name: Push image to ghcr.io
       id: push_to_ghcr
       if: ${{ steps.get_pkg_info.outputs.branch != 'main' && steps.get_pkg_info.outputs.docker_file != ''}}
       shell: bash
       run: |
-        docker push ghcr.io/${{ github.repository }}.${{ steps.get_pkg_info.outputs.pkg_name }}:${{ steps.get_pkg_info.outputs.pkg_ver }} | tee ./ghcr.io.stdout
+        docker push ghcr.io/${{ steps.repo_lowercase.outputs.lowercase }}.${{ steps.get_pkg_info.outputs.pkg_name }}:${{ steps.get_pkg_info.outputs.pkg_ver }} | tee ./ghcr.io.stdout
         IMAGE_SHA=$(cat ./ghcr.io.stdout | tr ' ' '\n' | grep 'sha256:' | awk -F':' '{print $2}')
         echo "::set-output name=image_sha256::$(echo ${IMAGE_SHA})"
         echo "::set-output name=created_at::$(date -u +%FT%TZ)"
-
-    - name: Push image to quay.io
-      id: push_to_quay
-      if: ${{ steps.get_pkg_info.outputs.branch != 'main' && steps.get_pkg_info.outputs.docker_file != ''}}
-      shell: bash
-      run: |
-        docker push quay.io/${{ github.repository }}.${{ steps.get_pkg_info.outputs.pkg_name }}:${{ steps.get_pkg_info.outputs.pkg_ver }} | tee ./quay.io.stdout
-        IMAGE_SHA=$(cat ./quay.io.stdout | tr ' ' '\n' | grep 'sha256:' | awk -F':' '{print $2}')
-        echo "::set-output name=image_sha256::$(echo ${IMAGE_SHA})"
-
-    - name: Compare image digests
-      if: ${{ steps.get_pkg_info.outputs.branch != 'main' && steps.get_pkg_info.outputs.docker_file != ''}}
-      run: |
-        if [[ "${{ steps.push_to_ghcr.outputs.image_sha256 }}" != "${{ steps.push_to_quay.outputs.image_sha256 }}" ]]; then
-          echo "This should not happen, but the image digests from ghcr.io and quay.io are different. See above push steps for details."
-          exit 1
-        fi
 
 
   test-and-release:
@@ -125,14 +105,6 @@ jobs:
         registry: ghcr.io
         username: ${{ github.repository_owner }}
         password: ${{ secrets.CR_PAT }}
-
-    - name: "Login to Quay.io Registry"  # normally shouldn't need to loging, but new image when just created is private
-      if: ${{ needs.build.outputs.branch != 'main' }}
-      uses: docker/login-action@v1
-      with:
-        registry: quay.io
-        username: "icgc-argo+github_actions"
-        password: ${{ secrets.QAUY_RT }}
 
     - name: Run tests for all packages
       if: ${{ needs.build.outputs.branch == 'main' }}
@@ -172,7 +144,7 @@ jobs:
         echo "::set-output name=pkg_ver::$(echo ${PKG_VER})"
         if [[ -f "./$PKG_NAME/Dockerfile" ]]; then
           echo "::set-output name=docker_file::$(echo ./$PKG_NAME/Dockerfile)"
-          echo "::set-output name=docker_image::$(echo ghcr.io/${{ github.repository }}.$PKG_NAME:$PKG_VER)"
+          echo "::set-output name=docker_image::$(echo ghcr.io/${{ needs.build.outputs.repo_lowercase }}.$PKG_NAME:$PKG_VER)"
         else
           echo "::set-output name=docker_file::"
           echo "::set-output name=docker_image::"

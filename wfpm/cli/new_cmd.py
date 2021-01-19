@@ -20,15 +20,17 @@
 """
 
 import os
+import re
 from click import echo
 from cookiecutter.main import cookiecutter
+from wfpm import PKG_NAME_REGEX
 from ..pkg_templates import tool_tmplt
 from ..pkg_templates import workflow_tmplt
 from ..pkg_templates import function_tmplt
 from ..utils import run_cmd
 
 
-def new_cmd(ctx, pkg_type):
+def new_cmd(ctx, pkg_type, pkg_name):
     project = ctx.obj['PROJECT']
     if not project.root:
         echo("Not in a package project directory.")
@@ -38,8 +40,28 @@ def new_cmd(ctx, pkg_type):
         echo(f"Must run this command under the project root dir: {project.root}")
         ctx.abort()
 
+    if not re.match(PKG_NAME_REGEX, pkg_name):
+        echo(f"'{pkg_name}' is not a valid package name, expected name pattern: '{PKG_NAME_REGEX}'")
+        ctx.abort()
+
+    if os.path.isdir(os.path.join(project.root, pkg_name)):
+        echo(f"Package '{ pkg_name }' already exists.")
+        ctx.abort()
+
+    name_parts = pkg_name.split('-')
+    process_name = ''.join([ p.capitalize() for p in name_parts ])
+    process_name = process_name[0].lower() + process_name[1:] 
+
     if pkg_type == 'tool':
-        path = cookiecutter(tool_tmplt)
+        extra_context = {
+            '_pkg_name': pkg_name,
+            '_repo_type': project.repo_type,
+            '_repo_server': project.repo_server,
+            '_repo_account': project.repo_account,
+            '_repo_name': project.name,
+            '_process_name': process_name
+        }
+        path = cookiecutter(tool_tmplt, extra_context=extra_context)
 
     elif pkg_type == 'workflow':
         path = cookiecutter(workflow_tmplt)

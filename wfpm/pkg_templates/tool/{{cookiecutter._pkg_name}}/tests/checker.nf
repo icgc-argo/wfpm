@@ -15,7 +15,7 @@ params.container_version = ""
 params.input_file = ""
 params.expected_output = ""
 
-include { {{ cookiecutter.pkg_name }} } from '../{{ cookiecutter.pkg_name }}'
+include { {{ cookiecutter._process_name }} } from '../{{ cookiecutter._pkg_name }}'
 
 Channel
   .fromPath(params.input_file, checkIfExists: true)
@@ -23,7 +23,7 @@ Channel
 
 
 process file_diff {
-  container "quay.io/icgc-argo/{{ cookiecutter.pkg_name }}:{{ cookiecutter.pkg_name }}.${params.container_version ?: version}"
+  container "{{ cookiecutter.container_registry }}/{{ cookiecutter.registry_account|lower }}/{{ cookiecutter._repo_name }}.{{ cookiecutter._pkg_name }}:${params.container_version ?: version}"
 
   input:
     path file1
@@ -45,12 +45,12 @@ workflow checker {
     expected_output
 
   main:
-    {{ cookiecutter.pkg_name }}(
+    {{ cookiecutter._process_name }}(
       input_file
     )
 
     file_diff(
-      {{ cookiecutter.pkg_name }}.out.output,
+      {{ cookiecutter._process_name }}.out.output,
       expected_output
     )
 }
