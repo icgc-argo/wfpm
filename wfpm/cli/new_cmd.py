@@ -59,6 +59,7 @@ def new_cmd(ctx, pkg_type, pkg_name):
             '_repo_server': project.repo_server,
             '_repo_account': project.repo_account,
             '_repo_name': project.name,
+            '_license': project.license,
             '_process_name': process_name
         }
         path = cookiecutter(tool_tmplt, extra_context=extra_context)
@@ -69,6 +70,9 @@ def new_cmd(ctx, pkg_type, pkg_name):
     elif pkg_type == 'function':
         echo("Not implemented yet")
         ctx.exit()
+
+    # post-process pkg.json
+    # TODO: we only accept one item for array fields (for now), need a way to handle multiple values
 
     # create symlinks for 'wfpr_modules'
     cmd = f"cd {path} && ln -s ../wfpr_modules && cd tests && ln -s ../wfpr_modules"

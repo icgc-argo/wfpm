@@ -26,6 +26,13 @@ from .utils import Singleton
 class Project(object):
     __metaclass__ = Singleton
 
+    name: str = None
+    fullname: str = None
+    license: str = None
+    repo_type: str = None
+    repo_server: str = None
+    repo_account: str = None
+
     def __init__(
         self,
         config=None,
@@ -39,6 +46,7 @@ class Project(object):
             self.root = config.root
             if self.root:
                 self.name = config.project_name
+                self.license = config.license
                 self.repo_type = config.repo_type
                 self.repo_server = config.repo_server
                 self.repo_account = config.repo_account

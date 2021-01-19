@@ -24,16 +24,15 @@
             }
         ]
     },
-    "dependencies": [],
-    "devDependencies": [
-    ],
+    "dependencies": ["{{ cookiecutter.dependencies }}"],
+    "devDependencies": ["{{ cookiecutter.devDependencies }}"],
     "contributors": [
         {
             "name": "{{ cookiecutter.full_name }}",
             "email": "{{ cookiecutter.email }}"
         }
     ],
-    "license": "AGPL-3.0",
+    "license": "{{ cookiecutter._license }}",
     "bugReport": "https://{{ cookiecutter._repo_server }}/{{ cookiecutter._repo_account }}/{{ cookiecutter._repo_name }}/issues",
     "homepage": "https://{{ cookiecutter._repo_server }}/{{ cookiecutter._repo_account }}/{{ cookiecutter._repo_name }}#readme"
 }

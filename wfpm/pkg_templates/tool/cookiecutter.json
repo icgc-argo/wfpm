@@ -9,9 +9,12 @@
     "container_registry": "ghcr.io",
     "_repo_account": "{{ cookiecutter._repo_account }}",
     "registry_account": "{{ cookiecutter._repo_account }}",
+    "dependencies": "",
+    "devDependencies": "",
     "_copy_without_render": ["*.html"],
     "_repo_type": "{{ cookiecutter._repo_type }}",
     "_repo_server": "{{ cookiecutter._repo_server }}",
     "_repo_name": "{{ cookiecutter._repo_name }}",
-    "_process_name": " cookiecutter._process_name "
+    "_process_name": " cookiecutter._process_name ",
+    "_license": "{{ cookiecutter._license }}"
 }

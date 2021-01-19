@@ -30,6 +30,7 @@ class Config(object):
     debug: bool = False
     root: str = None
     project_name: str = None
+    license: str = None
     repo_type: str = None
     repo_server: str = None
     repo_account: str = None
@@ -69,6 +70,7 @@ class Config(object):
             raise Exception(f"Invalid .wfpm file: {self.config_file}, expected fields: {', '.join(fields)}")
         else:
             self.project_name = conf['project_name']
+            self.license = conf['license']
             self.repo_type = conf['repo_type']
             self.repo_server = conf['repo_server']
             self.repo_account = conf['repo_account']

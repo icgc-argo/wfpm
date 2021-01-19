@@ -1,4 +1,5 @@
 project_name: {{ cookiecutter.project_slug }}
+license: {{ cookiecutter.open_source_license }}
 repo_type: git
 repo_server: github.com
 repo_account: {{ cookiecutter.github_account }}
