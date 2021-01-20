@@ -67,6 +67,9 @@ def install_cmd(ctx, pkgs, force, include_tests):
             # TODO: some duplicated code with the above section, need cleanup
             # TODO: improvement: gather all dependencies first and combine them into a unique set to avoid duplicated install
             for dep_pkg_uri in dependencies + devDependencies:
+                if not dep_pkg_uri:  # this shouldn't be necessary, but let's safeguard this for now
+                    continue
+
                 package = Package(pkg_uri=dep_pkg_uri)
                 try:
                     path = package.install(
