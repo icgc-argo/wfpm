@@ -53,7 +53,7 @@ workflow checker {
     )
 
     file_diff(
-      {{ cookiecutter._process_name }}.out.output,
+      {{ cookiecutter._process_name }}.out.output_file,
       expected_output
     )
 }

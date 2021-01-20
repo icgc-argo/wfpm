@@ -24,7 +24,7 @@ workflow {{ cookiecutter._process_name }} {
   main:
     fastqc(input_file)
 
-    cleanup(fastqc.out)
+    cleanup(fastqc.out, true)
 
   emit:
     output_file = fastqc.out.output
