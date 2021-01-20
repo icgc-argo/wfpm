@@ -1,0 +1,18 @@
+{
+    "full_name": "Your name",
+    "email": "you@example.com",
+    "_pkg_name": "{{ cookiecutter._pkg_name }}",
+    "pkg_version": "0.1.0",
+    "pkg_description": "FastQC workflow",
+    "main": "{{ cookiecutter._pkg_name }}",
+    "_repo_account": "{{ cookiecutter._repo_account }}",
+    "registry_account": "{{ cookiecutter._repo_account }}",
+    "dependencies": "github.com/icgc-tcga-pancancer/awesome-wfpkgs1/fastqc@0.1.0",
+    "devDependencies": "github.com/icgc-argo/demo-wfpkgs/demo-utils@1.1.0",
+    "_copy_without_render": ["*.gz"],
+    "_repo_type": "{{ cookiecutter._repo_type }}",
+    "_repo_server": "{{ cookiecutter._repo_server }}",
+    "_repo_name": "{{ cookiecutter._repo_name }}",
+    "_process_name": " cookiecutter._process_name ",
+    "_license": "{{ cookiecutter._license }}"
+}

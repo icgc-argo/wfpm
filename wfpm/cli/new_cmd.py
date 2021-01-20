@@ -50,7 +50,7 @@ def new_cmd(ctx, pkg_type, pkg_name):
 
     name_parts = pkg_name.split('-')
     process_name = ''.join([ p.capitalize() for p in name_parts ])
-    process_name = process_name[0].lower() + process_name[1:] 
+    process_name = process_name[0].lower() + process_name[1:]
 
     if pkg_type == 'tool':
         extra_context = {
@@ -65,7 +65,16 @@ def new_cmd(ctx, pkg_type, pkg_name):
         path = cookiecutter(tool_tmplt, extra_context=extra_context)
 
     elif pkg_type == 'workflow':
-        path = cookiecutter(workflow_tmplt)
+        extra_context = {
+            '_pkg_name': pkg_name,
+            '_repo_type': project.repo_type,
+            '_repo_server': project.repo_server,
+            '_repo_account': project.repo_account,
+            '_repo_name': project.name,
+            '_license': project.license,
+            '_process_name': process_name
+        }
+        path = cookiecutter(workflow_tmplt, extra_context=extra_context)
 
     elif pkg_type == 'function':
         echo("Not implemented yet")
