@@ -66,7 +66,10 @@ To update to the latest version, run `pip install --upgrade wfpm`
 
 To show usage information of WFPM CLI, just run `wfpm --help`.
 
-The following instructions will walk you through the steps to create and public a demo tool package.
+The following instructions will walk you through the steps to create and publish a demo tool package.
+Some demo packages created by WFPM CLI can be found
+[here](https://github.com/ICGC-TCGA-PanCancer/awesome-wfpkgs1) and
+[here](https://github.com/ICGC-TCGA-PanCancer/awesome-wfpkgs2) for your reference.
 
 1. Prepare a GitHub repository under an organization account
 
