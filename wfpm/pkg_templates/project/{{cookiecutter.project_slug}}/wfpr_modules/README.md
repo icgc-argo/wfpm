@@ -1,6 +1,6 @@
 # Workflow Package Installation Directory
 
-This directory contains all dependent workflow packages that are to be install by the package
+This directory contains all dependent workflow packages that are to be installed by the package
 management tool: [WFPM](https://github.com/icgc-argo/wfpm) (WorkFlow Package Manager). Please
 do NOT modify contents under this directory manually.
 
