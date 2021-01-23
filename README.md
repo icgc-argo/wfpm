@@ -80,8 +80,8 @@ https://github.com/ICGC-TCGA-PanCancer/awesome-wfpkgs2 for your reference.
 Before you start, please make sure you create a repository (with name at your choice, but in the demo let's
 use `awesome-wfpkgs1`) under a GitHub organization account (here we use `ICGC-TCGA-PanCancer`).
 This is because GitHub Container Registry (GHCR, ghcr.io) is not available for personal account. GHCR is
-currently in beta, you need to enable it under your organization profile by: select "Settings", then
-"Packages", finally select "Enable improved container support". We will be using ghcr.io registry to keep
+currently in beta, you need to enable it under your organization profile by: `Settings` =>
+`Packages` => `Enable improved container support`. We will be using ghcr.io registry to keep
 the container images created and used by the demo tool package.
 
 You also need to create a Personal Access Token (PAT) in order to access GitHub Container Registry,
@@ -153,11 +153,11 @@ passes, you can create a PR against the `main` branch.
 
 When you merge the above PR, as part of the comment, you may type a special
 instruction `[release]` to let GitHub Actions start the release process, as shown in
-the screenshot. With this GitHub will first merge the `fastqc@0.1.0` branch to the `main` branch,
+the screenshot below. With this GitHub will first merge the `fastqc@0.1.0` branch to the `main` branch,
 then starts the release process, once tests are successful, a release of your first tool package
 will be made automatically.
 
-![](https://raw.githubusercontent.com/icgc-argo/wfpm/xxxx/docs/merge-with-release.png)
+![](https://raw.githubusercontent.com/icgc-argo/wfpm/f4d9324216c0f39a54fa2f9867987f478b4bb634/docs/merge-with-release.png)
 
 
 The release should be available at: https://github.com/ICGC-TCGA-PanCancer/awesome-wfpkgs1/releases/tag/fastqc.0.1.0 and can be imported and used by anyone (of course including yourself) in their
