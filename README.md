@@ -215,7 +215,5 @@ a PR as usual.
 
 4. Publish your first workflow package
 
-When merge the PR, type the special instruction `[release]` to trigger the CI/CD release process
-via GitHub Actions. Once released, the demo workflow package will be available at:
-https://github.com/ICGC-TCGA-PanCancer/awesome-wfpkgs2/releases/tag/fastqc-wf.0.1.0
-
+When merge the PR, type the special instruction `[release]` in the comment (similar as in the previous demo)
+to trigger the CI/CD release process via GitHub Actions. Once released, the demo workflow package will be available at: https://github.com/ICGC-TCGA-PanCancer/awesome-wfpkgs2/releases/tag/fastqc-wf.0.1.0
