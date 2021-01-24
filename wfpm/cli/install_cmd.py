@@ -71,18 +71,20 @@ def install_cmd(ctx, pkgs, force, include_tests):
                     continue
 
                 package = Package(pkg_uri=dep_pkg_uri)
+                installed = False
                 try:
                     path = package.install(
                         project.root,
                         include_tests=include_tests,
                         force=force
                     )
+                    installed = True
                     echo(f"Package installed in: {path}")
                 except Exception as ex:
                     echo(f"Failed to install package: {dep_pkg_uri}. {ex}")
                     failed_pkgs.append(dep_pkg_uri)
 
-                if include_tests:
+                if include_tests and installed:
                     test_package(path)
 
     if failed_pkgs:

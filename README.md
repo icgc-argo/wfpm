@@ -201,6 +201,19 @@ workflow requires:
 * `github.com/icgc-tcga-pancancer/awesome-wfpkgs1/fastqc@0.1.0`
 * `github.com/icgc-argo/demo-wfpkgs/demo-utils@1.1.0`
 
+Install dependent packages so `fastqc-wf` workflow can import them.
+
+```
+wfpm install
+```
+
+The follow messages confirm the dependencies are installed properly:
+
+```
+Package installed in: /your_local_path/awesome-wfpkgs2/wfpr_modules/github.com/icgc-tcga-pancancer/awesome-wfpkgs1/fastqc@0.1.0
+Package installed in: /your_local_path/awesome-wfpkgs2/wfpr_modules/github.com/icgc-argo/demo-wfpkgs/demo-utils@1.1.0
+```
+
 Swith to a new branch named `fastqc-wf@0.1.0`, add the new files to git and push.
 
 ```
