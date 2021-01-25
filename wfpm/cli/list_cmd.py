@@ -19,10 +19,40 @@
         Junjun Zhang <junjun.zhang@oicr.on.ca>
 """
 
-
-import click
+import os
+from click import echo
+from glob import glob
+from wfpm.package import Package
 
 
 def list_cmd(ctx):
-    click.echo('To be implemented, check back soon.\n')
-    ctx.exit()
+    config = ctx.obj['CONFIG']
+    project = ctx.obj['PROJECT']
+    if not project.root:
+        echo("Not in a package project directory.")
+        ctx.abort()
+
+    packages = []
+
+    pkg_jsons = sorted(glob(os.path.join(project.root, '*', 'pkg.json')))
+    for pkg_json in pkg_jsons:
+        packages.append(
+            ('local', Package(pkg_json=pkg_json))
+        )
+
+    ins_dep_paths = sorted(glob(os.path.join(project.root, 'wfpr_modules/*/*/*/*')))
+    for ins_dep_path in ins_dep_paths:
+        pkg_uri = '/'.join(ins_dep_path.split(os.sep)[-4:])
+        packages.append(
+            ('dep', Package(pkg_uri=pkg_uri))
+        )
+
+    echo('\t'.join([
+        'TYPE',
+        'PKG_URI',
+    ]))
+    for pkg in packages:
+        echo('\t'.join([
+            pkg[0],
+            str(pkg[1]),
+        ]))
