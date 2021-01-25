@@ -92,7 +92,7 @@ def new(ctx, pkg_type, pkg_name):
 @click.pass_context
 def install(ctx, force, include_tests):
     """
-    Install packages.
+    Install dependent packages.
     """
     install_cmd(ctx, force, include_tests)
 
@@ -101,7 +101,7 @@ def install(ctx, force, include_tests):
 @click.pass_context
 def list(ctx):
     """
-    List installed packages.
+    List local and installed dependent packages.
     """
     list_cmd(ctx)
 
