@@ -19,7 +19,7 @@
         Junjun Zhang <junjun.zhang@oicr.on.ca>
 """
 
-__version__ = "0.4.5"
+__version__ = "0.4.6"
 
 PRJ_NAME_REGEX = r'^[a-z][0-9a-z\-]*[0-9a-z]+$'
 PKG_NAME_REGEX = r'^[a-z][0-9a-z\-]*[0-9a-z]+$'
