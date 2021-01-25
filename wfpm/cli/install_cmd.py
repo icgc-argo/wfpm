@@ -33,40 +33,38 @@ def install_cmd(ctx, force, include_tests):
         ctx.abort()
 
     failed_pkgs = []
-    if not False:  # install dependent package(s) specified in pkg.json
-        # first find all local packages
-        pkg_jsons = sorted(glob(os.path.join(project.root, '*', 'pkg.json')))
-        for pkg_json in pkg_jsons:
-            package = Package(pkg_json=pkg_json)
-            dependencies = package.dependencies
-            devDependencies = package.devDependencies
+    pkg_jsons = sorted(glob(os.path.join(project.root, '*', 'pkg.json')))
+    for pkg_json in pkg_jsons:
+        package = Package(pkg_json=pkg_json)
+        dependencies = package.dependencies
+        devDependencies = package.devDependencies
 
-            # TODO: some duplicated code with the above section, need cleanup
-            dep_pkgs = []
-            for dep_pkg_uri in dependencies + devDependencies:
-                if not pkg_uri_parser(dep_pkg_uri):  # make sure pkg_uri format is valid, although we don't use the return values
-                    continue
+        # TODO: some duplicated code with the above section, need cleanup
+        dep_pkgs = []
+        for dep_pkg_uri in dependencies + devDependencies:
+            if not pkg_uri_parser(dep_pkg_uri):  # make sure pkg_uri format is valid, although we don't use the return values
+                continue
 
-                if dep_pkg_uri not in dep_pkgs:
-                    dep_pkgs.append(dep_pkg_uri)
+            if dep_pkg_uri not in dep_pkgs:
+                dep_pkgs.append(dep_pkg_uri)
 
-            for dep_pkg_uri in dep_pkgs:
-                package = Package(pkg_uri=dep_pkg_uri)
-                installed = False
-                try:
-                    path = package.install(
-                        project.root,
-                        include_tests=include_tests,
-                        force=force
-                    )
-                    installed = True
-                    echo(f"Package installed in: {path.replace(os.path.join(os.getcwd(), ''), '')}")
-                except Exception as ex:
-                    echo(f"Failed to install package: {dep_pkg_uri}. {ex}")
-                    failed_pkgs.append(dep_pkg_uri)
+        for dep_pkg_uri in dep_pkgs:
+            package = Package(pkg_uri=dep_pkg_uri)
+            installed = False
+            try:
+                path = package.install(
+                    project.root,
+                    include_tests=include_tests,
+                    force=force
+                )
+                installed = True
+                echo(f"Package installed in: {path.replace(os.path.join(os.getcwd(), ''), '')}")
+            except Exception as ex:
+                echo(f"Failed to install package: {dep_pkg_uri}. {ex}")
+                failed_pkgs.append(dep_pkg_uri)
 
-                if include_tests and installed:
-                    test_package(path)
+            if include_tests and installed:
+                test_package(path)
 
     if failed_pkgs:
         ctx.exit(1)
