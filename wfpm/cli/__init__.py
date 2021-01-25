@@ -86,15 +86,15 @@ def new(ctx, pkg_type, pkg_name):
 
 
 @main.command()
-@click.argument('pkgs', nargs=-1, required=False)
+## diable this for now ## @click.argument('pkgs', nargs=-1, required=False)
 @click.option('--force', '-f', is_flag=True, help='Force installation even already installed.')
 @click.option('--include-tests', '-t', is_flag=True, help='Force installation even already installed.')
 @click.pass_context
-def install(ctx, pkgs, force, include_tests):
+def install(ctx, force, include_tests):
     """
     Install packages.
     """
-    install_cmd(ctx, pkgs, force, include_tests)
+    install_cmd(ctx, force, include_tests)
 
 
 @main.command()

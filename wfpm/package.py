@@ -26,7 +26,7 @@ import requests
 import tempfile
 from wfpm import PKG_NAME_REGEX, PKG_VER_REGEX
 from .project import Project
-from .utils import run_cmd
+from .utils import run_cmd, pkg_uri_parser
 
 
 class Package(object):
@@ -46,17 +46,9 @@ class Package(object):
 
     def _init_by_uri(self, pkg_uri):
         try:
-            repo_server, repo_account, repo_name, pkg_fullname = pkg_uri.split('/')
-            name, version = pkg_fullname.split('@')
-        except ValueError:
-            raise Exception(f"Invalid package uri: {pkg_uri}, expected format: "
-                            "repo_server/repo_account/repo_name/pkg_name@pkg_version")
-
-        if not re.match(PKG_NAME_REGEX, name):
-            raise Exception(f"Invalid package name: {name}, expected name pattern: {PKG_NAME_REGEX}")
-
-        if not re.match(PKG_VER_REGEX, version):
-            raise Exception(f"Invalid package version: {version}, expected version pattern: {PKG_VER_REGEX}")
+            repo_server, repo_account, repo_name, name, version = pkg_uri_parser(pkg_uri)
+        except Exception as ex:
+            raise Exception(f"Package uri error: {ex}")
 
         # create Project object
         self.project = Project(
@@ -104,7 +96,7 @@ class Package(object):
         )
 
         if os.path.isdir(target_path) and not force:
-            raise Exception(f"Pakcage already installed: {target_path}, skip unless force option is specified.")
+            raise Exception(f"Pakcage already installed: {target_path.replace(os.path.join(os.getcwd(), ''), '')}, skip unless force option is specified.")
 
         if force:
             out, err, ret = run_cmd(f"rm -fr {target_path}")  # remove possible previous installation

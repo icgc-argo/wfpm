@@ -67,3 +67,4 @@ docs/_build
 .nextflow*
 work
 outdir
+wfpr_modules/github.com/*/*/*/tests

@@ -92,9 +92,6 @@ def new_cmd(ctx, pkg_type, pkg_name):
         echo("Not implemented yet")
         ctx.exit()
 
-    # post-process pkg.json
-    # TODO: we only accept one item for array fields (for now), need a way to handle multiple values
-
     # create symlinks for 'wfpr_modules'
     cmd = f"cd {path} && ln -s ../wfpr_modules && cd tests && ln -s ../wfpr_modules"
     run_cmd(cmd)

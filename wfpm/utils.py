@@ -20,9 +20,12 @@
 """
 
 import os
+import re
 import subprocess
 from glob import glob
 from click import echo
+from typing import Tuple
+from wfpm import PKG_NAME_REGEX, PKG_VER_REGEX
 
 
 def locate_nearest_parent_dir_with_file(start_dir=None, filename=None):
@@ -84,3 +87,20 @@ def test_package(pkg_path):
     echo(f"Tested package: {os.path.basename(pkg_path)}, PASSED: {test_count - failed_count}, FAILED: {failed_count}")
 
     return failed_count  # return number of failed tests
+
+
+def pkg_uri_parser(pkg_uri) -> Tuple[str, str, str, str, str]:
+    try:
+        repo_server, repo_account, repo_name, pkg_fullname = pkg_uri.split('/')
+        name, version = pkg_fullname.split('@')
+    except ValueError:
+        raise Exception(f"Invalid package uri: {pkg_uri}, expected format: "
+                        "repo_server/repo_account/repo_name/pkg_name@pkg_version")
+
+    if not re.match(PKG_NAME_REGEX, name):
+        raise Exception(f"Invalid package name: {name}, expected name pattern: {PKG_NAME_REGEX}")
+
+    if not re.match(PKG_VER_REGEX, version):
+        raise Exception(f"Invalid package version: {version}, expected version pattern: {PKG_VER_REGEX}")
+
+    return repo_server, repo_account, repo_name, name, version
