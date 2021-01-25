@@ -23,7 +23,7 @@ import os
 from click import echo
 from glob import glob
 from wfpm.package import Package
-from ..utils import test_package
+from ..utils import test_package, pkg_uri_parser
 
 
 def install_cmd(ctx, pkgs, force, include_tests):
@@ -65,11 +65,15 @@ def install_cmd(ctx, pkgs, force, include_tests):
             devDependencies = package.devDependencies
 
             # TODO: some duplicated code with the above section, need cleanup
-            # TODO: improvement: gather all dependencies first and combine them into a unique set to avoid duplicated install
+            dep_pkgs = []
             for dep_pkg_uri in dependencies + devDependencies:
-                if not dep_pkg_uri:  # this shouldn't be necessary, but let's safeguard this for now
+                if not pkg_uri_parser(dep_pkg_uri):  # make sure pkg_uri format is valid, although we don't use the return values
                     continue
 
+                if dep_pkg_uri not in dep_pkgs:
+                    dep_pkgs.append(dep_pkg_uri)
+
+            for dep_pkg_uri in dep_pkgs:
                 package = Package(pkg_uri=dep_pkg_uri)
                 installed = False
                 try:
@@ -79,7 +83,7 @@ def install_cmd(ctx, pkgs, force, include_tests):
                         force=force
                     )
                     installed = True
-                    echo(f"Package installed in: {path}")
+                    echo(f"Package installed in: {path.replace(os.path.join(os.getcwd(), ''), '')}")
                 except Exception as ex:
                     echo(f"Failed to install package: {dep_pkg_uri}. {ex}")
                     failed_pkgs.append(dep_pkg_uri)
