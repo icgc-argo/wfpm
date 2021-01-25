@@ -26,37 +26,14 @@ from wfpm.package import Package
 from ..utils import test_package, pkg_uri_parser
 
 
-def install_cmd(ctx, pkgs, force, include_tests):
+def install_cmd(ctx, force, include_tests):
     project = ctx.obj['PROJECT']
     if not project.root:
         echo("Not in a package project directory.")
         ctx.abort()
 
     failed_pkgs = []
-    for pkg in pkgs:  # install command line specified package(s)
-        try:
-            package = Package(pkg_uri=pkg)
-        except Exception as ex:
-            echo(f"Failed to initial package: {pkg}. {ex}")
-            failed_pkgs.append(pkg)
-            continue
-
-        try:
-            path = package.install(
-                project.root,
-                include_tests=include_tests,
-                force=force
-            )
-            echo(f"Package installed in: {path}")
-
-            if include_tests:
-                test_package(path)
-
-        except Exception as ex:
-            echo(f"Failed to install package: {pkg}. {ex}")
-            failed_pkgs.append(pkg)
-
-    if not pkgs:  # install dependent package(s) specified in pkg.json
+    if not False:  # install dependent package(s) specified in pkg.json
         # first find all local packages
         pkg_jsons = sorted(glob(os.path.join(project.root, '*', 'pkg.json')))
         for pkg_json in pkg_jsons:
