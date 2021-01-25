@@ -39,7 +39,6 @@ def install_cmd(ctx, force, include_tests):
         dependencies = package.dependencies
         devDependencies = package.devDependencies
 
-        # TODO: some duplicated code with the above section, need cleanup
         dep_pkgs = []
         for dep_pkg_uri in dependencies + devDependencies:
             if not pkg_uri_parser(dep_pkg_uri):  # make sure pkg_uri format is valid, although we don't use the return values
