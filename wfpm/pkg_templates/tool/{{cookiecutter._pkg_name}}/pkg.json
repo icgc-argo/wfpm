@@ -7,9 +7,7 @@
         "test": "wfpm test"
     },
     "deprecated": false,
-    "keywords": [
-        "bioinformatics"
-    ],
+    "keywords": {{ cookiecutter.keywords.split(',') | tojson }},
     "repository": {
         "type": "{{ cookiecutter._repo_type }}",
         "url": "https://{{ cookiecutter._repo_server }}/{{ cookiecutter._repo_account }}/{{ cookiecutter._repo_name }}.git"
@@ -24,8 +22,8 @@
             }
         ]
     },
-    "dependencies": [],
-    "devDependencies": [],
+    "dependencies": {{ cookiecutter.dependencies.split(',') | tojson }},
+    "devDependencies": {{ cookiecutter.devDependencies.split(',') | tojson }},
     "contributors": [
         {
             "name": "{{ cookiecutter.full_name }}",

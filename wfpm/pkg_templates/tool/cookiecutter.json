@@ -4,6 +4,7 @@
     "_pkg_name": "{{ cookiecutter._pkg_name }}",
     "pkg_version": "0.1.0",
     "pkg_description": "FastQC tool",
+    "keywords": "bioinformatics, seq, qc metrics",
     "main": "{{ cookiecutter._pkg_name }}",
     "docker_base_image": "pegi3s/fastqc:0.11.9",
     "container_registry": "ghcr.io",
