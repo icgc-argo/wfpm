@@ -14,7 +14,7 @@ development via reusable packages.
 NOTE: WFPM CLI is in active development. More features, documentation and tutorials are coming.
 
 
-## Best practices we follow in scientific workflow development
+## Best practices for scientific workflow development
 
 * **Reproducible** - same input, same code, same result
   - containerize all software tools (including scripts, binary executables) and specific OS environment
@@ -22,23 +22,23 @@ NOTE: WFPM CLI is in active development. More features, documentation and tutori
 
 * **Portable** - run on different platforms, by different users
   - containerize all software tools (containerization appeared again, it is a good friend :blush:)
-  - use cross-platform workflow languages / orchestration systems, eg, Nextflow, WDL etc
+  - use cross-platform workflow languages and orchestration systems, eg, Nextflow, WDL etc
 
 * **Composable** - enable collaborative development
-  - break down big tasks into small tasks (each carried out by a small software tool / component)
-  - one tool / component per container image
+  - break down big tasks into small tasks (each carried out by a small software tool)
+  - one tool per container image
   - version and release independently every tool and its associated container image
 
 * **Findable** - easy to find by research community members
-  - register components / workflows in public tool registries, such as Dockstore, BioContainers etc
+  - register components and workflows in public tool registries, such as Dockstore, BioContainers etc
   - release workflow source code via GitHub Releases
 
 * **Testable** - deliver with high confidence
-  - must have tests for every tool / component / workflow
-  - configure / enable continuous integration testing
+  - must have tests for every tool, component and workflow
+  - configure and enable continuous integration testing
 
 
-## WFPM prerequisites
+## Prerequisites
 
 Please ensure the following prerequisites are met before moving on to installation.
 
@@ -70,8 +70,8 @@ To show usage information of WFPM CLI, run `wfpm --help`, or simply `wfpm`
 We present here step-by-step instructions how to use `wfpm` to create Nextflow DSL2 workflow packages.
 
 The packages created by the demo cases can be found at:
-https://github.com/ICGC-TCGA-PanCancer/awesome-wfpkgs1 and
-https://github.com/ICGC-TCGA-PanCancer/awesome-wfpkgs2 for your reference.
+[https://github.com/ICGC-TCGA-PanCancer/awesome-wfpkgs1](https://github.com/ICGC-TCGA-PanCancer/awesome-wfpkgs1) and
+[https://github.com/ICGC-TCGA-PanCancer/awesome-wfpkgs2](https://github.com/ICGC-TCGA-PanCancer/awesome-wfpkgs2) for your reference.
 
 ### Demo use case 1: create and publish a demo `tool` package
 
@@ -160,7 +160,8 @@ will be made automatically.
 ![](https://raw.githubusercontent.com/icgc-argo/wfpm/f4d9324216c0f39a54fa2f9867987f478b4bb634/docs/merge-with-release.png)
 
 
-The release should be available at: https://github.com/ICGC-TCGA-PanCancer/awesome-wfpkgs1/releases/tag/fastqc.0.1.0 and can be imported and used by anyone (of course including yourself) in their
+The release should be available at: [https://github.com/ICGC-TCGA-PanCancer/awesome-wfpkgs1/releases/tag/fastqc.0.1.0](https://github.com/ICGC-TCGA-PanCancer/awesome-wfpkgs1/releases/tag/fastqc.0.1.0)
+and can be imported and used by anyone (of course including yourself) in their
 workflows. How to do that? Please continue to the next demo use case.
 
 
@@ -168,7 +169,7 @@ workflows. How to do that? Please continue to the next demo use case.
 
 In this demo we will be creating a new `workflow` package that makes use of the `fastqc` tool package
 we created in demo use case 1 and another utility package published
-here: https://github.com/icgc-argo/demo-wfpkgs/releases/tag/demo-utils.1.1.0
+here: [https://github.com/icgc-argo/demo-wfpkgs/releases/tag/demo-utils.1.1.0](https://github.com/icgc-argo/demo-wfpkgs/releases/tag/demo-utils.1.1.0)
 
 1. Prepare anthor GitHub repository under an organization account
 
@@ -229,4 +230,4 @@ a PR as usual.
 4. Publish your first workflow package
 
 When merge the PR, type the special instruction `[release]` in the comment (similar as in the previous demo)
-to trigger the CI/CD release process via GitHub Actions. Once released, the demo workflow package will be available at: https://github.com/ICGC-TCGA-PanCancer/awesome-wfpkgs2/releases/tag/fastqc-wf.0.1.0
+to trigger the CI/CD release process via GitHub Actions. Once released, the demo workflow package will be available at: [https://github.com/ICGC-TCGA-PanCancer/awesome-wfpkgs2/releases/tag/fastqc-wf.0.1.0](https://github.com/ICGC-TCGA-PanCancer/awesome-wfpkgs2/releases/tag/fastqc-wf.0.1.0)
