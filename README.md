@@ -13,6 +13,9 @@ development via reusable packages.
 
 NOTE: WFPM CLI is in active development. More features, documentation and tutorials are coming.
 
+* Documentation: [https://wfpm.readthedocs.io/](https://wfpm.readthedocs.io/)
+* Source code: [https://github.com/icgc-argo/wfpm](https://github.com/icgc-argo/wfpm)
+
 
 ## Best practices for scientific workflow development
 

@@ -23,7 +23,7 @@ import wfpm
 # -- Project information -----------------------------------------------------
 
 project = 'WorkFlow Package Manager'
-copyright = '2021, Junjun Zhang'
+copyright = '2021, Ontario Institute for Cancer Research'
 author = 'Junjun Zhang'
 
 # The full version, including alpha/beta/rc tags
