@@ -15,7 +15,7 @@ params.container_version = ""
 params.input_file = ""
 params.expected_output = ""
 
-include { {{ cookiecutter._process_name }} } from '../{{ cookiecutter._pkg_name }}'
+include { {{ cookiecutter._name }} } from '../{{ cookiecutter._pkg_name }}'
 
 Channel
   .fromPath(params.input_file, checkIfExists: true)
@@ -50,12 +50,12 @@ workflow checker {
     expected_output
 
   main:
-    {{ cookiecutter._process_name }}(
+    {{ cookiecutter._name }}(
       input_file
     )
 
     file_diff(
-      {{ cookiecutter._process_name }}.out.output,
+      {{ cookiecutter._name }}.out.output,
       expected_output
     )
 }

@@ -77,6 +77,7 @@ def gen_project(
     project_tmplt=None,
     conf_json=None
 ) -> str:
+    conf_dict = {}
     if conf_json:
         conf_dict = json.load(conf_json)
         if "_copy_without_render" not in conf_dict:

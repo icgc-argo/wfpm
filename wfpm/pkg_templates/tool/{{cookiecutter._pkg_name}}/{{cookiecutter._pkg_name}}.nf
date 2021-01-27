@@ -14,7 +14,7 @@ params.input_file = ""
 params.output_pattern = "*.html"  // fastqc output html report
 
 
-process {{ cookiecutter._process_name }} {
+process {{ cookiecutter._name }} {
   container "{{ cookiecutter.container_registry }}/{{ cookiecutter.registry_account|lower }}/{{ cookiecutter._repo_name }}.{{ cookiecutter._pkg_name }}:${params.container_version ?: version}"
   publishDir "${params.publish_dir}/${task.process.replaceAll(':', '_')}", mode: "copy", enabled: "${params.publish_dir ? true : ''}"
 

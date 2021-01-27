@@ -2,7 +2,7 @@
     "name": "{{ cookiecutter._pkg_name }}",
     "version": "{{ cookiecutter.pkg_version }}",
     "description": "{{ cookiecutter.pkg_description }}",
-    "main": "{{ cookiecutter.main }}",
+    "main": "{{ cookiecutter._pkg_name }}",
     "scripts": {
         "test": "wfpm test"
     },
