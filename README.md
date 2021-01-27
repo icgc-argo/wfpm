@@ -133,14 +133,14 @@ can pretty much use the default values in the prompt to advance forward. Upon co
 you should see a message like `New package created in: fastqc`
 
 As part of the best practices, code for a new tool or a new version should be added to a
-particular branch named as `<tool_package_name>@<tool_package_version>`. To do so:
+particular branch named as `<tool_package_name>@<tool_package_version>`. Assume you used
+the default values for tool name (`fastqc`) and version (`0.1.0`), create the branch as follow:
 
 ```
 git checkout -b fastqc@0.1.0
 ```
 
-Assume you used the default values for tool name (`fastqc`) and version (`0.1.0`). Now, you can
-add the generated code to git, commit and push.
+Now, you can add the generated code to git, commit and push.
 
 ```
 git add .

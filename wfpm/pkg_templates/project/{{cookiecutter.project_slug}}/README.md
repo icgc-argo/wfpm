@@ -1,3 +1,3 @@
-# {{ cookiecutter.project_name }}
+# {{ cookiecutter.project_title }}
 
 Update this to describe your awesome project.

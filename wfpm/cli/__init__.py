@@ -59,8 +59,10 @@ def main(ctx, debug):
 
 
 @main.command()
+@click.option('--conf-json', '-c', type=click.File('rb'),
+              help='Optional config JSON with needed info to initialize a new project.')
 @click.pass_context
-def init(ctx):
+def init(ctx, conf_json):
     """
     Start a workflow package project with necessary scaffolds.
     """
@@ -68,7 +70,7 @@ def init(ctx):
         click.echo(f"Already under a project directory: {ctx.obj['PROJECT'].root}")
         ctx.abort()
 
-    init_cmd(ctx)
+    init_cmd(ctx, conf_json)
 
 
 @main.command()
@@ -77,12 +79,14 @@ def init(ctx):
     type=click.Choice(['tool', 'workflow', 'function'], case_sensitive=False)
 )
 @click.argument('pkg_name', nargs=1)
+@click.option('--conf-json', '-c', type=click.File('rb'),
+              help='Optional config JSON with needed info to create a new package.')
 @click.pass_context
-def new(ctx, pkg_type, pkg_name):
+def new(ctx, pkg_type, pkg_name, conf_json):
     """
     Start a new package with necessary scaffolds.
     """
-    new_cmd(ctx, pkg_type, pkg_name)
+    new_cmd(ctx, pkg_type, pkg_name, conf_json)
 
 
 @main.command()

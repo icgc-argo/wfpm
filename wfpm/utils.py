@@ -25,7 +25,7 @@ import subprocess
 from glob import glob
 from click import echo
 from typing import Tuple
-from wfpm import PKG_NAME_REGEX, PKG_VER_REGEX
+from wfpm import PRJ_NAME_REGEX, PKG_NAME_REGEX, PKG_VER_REGEX
 
 
 def locate_nearest_parent_dir_with_file(start_dir=None, filename=None):
@@ -104,3 +104,10 @@ def pkg_uri_parser(pkg_uri) -> Tuple[str, str, str, str, str]:
         raise Exception(f"Invalid package version: {version}, expected version pattern: {PKG_VER_REGEX}")
 
     return repo_server, repo_account, repo_name, name, version
+
+
+def validate_project_name(name):
+    if not re.match(PRJ_NAME_REGEX, name):
+        raise Exception(f"Name invalid, does not match the required pattern: {PRJ_NAME_REGEX}")
+
+    return True
