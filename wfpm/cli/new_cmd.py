@@ -34,7 +34,7 @@ from ..pkg_templates import function_tmplt
 from ..utils import run_cmd
 
 
-def new_cmd(ctx, pkg_type, pkg_name):
+def new_cmd(ctx, pkg_type, pkg_name, conf_json=None):
     project = ctx.obj['PROJECT']
     if not project.root:
         echo("Not in a package project directory.")
@@ -66,6 +66,8 @@ def new_cmd(ctx, pkg_type, pkg_name):
             '_license': project.license,
             '_process_name': process_name
         }
+
+        # TODO: take values from supplied conf_json
         path = gen_template(
                 tool_tmplt,
                 pkg_name=pkg_name,
@@ -82,6 +84,8 @@ def new_cmd(ctx, pkg_type, pkg_name):
             '_license': project.license,
             '_process_name': process_name
         }
+
+        # TODO: take values from supplied conf_json
         path = gen_template(
                 workflow_tmplt,
                 pkg_name=pkg_name,
