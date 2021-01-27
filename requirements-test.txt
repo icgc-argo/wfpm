@@ -5,3 +5,4 @@ flake8>=3.8.4
 sphinx==3.4.3
 sphinx_rtd_theme==0.5.1
 recommonmark>=0.7.1
+pytest-datafiles>=2.0
