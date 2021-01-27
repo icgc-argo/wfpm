@@ -19,8 +19,12 @@
         Junjun Zhang <junjun.zhang@oicr.on.ca>
 """
 
-__version__ = "0.5.2"
+import os
+import pytest
 
-PRJ_NAME_REGEX = r'^[a-z][0-9a-z\-]*[0-9a-z]+$'
-PKG_NAME_REGEX = r'^[a-z][0-9a-z\-]*[0-9a-z]+$'
-PKG_VER_REGEX = r'^[0-9]+\.[0-9]+\.[0-9]+(?:-[0-9a-z\.]+)?$'
+
+@pytest.fixture(scope="function")
+def workdir(tmpdir_factory):
+    dir = tmpdir_factory.mktemp("workdir")
+    os.chdir(dir)
+    return dir

@@ -24,6 +24,7 @@ import json
 import tempfile
 import random
 import string
+from pathlib import Path
 from shutil import copytree
 from click import echo
 from cookiecutter.main import cookiecutter
@@ -57,14 +58,16 @@ def init_cmd(ctx, conf_json=None):
     cmd = "git init && git add . && git commit -m 'inital commit' && git branch -M main && " \
           f"git remote add origin git@{config.repo_server}:{config.repo_account}/{config.project_name}.git"
 
+    os.chdir(Path(project_dir).parent)
+
     out, err, ret = run_cmd(cmd)
     if ret != 0:
         echo("Git commands failed, please ensure 'git' is installed.")
         ctx.exit(1)
     else:
         echo(
-            "Git repo initialized and first commit done. " + \
-            f"When ready, you may push to {config.repo_server} using:\n" + \
+            "Git repo initialized and first commit done. " +
+            f"When ready, you may push to {config.repo_server} using:\n" +
             "git push -u origin main"
         )
 
