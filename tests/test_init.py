@@ -37,12 +37,6 @@ def test_good_init(workdir, datafiles):
 
     result = runner.invoke(main, cli_option)
     assert "Project initialized in: github-repo" in result.output
-    assert result.exit_code == 0
-
-    # now we can run the same command again, but this time it should fail
-    result = runner.invoke(main, cli_option)
-    assert 'Failed to initialize the project. Error: "github-repo" directory already exists' in result.output
-    assert result.exit_code == 1
 
 
 @pytest.mark.datafiles(DATA_DIR)
@@ -54,4 +48,3 @@ def test_bad_init_01(workdir, datafiles):
     result = runner.invoke(main, cli_option)
     assert "Provided project_slug: 'Github-Repo' invalid" in result.output
     assert "Name invalid, does not match the required pattern" in result.output
-    assert result.exit_code == 1

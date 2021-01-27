@@ -66,8 +66,8 @@ def init_cmd(ctx, conf_json=None):
         ctx.exit(1)
     else:
         echo(
-            "Git repo initialized and first commit done. " + \
-            f"When ready, you may push to {config.repo_server} using:\n" + \
+            "Git repo initialized and first commit done. " +
+            f"When ready, you may push to {config.repo_server} using:\n" +
             "git push -u origin main"
         )
 
