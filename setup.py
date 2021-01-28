@@ -34,7 +34,7 @@ class PyTest(TestCommand):
 
 with open('requirements.txt') as f:
     install_reqs = f.read().splitlines()
-with open('requirements-test.txt') as f:
+with open('requirements-dev.txt') as f:
     tests_require = f.read().splitlines()
 
 
