@@ -22,7 +22,6 @@
 import os
 from pathlib import Path
 from click import echo
-from glob import glob
 from wfpm.package import Package
 from ..utils import test_package, pkg_uri_parser
 
@@ -41,38 +40,47 @@ def install_cmd(ctx, force, include_tests):
         echo("Not in a package directory, 'pkg.json' not found in the current direcotry.")
         ctx.abort()
 
+    pkg_json = os.path.join(os.getcwd(), 'pkg.json')
+    package = Package(pkg_json=pkg_json)
+    dependencies = package.dependencies
+    devDependencies = package.devDependencies
+
+    dep_pkgs = []
+    bad_dep_pkgs = []
+    for dep_pkg_uri in dependencies + devDependencies:
+        try:
+            pkg_uri_parser(dep_pkg_uri)   # make sure pkg_uri format is valid, although we don't use the return values
+        except Exception as ex:
+            echo(f"Invalid dependency: {dep_pkg_uri}. Message: {ex}")
+            if dep_pkg_uri not in bad_dep_pkgs:
+                bad_dep_pkgs.append(dep_pkg_uri)
+            continue
+
+        if dep_pkg_uri not in dep_pkgs:
+            dep_pkgs.append(dep_pkg_uri)
+
+    if bad_dep_pkgs:
+        echo("Unable to proceed with dependency installation. Check message above.")
+        ctx.exit(1)
+
     failed_pkgs = []
-    pkg_jsons = sorted(glob(os.path.join(os.getcwd(), 'pkg.json')))   # only look at the current dir
-    for pkg_json in pkg_jsons:
-        package = Package(pkg_json=pkg_json)
-        dependencies = package.dependencies
-        devDependencies = package.devDependencies
+    for dep_pkg_uri in dep_pkgs:
+        package = Package(pkg_uri=dep_pkg_uri)
+        installed = False
+        try:
+            path = package.install(
+                project.root,
+                include_tests=include_tests,
+                force=force
+            )
+            installed = True
+            echo(f"Package installed in: {path.replace(os.path.join(os.getcwd(), ''), '')}")
+        except Exception as ex:
+            echo(f"Failed to install package: {dep_pkg_uri}. {ex}")
+            failed_pkgs.append(dep_pkg_uri)
 
-        dep_pkgs = []
-        for dep_pkg_uri in dependencies + devDependencies:
-            if not pkg_uri_parser(dep_pkg_uri):  # make sure pkg_uri format is valid, although we don't use the return values
-                continue
-
-            if dep_pkg_uri not in dep_pkgs:
-                dep_pkgs.append(dep_pkg_uri)
-
-        for dep_pkg_uri in dep_pkgs:
-            package = Package(pkg_uri=dep_pkg_uri)
-            installed = False
-            try:
-                path = package.install(
-                    project.root,
-                    include_tests=include_tests,
-                    force=force
-                )
-                installed = True
-                echo(f"Package installed in: {path.replace(os.path.join(os.getcwd(), ''), '')}")
-            except Exception as ex:
-                echo(f"Failed to install package: {dep_pkg_uri}. {ex}")
-                failed_pkgs.append(dep_pkg_uri)
-
-            if include_tests and installed:
-                test_package(path)
+        if include_tests and installed:
+            test_package(path)
 
     if failed_pkgs:
         ctx.exit(1)
