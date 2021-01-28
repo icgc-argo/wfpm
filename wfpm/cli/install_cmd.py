@@ -20,6 +20,7 @@
 """
 
 import os
+from pathlib import Path
 from click import echo
 from glob import glob
 from wfpm.package import Package
@@ -32,8 +33,16 @@ def install_cmd(ctx, force, include_tests):
         echo("Not in a package project directory.")
         ctx.abort()
 
+    if str(Path(os.getcwd()).parent) != project.root:
+        echo("Not in a package directory.")
+        ctx.abort()
+
+    if not os.path.isfile('pkg.json'):
+        echo("Not in a package directory, 'pkg.json' not found in the current direcotry.")
+        ctx.abort()
+
     failed_pkgs = []
-    pkg_jsons = sorted(glob(os.path.join(project.root, '*', 'pkg.json')))
+    pkg_jsons = sorted(glob(os.path.join(os.getcwd(), 'pkg.json')))   # only look at the current dir
     for pkg_json in pkg_jsons:
         package = Package(pkg_json=pkg_json)
         dependencies = package.dependencies
