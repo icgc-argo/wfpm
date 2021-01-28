@@ -1,0 +1,12 @@
+{
+    "full_name": "Junjun Zhang",
+    "email": "junjun.ca@gmail.com",
+    "pkg_version": "0.1.0",
+    "pkg_description": "FastQC tool",
+    "keywords": "bioinformatics, seq, qc metrics",
+    "docker_base_image": "pegi3s/fastqc:0.11.9",
+    "container_registry": "ghcr.io",
+    "registry_account": "{{ cookiecutter._repo_account }}",
+    "dependencies": "",
+    "devDependencies": ""
+}

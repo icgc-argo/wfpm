@@ -119,8 +119,6 @@ def gen_template(
     """
     conf_dict = {}
     if conf_json:
-        """
-        """
         conf_dict = json.load(conf_json)
         if "_copy_without_render" not in conf_dict:
             conf_dict["_copy_without_render"] = ["*.gz"]

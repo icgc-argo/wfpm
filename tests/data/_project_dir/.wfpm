@@ -1,0 +1,5 @@
+project_name: github-repo
+license: MIT
+repo_type: git
+repo_server: github.com
+repo_account: github-account

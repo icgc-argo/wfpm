@@ -22,6 +22,7 @@
 import os
 import pytest
 from pathlib import Path
+from shutil import copytree
 from click.testing import CliRunner
 from wfpm.cli import main
 
@@ -30,21 +31,15 @@ DATA_DIR = os.path.join(TEST_DIR, 'data')
 
 
 @pytest.mark.datafiles(DATA_DIR)
-def test_good_init(workdir, datafiles):
+def test_good_new_workflow(workdir, datafiles):
+    # copy _project_dir to under workdir, then make it cwd
+    copytree(os.path.join(datafiles, '_project_dir'), os.path.join(workdir, '_project_dir'))
+    os.chdir(os.path.join(workdir, '_project_dir'))
+    print(os.getcwd())
+
     runner = CliRunner()
-    conf_json = os.path.join(datafiles, 'init', 'good', 'conf.json')
-    cli_option = ['init', '-c', conf_json]
+    conf_json = os.path.join(datafiles, 'new_workflow', 'good', 'conf.json')
+    cli_option = ['new', 'workflow', 'fastqc-wf', '-c', conf_json]
 
     result = runner.invoke(main, cli_option)
-    assert "Project initialized in: github-repo" in result.output
-
-
-@pytest.mark.datafiles(DATA_DIR)
-def test_bad_init_01(workdir, datafiles):
-    runner = CliRunner()
-    conf_json = os.path.join(datafiles, 'init', 'bad', '01.conf.json')
-    cli_option = ['init', '-c', conf_json]
-
-    result = runner.invoke(main, cli_option)
-    assert "Provided project_slug: 'Github-Repo' invalid" in result.output
-    assert "Name invalid, does not match the required pattern" in result.output
+    assert "New package created in: fastqc-wf" in result.output
