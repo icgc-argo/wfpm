@@ -17,7 +17,7 @@ include { fastqc } from "./wfpr_modules/github.com/icgc-tcga-pancancer/awesome-w
 include { cleanupWorkdir as cleanup } from "./wfpr_modules/github.com/icgc-argo/demo-wfpkgs/demo-utils@1.1.0/main"
 
 
-workflow {{ cookiecutter._process_name }} {
+workflow {{ cookiecutter._name }} {
   take:  // input, make update as needed
     input_file
 

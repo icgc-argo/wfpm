@@ -23,6 +23,8 @@ import os
 import re
 import json
 import tempfile
+import random
+import string
 from shutil import copytree
 from collections import OrderedDict
 from click import echo
@@ -53,8 +55,8 @@ def new_cmd(ctx, pkg_type, pkg_name, conf_json=None):
         ctx.abort()
 
     name_parts = pkg_name.split('-')
-    process_name = ''.join([ p.capitalize() for p in name_parts ])
-    process_name = process_name[0].lower() + process_name[1:]
+    workflow_name = ''.join([ p.capitalize() for p in name_parts ])  # workflow name starts with upper
+    process_name = workflow_name[0].lower() + workflow_name[1:]  # tool/function name starts with lower
 
     if pkg_type == 'tool':
         extra_context = {
@@ -64,14 +66,15 @@ def new_cmd(ctx, pkg_type, pkg_name, conf_json=None):
             '_repo_account': project.repo_account,
             '_repo_name': project.name,
             '_license': project.license,
-            '_process_name': process_name
+            '_name': process_name
         }
 
-        # TODO: take values from supplied conf_json
         path = gen_template(
-                tool_tmplt,
+                ctx,
+                template=tool_tmplt,
                 pkg_name=pkg_name,
                 extra_context=extra_context,
+                conf_json=conf_json
             )
 
     elif pkg_type == 'workflow':
@@ -82,14 +85,15 @@ def new_cmd(ctx, pkg_type, pkg_name, conf_json=None):
             '_repo_account': project.repo_account,
             '_repo_name': project.name,
             '_license': project.license,
-            '_process_name': process_name
+            '_name': workflow_name
         }
 
-        # TODO: take values from supplied conf_json
         path = gen_template(
-                workflow_tmplt,
+                ctx,
+                template=workflow_tmplt,
                 pkg_name=pkg_name,
                 extra_context=extra_context,
+                conf_json=conf_json
             )
 
     elif pkg_type == 'function':
@@ -103,21 +107,53 @@ def new_cmd(ctx, pkg_type, pkg_name, conf_json=None):
 
 
 def gen_template(
-    template,
+    ctx,
+    template=None,
     pkg_name=None,
     extra_context=None,
-    no_input=False,
+    conf_json=None
 ):
     """
     generate template in a temp dir by calling cookiecutter, then perform necessary post-gen
     check and processing, finally copy the template into the current project root dir
     """
+    conf_dict = {}
+    if conf_json:
+        conf_dict = json.load(conf_json)
+        if "_copy_without_render" not in conf_dict:
+            conf_dict["_copy_without_render"] = ["*.gz"]
+
+        # TODO: validate of user supplied config JSON
+
+        hidden_fields = {
+            "_pkg_name": "{{ cookiecutter._pkg_name }}",
+            "_repo_account": "{{ cookiecutter._repo_account }}",
+            "_repo_type": "{{ cookiecutter._repo_type }}",
+            "_repo_server": "{{ cookiecutter._repo_server }}",
+            "_repo_name": "{{ cookiecutter._repo_name }}",
+            "_name": "{{ cookiecutter._name }}",
+            "_license": "{{ cookiecutter._license }}",
+            "_copy_without_render": ["*.gz"]
+        }
+
+        conf_dict = {**conf_dict, **hidden_fields}
+
     with tempfile.TemporaryDirectory() as tmpdirname:
+        # copy template directory tree to under tmpdir so that we can replace cookiecutter.json when needed
+        dirname = ''.join(random.choice(string.ascii_letters) for i in range(20))
+        new_tmplt_dir = os.path.join(tmpdirname, dirname)
+        copytree(template, new_tmplt_dir)
+
+        if conf_dict:
+            # replace the default cookiecutter.json with user supplied
+            with open(os.path.join(new_tmplt_dir, 'cookiecutter.json'), 'w') as j:
+                json.dump(conf_dict, j)
+
         path = cookiecutter(
                 template=template,
                 extra_context=extra_context,
                 output_dir=tmpdirname,
-                no_input=no_input
+                no_input=True
             )
 
         # fix the list fields in pkg.json

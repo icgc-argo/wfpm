@@ -5,17 +5,16 @@
     "pkg_version": "0.1.0",
     "pkg_description": "FastQC tool",
     "keywords": "bioinformatics, seq, qc metrics",
-    "main": "{{ cookiecutter._pkg_name }}",
     "docker_base_image": "pegi3s/fastqc:0.11.9",
     "container_registry": "ghcr.io",
     "_repo_account": "{{ cookiecutter._repo_account }}",
     "registry_account": "{{ cookiecutter._repo_account }}",
     "dependencies": "",
     "devDependencies": "",
-    "_copy_without_render": ["*.html"],
     "_repo_type": "{{ cookiecutter._repo_type }}",
     "_repo_server": "{{ cookiecutter._repo_server }}",
     "_repo_name": "{{ cookiecutter._repo_name }}",
-    "_process_name": " cookiecutter._process_name ",
-    "_license": "{{ cookiecutter._license }}"
+    "_name": "{{ cookiecutter._name }}",
+    "_license": "{{ cookiecutter._license }}",
+    "_copy_without_render": ["*.gz"]
 }
