@@ -20,10 +20,12 @@
 """
 
 import os
+import networkx as nx
 from pathlib import Path
 from click import echo
 from wfpm.package import Package
-from ..utils import test_package, pkg_uri_parser
+from wfpm.dependency import build_dep_graph
+from ..utils import test_package
 
 
 def install_cmd(ctx, force, include_tests):
@@ -42,26 +44,9 @@ def install_cmd(ctx, force, include_tests):
 
     pkg_json = os.path.join(os.getcwd(), 'pkg.json')
     package = Package(pkg_json=pkg_json)
-    dependencies = package.dependencies
-    devDependencies = package.devDependencies
 
-    dep_pkgs = []
-    bad_dep_pkgs = []
-    for dep_pkg_uri in dependencies + devDependencies:
-        try:
-            pkg_uri_parser(dep_pkg_uri)   # make sure pkg_uri format is valid, although we don't use the return values
-        except Exception as ex:
-            echo(f"Invalid dependency: {dep_pkg_uri}. Message: {ex}")
-            if dep_pkg_uri not in bad_dep_pkgs:
-                bad_dep_pkgs.append(dep_pkg_uri)
-            continue
-
-        if dep_pkg_uri not in dep_pkgs:
-            dep_pkgs.append(dep_pkg_uri)
-
-    if bad_dep_pkgs:
-        echo("Unable to proceed with dependency installation. Check message above.")
-        ctx.exit(1)
+    dep_graph = build_dep_graph(package)
+    dep_pkgs = list(nx.topological_sort(dep_graph))[1:]  # exclude the first one which is the starting package
 
     failed_pkgs = []
     for dep_pkg_uri in dep_pkgs:

@@ -23,11 +23,23 @@ import os
 import json
 import requests
 import tempfile
+from typing import Set
 from .project import Project
 from .utils import run_cmd, pkg_uri_parser
 
 
 class Package(object):
+    name: str = None
+    version: str = None
+    fullname: str = None
+    pkg_uri: str = None
+    download_url: str = None
+    pkg_tar: str = None
+    main: str = None
+    dependencies: Set[str] = set()
+    devDependencies: Set[str] = set()
+    allDependencies: Set[str] = set()
+
     def __init__(self, pkg_uri=None, pkg_json=None):
         if pkg_uri and pkg_json:
             raise Exception("Cannot specify both pkg_uri and pkg_json")
@@ -41,6 +53,7 @@ class Package(object):
         self.pkg_uri = f"{self.project.fullname}/{self.fullname}"
         pkg_tar = self.fullname.replace('@', '.')
         self.download_url = f"https://{self.project.fullname}/releases/download/{pkg_tar}/{pkg_tar}.tar.gz"
+        self.pkg_tar = f"{pkg_tar}.tar.gz"
 
     def _init_by_uri(self, pkg_uri):
         try:
@@ -59,6 +72,9 @@ class Package(object):
         self.name = name
         self.version = version
         self.fullname = '@'.join([self.name, self.version])
+
+        # TODO: download pkg-release.json from github release asset and parse it to get
+        # addition info
 
     def _init_by_json(self, pkg_json):
         with open(pkg_json, 'r') as f:
@@ -80,8 +96,7 @@ class Package(object):
 
         self.main = pkg_dict['main']
 
-        self.dependencies = pkg_dict['dependencies']
-        self.devDependencies = pkg_dict['devDependencies']
+        self._init_deps(pkg_dict['dependencies'], pkg_dict['devDependencies'])
 
     def install(self, target_project_root, include_tests=False, force=False):
         target_path = os.path.join(
@@ -131,3 +146,34 @@ class Package(object):
 
     def __repr__(self):
         return self.pkg_uri
+
+    def _init_deps(self, dependencies=[], devDependencies=[]):
+        # some basic validation
+        if len(dependencies) != len(set(dependencies)):
+            raise Exception(f"Duplicated dependencies found: {', '.join(dependencies)}")
+        else:
+            dependencies = set(dependencies)
+
+        if len(devDependencies) != len(set(devDependencies)):
+            raise Exception(f"Duplicated devDependencies found: {', '.join(dependencies)}")
+        else:
+            devDependencies = set(devDependencies)
+
+        if dependencies.intersection(devDependencies):
+            raise Exception("Dependency duplicated in 'dependencies' and 'devDependencies': "
+                            f"{ ', '.join(dependencies.intersection(devDependencies)) }")
+
+        allDependencies = dependencies.union(devDependencies)
+
+        for dep_pkg_uri in allDependencies:
+            try:
+                pkg_uri_parser(dep_pkg_uri)   # make sure pkg_uri format is valid, although we don't use the return values
+            except Exception as ex:
+                raise Exception(f"Invalid dependency: {dep_pkg_uri}. Message: {ex}")
+
+        self.dependencies = dependencies
+        self.devDependencies = devDependencies
+
+        # at this stage, let's just treat all dependencies the same way,
+        # later may need to handle devDep differently
+        self.allDependencies = self.dependencies.union(self.devDependencies)
