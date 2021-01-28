@@ -22,7 +22,7 @@
 import os
 from glob import glob
 from click import echo
-from ..utils import run_cmd, test_package
+from ..utils import test_package
 
 
 def test_cmd(ctx):
@@ -57,5 +57,5 @@ def test_cmd(ctx):
             ctx.exit(1)  # signal failure
 
     else:
-        echo(f"Must run test under the project root dir or a package dir.")
+        echo("Must run test under the project root dir or a package dir.")
         ctx.abort()

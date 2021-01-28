@@ -55,7 +55,7 @@ def new_cmd(ctx, pkg_type, pkg_name, conf_json=None):
         ctx.abort()
 
     name_parts = pkg_name.split('-')
-    workflow_name = ''.join([ p.capitalize() for p in name_parts ])  # workflow name starts with upper
+    workflow_name = ''.join([p.capitalize() for p in name_parts])  # workflow name starts with upper
     process_name = workflow_name[0].lower() + workflow_name[1:]  # tool/function name starts with lower
 
     if pkg_type == 'tool':

@@ -26,7 +26,6 @@ from wfpm.package import Package
 
 
 def list_cmd(ctx):
-    config = ctx.obj['CONFIG']
     project = ctx.obj['PROJECT']
     if not project.root:
         echo("Not in a package project directory.")

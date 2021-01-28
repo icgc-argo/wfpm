@@ -19,7 +19,6 @@
         Junjun Zhang <junjun.zhang@oicr.on.ca>
 """
 
-import os
 import click
 from wfpm import __version__ as ver
 from .init_cmd import init_cmd
@@ -90,7 +89,7 @@ def new(ctx, pkg_type, pkg_name, conf_json):
 
 
 @main.command()
-## diable this for now ## @click.argument('pkgs', nargs=-1, required=False)
+# diable this for now ## @click.argument('pkgs', nargs=-1, required=False)
 @click.option('--force', '-f', is_flag=True, help='Force installation even already installed.')
 @click.option('--include-tests', '-t', is_flag=True, help='Force installation even already installed.')
 @click.pass_context

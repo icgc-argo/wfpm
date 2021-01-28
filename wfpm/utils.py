@@ -75,14 +75,14 @@ def test_package(pkg_path):
         out, err, ret = run_cmd(cmd)
         if ret != 0:
             failed_count += 1
-            echo(f"FAILED")
+            echo("FAILED")
             echo(f"STDOUT: {out}")
             echo(f"STDERR: {err}")
         else:
-            echo(f"PASSED")
+            echo("PASSED")
 
     if not test_count:
-        echo(f"No test to run.")
+        echo("No test to run.")
 
     echo(f"Tested package: {os.path.basename(pkg_path)}, PASSED: {test_count - failed_count}, FAILED: {failed_count}")
 

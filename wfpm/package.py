@@ -20,11 +20,9 @@
 """
 
 import os
-import re
 import json
 import requests
 import tempfile
-from wfpm import PKG_NAME_REGEX, PKG_VER_REGEX
 from .project import Project
 from .utils import run_cmd, pkg_uri_parser
 
@@ -66,7 +64,7 @@ class Package(object):
         with open(pkg_json, 'r') as f:
             pkg_dict = json.load(f)
 
-        _, _, repo_server, repo_account,repo_name = \
+        _, _, repo_server, repo_account, repo_name = \
             pkg_dict['repository']['url'].split('/')
 
         self.project = Project(
@@ -96,7 +94,8 @@ class Package(object):
         )
 
         if os.path.isdir(target_path) and not force:
-            raise Exception(f"Pakcage already installed: {target_path.replace(os.path.join(os.getcwd(), ''), '')}, skip unless force option is specified.")
+            raise Exception(f"Pakcage already installed: {target_path.replace(os.path.join(os.getcwd(), ''), '')}, "
+                            "skip unless force option is specified.")
 
         if force:
             out, err, ret = run_cmd(f"rm -fr {target_path}")  # remove possible previous installation
