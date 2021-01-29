@@ -21,10 +21,10 @@
 
 import os
 import json
+import yaml
 import tempfile
 import random
 import string
-from pathlib import Path
 from shutil import copytree
 from click import echo
 from cookiecutter.main import cookiecutter
@@ -50,13 +50,11 @@ def init_cmd(ctx, conf_json=None):
         echo(f"Failed to initialize the project. {ex}")
         ctx.abort()
 
-    os.chdir(project_dir)
+    with open(os.path.join(project_dir, '.wfpm'), 'r') as c:
+        conf = yaml.safe_load(c)
 
-    # project initialized, now can get config from .wfpm file
-    config = Config()
-
-    cmd = f"git init && git add . && git commit -m 'inital commit' && git branch -M main && " \
-          f"git remote add origin git@{config.repo_server}:{config.repo_account}/{config.project_name}.git"
+    cmd = f"cd {project_dir} && git init && git add . && git commit -m 'inital commit' && git branch -M main && " \
+          f"git remote add origin git@{conf['repo_server']}:{conf['repo_account']}/{conf['project_name']}.git"
 
     out, err, ret = run_cmd(cmd)
     if ret != 0:
@@ -68,8 +66,6 @@ def init_cmd(ctx, conf_json=None):
             f"When ready, you may push to {config.repo_server} using:\n" +
             "git push -u origin main"
         )
-
-    os.chdir(Path(project_dir).parent)
 
 
 def gen_project(
