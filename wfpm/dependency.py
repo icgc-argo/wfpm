@@ -26,16 +26,18 @@ from .package import Package
 def build_dep_graph(
     start_pkg: Package = None,
     DG=nx.DiGraph(),
-    start_pkgs=set()
+    start_pkg_uris=set()
 ) -> nx.DiGraph:
-    if start_pkg not in start_pkgs:
-        for dep in start_pkg.allDependencies:
-            DG.add_edge(start_pkg.fullname, dep)
-            # TODO: find dependencies of the current dep package, will need recursion here
-            pkg = Package(pkg_uri=dep)
-            for d in pkg.allDependencies:
-                build_dep_graph(d, DG, start_pkgs)
+    if start_pkg.pkg_uri not in start_pkg_uris:
+        start_pkg_uris.add(start_pkg.pkg_uri)
 
-        start_pkgs.add(start_pkg)
+        for dep in start_pkg.allDependencies:
+            if dep == start_pkg.pkg_uri:
+                raise Exception(f"Self dependency detected: {start_pkg.pkg_uri} -> {dep}")
+
+            DG.add_edge(start_pkg.pkg_uri, dep)
+
+            pkg = Package(pkg_uri=dep)
+            build_dep_graph(pkg, DG, start_pkg_uris)
 
     return DG

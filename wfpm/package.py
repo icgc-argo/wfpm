@@ -24,18 +24,19 @@ import json
 import requests
 import tempfile
 from typing import Set
-from .project import Project
 from .utils import run_cmd, pkg_uri_parser
 
 
 class Package(object):
     name: str = None
     version: str = None
-    fullname: str = None
-    pkg_uri: str = None
-    download_url: str = None
-    pkg_tar: str = None
     main: str = None
+
+    repo_type: str = 'git'  # hardcode for now
+    repo_server: str = None
+    repo_account: str = None
+    repo_name: str = None
+
     dependencies: Set[str] = set()
     devDependencies: Set[str] = set()
     allDependencies: Set[str] = set()
@@ -50,61 +51,88 @@ class Package(object):
         else:
             raise Exception("Must specify either pkg_uri or pkg_json")
 
-        self.pkg_uri = f"{self.project.fullname}/{self.fullname}"
-        pkg_tar = self.fullname.replace('@', '.')
-        self.download_url = f"https://{self.project.fullname}/releases/download/{pkg_tar}/{pkg_tar}.tar.gz"
-        self.pkg_tar = f"{pkg_tar}.tar.gz"
-
     def _init_by_uri(self, pkg_uri):
         try:
             repo_server, repo_account, repo_name, name, version = pkg_uri_parser(pkg_uri)
         except Exception as ex:
             raise Exception(f"Package uri error: {ex}")
 
-        # create Project object
-        self.project = Project(
-            repo_type='git',  # hardcode for now
-            repo_server=repo_server,
-            repo_account=repo_account,
-            repo_name=repo_name
-        )
-
         self.name = name
         self.version = version
-        self.fullname = '@'.join([self.name, self.version])
 
-        # TODO: download pkg-release.json from github release asset and parse it to get
-        # addition info
+        self.repo_server = repo_server
+        self.repo_account = repo_account
+        self.repo_name = repo_name
 
-    def _init_by_json(self, pkg_json):
-        with open(pkg_json, 'r') as f:
-            pkg_dict = json.load(f)
+        # download pkg-release.json from github release asset and parse it to get addition info
+        r = requests.get(self.pkg_json_url)
+        if r.status_code == 200:
+            pkg_json_str = r.text
+        else:
+            raise Exception(f"Failed to download package json from: {self.pkg_json_url}")
+
+        self._init_by_json(pkg_json_str=pkg_json_str)
+
+    def _init_by_json(self, pkg_json=None, pkg_json_str=None):
+        if pkg_json:
+            with open(pkg_json, 'r') as f:
+                pkg_dict = json.load(f)
+        elif pkg_json_str:
+            pkg_dict = json.loads(pkg_json_str)
+        else:
+            raise Exception("Must specify 'pkg_json' or 'pkg_json_str' when call '_init_by_json'")
+
+        self.name = pkg_dict['name']
+        self.version = pkg_dict['version']
+        self.main = pkg_dict['main']
 
         _, _, repo_server, repo_account, repo_name = \
             pkg_dict['repository']['url'].split('/')
 
-        self.project = Project(
-            repo_type='git',  # hardcode for now
-            repo_server=repo_server,
-            repo_account=repo_account,
-            repo_name=repo_name.split('.')[0]  # repo_name.git
+        self.repo_server = repo_server
+        self.repo_account = repo_account
+        self.repo_name = repo_name.split('.')[0]  # repo_name.git
+
+        self._init_deps(
+            pkg_dict.get('dependencies', []),
+            pkg_dict.get('devDependencies', [])
         )
 
-        self.name = pkg_dict['name']
-        self.version = pkg_dict['version']
-        self.fullname = '@'.join([self.name, self.version])
+    @property
+    def fullname(self):
+        return f"{self.name}@{self.version}"
 
-        self.main = pkg_dict['main']
+    @property
+    def project_fullname(self):
+        return f"{self.repo_server}/{self.repo_account}/{self.repo_name}"
 
-        self._init_deps(pkg_dict['dependencies'], pkg_dict['devDependencies'])
+    @property
+    def pkg_uri(self):
+        return f"{self.project_fullname}/{self.fullname}"
+
+    @property
+    def pkg_tar(self):
+        return self.fullname.replace('@', '.')
+
+    @property
+    def pkg_tarfile(self):
+        return f"{self.pkg_tar}.tar.gz"
+
+    @property
+    def pkg_tar_url(self):
+        return f"https://{self.project_fullname}/releases/download/{self.pkg_tar}/{self.pkg_tarfile}"
+
+    @property
+    def pkg_json_url(self):
+        return f"https://{self.project_fullname}/releases/download/{self.pkg_tar}/pkg-release.json"
 
     def install(self, target_project_root, include_tests=False, force=False):
         target_path = os.path.join(
             target_project_root,
             'wfpr_modules',
-            self.project.repo_server,
-            self.project.repo_account,
-            self.project.name,
+            self.repo_server,
+            self.repo_account,
+            self.repo_name,
             self.fullname
         )
 
@@ -117,10 +145,10 @@ class Package(object):
             if ret != 0:
                 raise Exception(f"Unable to remove previously installed package: {err}")
 
-        response = requests.get(self.download_url, stream=True)
+        response = requests.get(self.pkg_tar_url, stream=True)
         if response.status_code == 200:
             with tempfile.TemporaryDirectory() as tmpdirname:
-                local_tar_path = os.path.join(tmpdirname, os.path.basename(self.download_url))
+                local_tar_path = os.path.join(tmpdirname, os.path.basename(self.pkg_tar_url))
 
                 with open(local_tar_path, 'wb') as f:
                     for chunk in response.raw.stream(1024, decode_content=False):

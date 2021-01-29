@@ -43,10 +43,16 @@ def install_cmd(ctx, force, include_tests):
         ctx.abort()
 
     pkg_json = os.path.join(os.getcwd(), 'pkg.json')
-    package = Package(pkg_json=pkg_json)
 
-    dep_graph = build_dep_graph(package)
-    dep_pkgs = list(nx.topological_sort(dep_graph))[1:]  # exclude the first one which is the starting package
+    try:
+        package = Package(pkg_json=pkg_json)
+        dep_graph = build_dep_graph(package)
+    except Exception as ex:
+        echo(f"Unable to build package dependency graph: {ex}")
+        ctx.abort()
+
+    # exclude the first one which is the current package itself, it's important to reverse the order
+    dep_pkgs = reversed(list(nx.topological_sort(dep_graph))[1:])
 
     failed_pkgs = []
     for dep_pkg_uri in dep_pkgs:
