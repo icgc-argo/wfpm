@@ -19,12 +19,25 @@
         Junjun Zhang <junjun.zhang@oicr.on.ca>
 """
 
-import os
-import pytest
+import networkx as nx
+from .package import Package
 
 
-@pytest.fixture(scope="module")
-def workdir(tmpdir_factory):
-    dir = tmpdir_factory.mktemp("workdir")
-    os.chdir(dir)
-    return dir
+def build_dep_graph(
+    start_pkg: Package = None,
+    DG=nx.DiGraph(),
+    start_pkg_uris=set()
+) -> nx.DiGraph:
+    if start_pkg.pkg_uri not in start_pkg_uris:
+        start_pkg_uris.add(start_pkg.pkg_uri)
+
+        for dep in start_pkg.allDependencies:
+            if dep == start_pkg.pkg_uri:
+                raise Exception(f"Self dependency detected: {start_pkg.pkg_uri} -> {dep}")
+
+            DG.add_edge(start_pkg.pkg_uri, dep)
+
+            pkg = Package(pkg_uri=dep)
+            build_dep_graph(pkg, DG, start_pkg_uris)
+
+    return DG

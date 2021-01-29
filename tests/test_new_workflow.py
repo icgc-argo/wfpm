@@ -35,7 +35,6 @@ def test_good_new_workflow(workdir, datafiles):
     # copy _project_dir to under workdir, then make it cwd
     copytree(os.path.join(datafiles, '_project_dir'), os.path.join(workdir, '_project_dir'))
     os.chdir(os.path.join(workdir, '_project_dir'))
-    print(os.getcwd())
 
     runner = CliRunner()
     conf_json = os.path.join(datafiles, 'new_workflow', 'good', 'conf.json')
@@ -43,3 +42,29 @@ def test_good_new_workflow(workdir, datafiles):
 
     result = runner.invoke(main, cli_option)
     assert "New package created in: fastqc-wf" in result.output
+
+
+@pytest.mark.datafiles(DATA_DIR)
+def test_good_new_workflow_install(workdir, datafiles):
+    os.chdir(os.path.join(workdir, '_project_dir', 'fastqc-wf'))
+
+    runner = CliRunner()
+    cli_option = ['install']
+    result = runner.invoke(main, cli_option)
+
+    assert "Package installed in: " in result.output
+
+    # after installation, check if tests of the installed dependencies run successful
+    assert "Tested package: demo-utils@1.1.0, PASSED: 3, FAILED: 0" in result.output
+    assert "Tested package: fastqc@0.1.0, PASSED: 1, FAILED: 0" in result.output
+
+
+@pytest.mark.datafiles(DATA_DIR)
+def test_good_new_workflow_test(workdir, datafiles):
+    os.chdir(os.path.join(workdir, '_project_dir', 'fastqc-wf'))
+
+    runner = CliRunner()
+    cli_option = ['test']  # right, we are testing 'test' here
+    result = runner.invoke(main, cli_option)
+
+    assert "Tested package: fastqc-wf, PASSED: 1, FAILED: 0" in result.output

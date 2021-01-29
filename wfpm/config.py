@@ -73,4 +73,4 @@ class Config(object):
             self.license = conf['license']
             self.repo_type = conf['repo_type']
             self.repo_server = conf['repo_server']
-            self.repo_account = conf['repo_account']
+            self.repo_account = conf['repo_account'].lower()

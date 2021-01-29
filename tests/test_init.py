@@ -21,6 +21,7 @@
 
 import os
 import pytest
+import filecmp
 from pathlib import Path
 from click.testing import CliRunner
 from wfpm.cli import main
@@ -37,6 +38,11 @@ def test_good_init(workdir, datafiles):
 
     result = runner.invoke(main, cli_option)
     assert "Project initialized in: github-repo" in result.output
+    assert os.path.isdir(os.path.join('github-repo', '.git'))
+    assert filecmp.cmp(
+        os.path.join(datafiles, '_project_dir', '.wfpm'),
+        os.path.join('github-repo', '.wfpm'),
+    )
 
 
 @pytest.mark.datafiles(DATA_DIR)

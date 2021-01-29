@@ -50,19 +50,15 @@ def init_cmd(ctx, conf_json=None):
         echo(f"Failed to initialize the project. {ex}")
         ctx.abort()
 
-    os.chdir(project_dir)
-
     # project initialized, now can get config from .wfpm file
     config = Config()
 
-    cmd = "git init && git add . && git commit -m 'inital commit' && git branch -M main && " \
+    cmd = f"cd {project_dir} && git init && git add . && git commit -m 'inital commit' && git branch -M main && " \
           f"git remote add origin git@{config.repo_server}:{config.repo_account}/{config.project_name}.git"
-
-    os.chdir(Path(project_dir).parent)
 
     out, err, ret = run_cmd(cmd)
     if ret != 0:
-        echo("Git commands failed, please ensure 'git' is installed.")
+        echo(f"Git commands failed, please ensure 'git' is installed. STDERR: {err}. STDOUT: {out}")
         ctx.exit(1)
     else:
         echo(
@@ -104,7 +100,7 @@ def gen_project(
 
         project_dir = cookiecutter(
             new_tmplt_dir,
-            no_input=True
+            no_input=True if conf_dict else False
         )
 
         return project_dir
