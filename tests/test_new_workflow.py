@@ -53,5 +53,18 @@ def test_good_new_workflow_install(workdir, datafiles):
     result = runner.invoke(main, cli_option)
 
     assert "Package installed in: " in result.output
-    assert "demo-utils@1.1.0" in result.output
-    assert "fastqc@0.1.0" in result.output
+
+    # after installation, check if tests of the installed dependencies run successful
+    assert "Tested package: demo-utils@1.1.0, PASSED: 3, FAILED: 0" in result.output
+    assert "Tested package: fastqc@0.1.0, PASSED: 1, FAILED: 0" in result.output
+
+
+@pytest.mark.datafiles(DATA_DIR)
+def test_good_new_workflow_test(workdir, datafiles):
+    os.chdir(os.path.join(workdir, '_project_dir', 'fastqc-wf'))
+
+    runner = CliRunner()
+    cli_option = ['test']  # right, we are testing 'test' here
+    result = runner.invoke(main, cli_option)
+
+    assert "Tested package: fastqc-wf, PASSED: 1, FAILED: 0" in result.output
