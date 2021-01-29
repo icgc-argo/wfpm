@@ -151,7 +151,7 @@ git push -u origin fastqc@0.1.0
 Upon receiving the push, GitHub will automatically start CI/CD via GitHub Actions. If the test
 passes, you can create a PR against the `main` branch.
 
-NOTE: a newly created GitHub container image by default is private, you will need Admin access to make
+**NOTE**: a newly created GitHub container image by default is private, you will need Admin access to make
 it public so that anyone is able to pull the image. In this demo case, it can be done on this page:
 [https://github.com/orgs/ICGC-TCGA-PanCancer/packages/container/awesome-wfpkgs1.fastqc/settings](https://github.com/orgs/ICGC-TCGA-PanCancer/packages/container/awesome-wfpkgs1.fastqc/settings) (change the URL
 as needed to match your org and repo), click on `Change Visibility`, then choose `Public` and confirm.
