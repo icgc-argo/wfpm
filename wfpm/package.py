@@ -181,7 +181,7 @@ class Package(object):
             dependencies = set(dependencies)
 
         if len(devDependencies) != len(set(devDependencies)):
-            raise Exception(f"Duplicated devDependencies found: {', '.join(dependencies)}")
+            raise Exception(f"Duplicated devDependencies found: {', '.join(devDependencies)}")
         else:
             devDependencies = set(devDependencies)
 

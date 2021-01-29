@@ -35,7 +35,6 @@ def test_good_new_workflow(workdir, datafiles):
     # copy _project_dir to under workdir, then make it cwd
     copytree(os.path.join(datafiles, '_project_dir'), os.path.join(workdir, '_project_dir'))
     os.chdir(os.path.join(workdir, '_project_dir'))
-    print(os.getcwd())
 
     runner = CliRunner()
     conf_json = os.path.join(datafiles, 'new_workflow', 'good', 'conf.json')
@@ -43,3 +42,16 @@ def test_good_new_workflow(workdir, datafiles):
 
     result = runner.invoke(main, cli_option)
     assert "New package created in: fastqc-wf" in result.output
+
+
+@pytest.mark.datafiles(DATA_DIR)
+def test_good_new_workflow_install(workdir, datafiles):
+    os.chdir(os.path.join(workdir, '_project_dir', 'fastqc-wf'))
+
+    runner = CliRunner()
+    cli_option = ['install']
+    result = runner.invoke(main, cli_option)
+
+    assert "Package installed in: " in result.output
+    assert "demo-utils@1.1.0" in result.output
+    assert "fastqc@0.1.0" in result.output

@@ -23,7 +23,7 @@ import os
 import pytest
 
 
-@pytest.fixture(scope="function")
+@pytest.fixture(scope="module")
 def workdir(tmpdir_factory):
     dir = tmpdir_factory.mktemp("workdir")
     os.chdir(dir)
