@@ -7,13 +7,13 @@
         "test": "wfpm test"
     },
     "deprecated": false,
-    "keywords": {{ cookiecutter.keywords.split(',') | tojson }},
+    "keywords": {{ cookiecutter.keywords.lower().split(',') | tojson }},
     "repository": {
         "type": "{{ cookiecutter._repo_type }}",
-        "url": "https://{{ cookiecutter._repo_server }}/{{ cookiecutter._repo_account }}/{{ cookiecutter._repo_name }}.git"
+        "url": "https://{{ cookiecutter._repo_server }}/{{ cookiecutter._repo_account|lower }}/{{ cookiecutter._repo_name }}.git"
     },
-    "dependencies": {{ cookiecutter.dependencies.split(',') | tojson }},
-    "devDependencies": {{ cookiecutter.devDependencies.split(',') | tojson }},
+    "dependencies": {{ cookiecutter.dependencies.lower().split(',') | tojson }},
+    "devDependencies": {{ cookiecutter.devDependencies.lower().split(',') | tojson }},
     "contributors": [
         {
             "name": "{{ cookiecutter.full_name }}",
@@ -21,6 +21,6 @@
         }
     ],
     "license": "{{ cookiecutter._license }}",
-    "bugReport": "https://{{ cookiecutter._repo_server }}/{{ cookiecutter._repo_account }}/{{ cookiecutter._repo_name }}/issues",
-    "homepage": "https://{{ cookiecutter._repo_server }}/{{ cookiecutter._repo_account }}/{{ cookiecutter._repo_name }}#readme"
+    "bugReport": "https://{{ cookiecutter._repo_server }}/{{ cookiecutter._repo_account|lower }}/{{ cookiecutter._repo_name }}/issues",
+    "homepage": "https://{{ cookiecutter._repo_server }}/{{ cookiecutter._repo_account|lower }}/{{ cookiecutter._repo_name }}#readme"
 }

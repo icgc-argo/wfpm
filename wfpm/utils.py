@@ -92,6 +92,7 @@ def test_package(pkg_path):
 def pkg_uri_parser(pkg_uri) -> Tuple[str, str, str, str, str]:
     try:
         repo_server, repo_account, repo_name, pkg_fullname = pkg_uri.split('/')
+        repo_account = repo_account.lower()  # make sure repo account is all lower case
         name, version = pkg_fullname.split('@')
     except ValueError:
         raise Exception(f"Invalid package uri: {pkg_uri}, expected format: "

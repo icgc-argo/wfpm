@@ -61,7 +61,7 @@ class Package(object):
         self.version = version
 
         self.repo_server = repo_server
-        self.repo_account = repo_account
+        self.repo_account = repo_account.lower()
         self.repo_name = repo_name
 
         # download pkg-release.json from github release asset and parse it to get addition info
@@ -90,7 +90,7 @@ class Package(object):
             pkg_dict['repository']['url'].split('/')
 
         self.repo_server = repo_server
-        self.repo_account = repo_account
+        self.repo_account = repo_account.lower()
         self.repo_name = repo_name.split('.')[0]  # repo_name.git
 
         self._init_deps(

@@ -49,12 +49,12 @@ class Project(object):
                 self.license = config.license
                 self.repo_type = config.repo_type
                 self.repo_server = config.repo_server
-                self.repo_account = config.repo_account
+                self.repo_account = config.repo_account.lower()
                 self.fullname = f"{self.repo_server}/{self.repo_account}/{self.name}"
         else:
             self.root = None
             self.name = repo_name
             self.repo_type = repo_type
             self.repo_server = repo_server
-            self.repo_account = repo_account
+            self.repo_account = repo_account.lower()
             self.fullname = f"{self.repo_server}/{self.repo_account}/{self.name}"
