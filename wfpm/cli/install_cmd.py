@@ -28,7 +28,7 @@ from wfpm.dependency import build_dep_graph
 from ..utils import test_package
 
 
-def install_cmd(ctx, force, include_tests):
+def install_cmd(ctx, force, skip_tests=False):
     project = ctx.obj['PROJECT']
     if not project.root:
         echo("Not in a package project directory.")
@@ -61,7 +61,6 @@ def install_cmd(ctx, force, include_tests):
         try:
             path = package.install(
                 project.root,
-                include_tests=include_tests,
                 force=force
             )
             installed = True
@@ -70,7 +69,7 @@ def install_cmd(ctx, force, include_tests):
             echo(f"Failed to install package: {dep_pkg_uri}. {ex}")
             failed_pkgs.append(dep_pkg_uri)
 
-        if include_tests and installed:
+        if not skip_tests and installed:
             test_package(path)
 
     if failed_pkgs:

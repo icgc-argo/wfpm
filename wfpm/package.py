@@ -126,7 +126,7 @@ class Package(object):
     def pkg_json_url(self):
         return f"https://{self.project_fullname}/releases/download/{self.pkg_tar}/pkg-release.json"
 
-    def install(self, target_project_root, include_tests=False, force=False):
+    def install(self, target_project_root, force=False):
         target_path = os.path.join(
             target_project_root,
             'wfpr_modules',
@@ -155,12 +155,10 @@ class Package(object):
                         if chunk:
                             f.write(chunk)
 
-                arg_exclude = "" if include_tests else "--exclude='tests'"
                 cmd = f"mkdir -p {target_path} && " \
-                      f"tar -xzf {local_tar_path} {arg_exclude} -C {target_path} && " \
-                      f"cd {target_path} && ln -s ../../../../../wfpr_modules . "
-                if include_tests:
-                    cmd += "&& cd tests && ln -s ../wfpr_modules ."
+                      f"tar -xzf {local_tar_path} -C {target_path} && " \
+                      f"cd {target_path} && ln -s ../../../../../wfpr_modules . && " \
+                      "cd tests && ln -s ../wfpr_modules ."
 
                 out, err, ret = run_cmd(cmd)
                 if ret != 0:
