@@ -44,9 +44,6 @@ def test_good_init(workdir, datafiles):
         os.path.join('github-repo', '.wfpm'),
     )
 
-    with open(os.path.join('github-repo', '.git', 'config')) as f:
-        assert 'url = git@github.com:github-account/github-repo.git' in f.read()
-
 
 @pytest.mark.datafiles(DATA_DIR)
 def test_bad_init_01(workdir, datafiles):
