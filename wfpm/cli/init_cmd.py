@@ -58,7 +58,7 @@ def init_cmd(ctx, conf_json=None):
 
     out, err, ret = run_cmd(cmd)
     if ret != 0:
-        echo(f"Git commands failed, please ensure 'git' is installed. Error: {out}")
+        echo(f"Git commands failed, please ensure 'git' is installed. STDERR: {err}. STDOUT: {out}")
         ctx.exit(1)
     else:
         echo(
