@@ -153,7 +153,7 @@ def gen_template(
                 template=template,
                 extra_context=extra_context,
                 output_dir=tmpdirname,
-                no_input=True
+                no_input=True if conf_dict else False
             )
 
         # fix the list fields in pkg.json
