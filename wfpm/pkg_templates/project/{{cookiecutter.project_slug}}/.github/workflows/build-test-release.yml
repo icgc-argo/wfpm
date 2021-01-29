@@ -100,7 +100,6 @@ jobs:
         sudo mv nextflow /usr/local/bin/
 
     - name: "Login to GitHub Container Registry"  # normally shouldn't need to loging, but new image when just created is private
-      if: ${{ needs.build.outputs.branch != 'main' }}
       uses: docker/login-action@v1
       with:
         registry: ghcr.io
