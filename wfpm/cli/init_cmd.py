@@ -50,10 +50,12 @@ def init_cmd(ctx, conf_json=None):
         echo(f"Failed to initialize the project. {ex}")
         ctx.abort()
 
+    os.chdir(project_dir)
+
     # project initialized, now can get config from .wfpm file
     config = Config()
 
-    cmd = f"cd {project_dir} && git init && git add . && git commit -m 'inital commit' && git branch -M main && " \
+    cmd = f"git init && git add . && git commit -m 'inital commit' && git branch -M main && " \
           f"git remote add origin git@{config.repo_server}:{config.repo_account}/{config.project_name}.git"
 
     out, err, ret = run_cmd(cmd)
@@ -66,6 +68,8 @@ def init_cmd(ctx, conf_json=None):
             f"When ready, you may push to {config.repo_server} using:\n" +
             "git push -u origin main"
         )
+
+    os.chdir(Path(project_dir).parent)
 
 
 def gen_project(
