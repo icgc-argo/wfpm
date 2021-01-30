@@ -21,56 +21,36 @@
 
 import os
 import yaml
-from .utils import Singleton, locate_nearest_parent_dir_with_file
+from click import echo
 
 
 class Config(object):
-    __metaclass__ = Singleton
-
     debug: bool = False
-    root: str = None
-    project_name: str = None
-    license: str = None
-    repo_type: str = None
-    repo_server: str = None
-    repo_account: str = None
-    cwd: str = None
-    current_pkg: str = None
+    git_user_name: str = None
+    git_user_email: str = None
+    default_license: str = None
 
     def __init__(self, debug=False) -> None:
-        self.cwd = os.getcwd()
         self.debug = debug
 
-        # locate project root
-        project_root = locate_nearest_parent_dir_with_file(
-            start_dir=self.cwd,
-            filename='.wfpm'
-        )
-        if project_root:
-            self.root = project_root
-            self.config_file = os.path.join(self.root, '.wfpm')
-            self._get_info_from_config()
+        # find and parse system-wide wfpm config file: $HOME/.wfpmconfig
+        home_dir = os.getenv('HOME')
+        config_file = os.path.join(home_dir, '.wfpmconfig')
 
-            current_pkg_path = locate_nearest_parent_dir_with_file(
-                start_dir=self.cwd,
-                filename='pkg.json'
-            )
-            if current_pkg_path:
-                self.current_pkg = os.path.basename(current_pkg_path)
+        if home_dir and os.path.isfile(config_file):
+            with open(config_file, 'r') as c:
+                conf_dict = yaml.safe_load(c)
+
+            fields = ['git_user_name', 'git_user_email']
+            if set(fields) - set(conf_dict.keys()):
+                raise Exception(
+                    f"Invalid config file: {config_file}, required fields: {', '.join(fields)}\n" +
+                    "Please run 'wfpm config' command to generate valid config file."
+                )
+            else:
+                self.git_user_name = conf_dict['git_user_name']
+                self.git_user_email = conf_dict['git_user_email']
+                self.default_license = conf_dict.get('default_license', '')
 
         else:
-            self.root = None  # indicate not in a valid project (yet)
-
-    def _get_info_from_config(self) -> None:
-        with open(self.config_file, 'r') as c:
-            conf = yaml.safe_load(c)
-
-        fields = ['project_name', 'repo_type', 'repo_server', 'repo_account']
-        if set(fields) - set(conf.keys()):
-            raise Exception(f"Invalid .wfpm file: {self.config_file}, expected fields: {', '.join(fields)}")
-        else:
-            self.project_name = conf['project_name']
-            self.license = conf.get('license', '')
-            self.repo_type = conf['repo_type']
-            self.repo_server = conf['repo_server']
-            self.repo_account = conf['repo_account'].lower()
+            echo("No global wfpm configuration found, you may run 'wfpm config' to create it.")

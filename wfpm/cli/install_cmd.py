@@ -66,7 +66,7 @@ def install_cmd(ctx, force, skip_tests=False):
             installed = True
             echo(f"Package installed in: {path.replace(os.path.join(os.getcwd(), ''), '')}")
         except Exception as ex:
-            echo(f"Failed to install package: {dep_pkg_uri}. {ex}")
+            echo(f"Warning: {ex}")
             failed_pkgs.append(dep_pkg_uri)
 
         if not skip_tests and installed:

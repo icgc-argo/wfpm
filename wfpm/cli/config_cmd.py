@@ -19,8 +19,10 @@
         Junjun Zhang <junjun.zhang@oicr.on.ca>
 """
 
-__version__ = "0.6.0"
 
-PRJ_NAME_REGEX = r'^[a-z][0-9a-z\-]*[0-9a-z]+$'
-PKG_NAME_REGEX = r'^[a-z][0-9a-z\-]*[0-9a-z]+$'
-PKG_VER_REGEX = r'^[0-9]+\.[0-9]+\.[0-9]+(?:-[0-9a-z\.]+)?$'
+from click import echo
+
+
+def config_cmd(ctx):
+    echo('To be implemented, check back soon.\n')
+    ctx.exit()

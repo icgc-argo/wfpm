@@ -19,10 +19,7 @@
         Junjun Zhang <junjun.zhang@oicr.on.ca>
 """
 
-import os
 from click import echo
-from glob import glob
-from wfpm.package import Package
 
 
 def list_cmd(ctx):
@@ -31,27 +28,9 @@ def list_cmd(ctx):
         echo("Not in a package project directory.")
         ctx.abort()
 
-    packages = []
+    echo('\t'.join(['TYPE', 'PKG_URI']))
+    for pkg in sorted([pkg.pkg_uri for pkg in project.pkgs]):
+        echo('\t'.join(['local', str(pkg)]))
 
-    pkg_jsons = sorted(glob(os.path.join(project.root, '*', 'pkg.json')))
-    for pkg_json in pkg_jsons:
-        packages.append(
-            ('local', Package(pkg_json=pkg_json))
-        )
-
-    ins_dep_paths = sorted(glob(os.path.join(project.root, 'wfpr_modules/*/*/*/*')))
-    for ins_dep_path in ins_dep_paths:
-        pkg_uri = '/'.join(ins_dep_path.split(os.sep)[-4:])
-        packages.append(
-            ('dep', Package(pkg_uri=pkg_uri))
-        )
-
-    echo('\t'.join([
-        'TYPE',
-        'PKG_URI',
-    ]))
-    for pkg in packages:
-        echo('\t'.join([
-            pkg[0],
-            str(pkg[1]),
-        ]))
+    for pkg in sorted([pkg.pkg_uri for pkg in project.installed_pkgs]):
+        echo('\t'.join(['dep', str(pkg)]))

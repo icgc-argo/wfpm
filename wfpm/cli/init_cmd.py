@@ -31,7 +31,6 @@ from cookiecutter.main import cookiecutter
 from cookiecutter.exceptions import OutputDirExistsException, FailedHookException
 from ..pkg_templates import project_tmplt
 from ..utils import run_cmd, validate_project_name
-from ..config import Config
 
 
 def init_cmd(ctx, conf_json=None):
