@@ -19,42 +19,101 @@
         Junjun Zhang <junjun.zhang@oicr.on.ca>
 """
 
-
-from .utils import Singleton
+import os
+import yaml
+from glob import glob
+from typing import List
+from click import echo
+from .config import Config
+from .package import Package
+from .utils import locate_nearest_parent_dir_with_file
 
 
 class Project(object):
-    __metaclass__ = Singleton
-
+    """
+    Project object keeps all information about the package project
+    """
+    config: Config = None
+    root: str = None
     name: str = None
     fullname: str = None
     license: str = None
     repo_type: str = None
     repo_server: str = None
     repo_account: str = None
+    cwd: str = None
+    current_pkg: Package = None
+    pkgs: List[Package] = []
+    installed_pkgs: List[Package] = []
 
-    def __init__(
-        self,
-        config=None,
-        repo_type=None,
-        repo_server=None,
-        repo_account=None,
-        repo_name=None
-    ):
-        # TODO: add validation of arguments
-        if config:
-            self.root = config.root
-            if self.root:
-                self.name = config.project_name
-                self.license = config.license
-                self.repo_type = config.repo_type
-                self.repo_server = config.repo_server
-                self.repo_account = config.repo_account.lower()
-                self.fullname = f"{self.repo_server}/{self.repo_account}/{self.name}"
+    def __init__(self, debug=False, project_root=None):
+        self.cwd = os.getcwd()
+        self.config = Config(debug=debug)
+
+        if project_root:
+            if os.path.isfile(os.path.join(project_root, '.wfpm')):
+                self.root = project_root
+            else:
+                raise Exception(f"Specified project root path misses '.wfpm' file: {project_root}")
         else:
-            self.root = None
-            self.name = repo_name
-            self.repo_type = repo_type
-            self.repo_server = repo_server
-            self.repo_account = repo_account.lower()
-            self.fullname = f"{self.repo_server}/{self.repo_account}/{self.name}"
+            self.root = locate_nearest_parent_dir_with_file(
+                start_dir=self.cwd,
+                filename='.wfpm'
+            )
+
+        if not self.root:
+            return  # not a project yet, no need to go further
+
+        with open(os.path.join(self.root, '.wfpm'), 'r') as c:
+            conf = yaml.safe_load(c)
+
+            fields = ['project_name', 'repo_type', 'repo_server', 'repo_account']
+            if set(fields) - set(conf.keys()):
+                raise Exception(f"Invalid .wfpm file: {self.config_file}, expected fields: {', '.join(fields)}")
+            else:
+                self.name = conf['project_name']
+                self.repo_type = conf['repo_type']
+                self.repo_server = conf['repo_server']
+                self.repo_account = conf['repo_account'].lower()
+                self.license = conf.get('license', '')
+
+        self._populate_pkgs()
+
+    @property
+    def fullname(self):
+        if self.repo_server and self.repo_account and self.name:
+            return f"{self.repo_server}/{self.repo_account}/{self.name}"
+
+    def __repr__(self):
+        return self.fullname
+
+    def _populate_pkgs(self):
+        pkg_jsons = glob(os.path.join(self.root, '*', 'pkg.json'))
+        for pkg_json in pkg_jsons:
+            try:
+                pkg = Package(pkg_json=pkg_json)
+            except Exception as ex:
+                echo(f"Invalid package json: {pkg_json}. {ex}", err=True)
+
+            self.pkgs.append(pkg)
+
+            pkg_dir = os.path.dirname(pkg_json)
+            if self.cwd.startswith(pkg_dir):
+                self.current_pkg = pkg
+
+    @property
+    def installed_pkgs(self):
+        installed_pkgs = []
+        pkg_jsons = glob(os.path.join(
+            self.root, 'wfpr_modules', 'github.com', '*', '*', '*', 'pkg.json')
+        )
+
+        for pkg_json in pkg_jsons:
+            try:
+                pkg = Package(pkg_json=pkg_json)
+            except Exception as ex:
+                echo(f"Invalid package json: {pkg_json}. {ex}\n", err=True)
+
+            installed_pkgs.append(pkg)
+
+        return installed_pkgs

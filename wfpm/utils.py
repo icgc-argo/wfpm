@@ -37,15 +37,6 @@ def locate_nearest_parent_dir_with_file(start_dir=None, filename=None):
             return path
 
 
-class Singleton(type):
-    _instances = {}
-
-    def __call__(cls, *args, **kwargs):
-        if cls not in cls._instances:
-            cls._instances[cls] = super(Singleton, cls).__call__(*args, **kwargs)
-        return cls._instances[cls]
-
-
 def run_cmd(cmd):
     # keep this simple for now
     proc = subprocess.Popen(

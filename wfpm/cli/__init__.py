@@ -28,7 +28,7 @@ from .list_cmd import list_cmd
 from .uninstall_cmd import uninstall_cmd
 from .outdated_cmd import outdated_cmd
 from .test_cmd import test_cmd
-from wfpm.config import Config
+from .config_cmd import config_cmd
 from wfpm.project import Project
 
 
@@ -37,12 +37,6 @@ def print_version(ctx, param, value):
         return
     click.echo(f'wfpm {ver}')
     ctx.exit()
-
-
-def initialize(ctx, debug):
-    ctx.obj = dict()
-    ctx.obj['CONFIG'] = Config(debug)
-    ctx.obj['PROJECT'] = Project(config=ctx.obj['CONFIG'])
 
 
 @click.group()
@@ -54,7 +48,12 @@ def initialize(ctx, debug):
 @click.pass_context
 def main(ctx, debug):
     # initializing the project
-    initialize(ctx, debug)
+    ctx.obj = dict()
+    try:
+        ctx.obj['PROJECT'] = Project(debug=debug)
+    except Exception as ex:
+        click.echo(ex)
+        ctx.exit(1)
 
 
 @main.command()
@@ -134,3 +133,12 @@ def test(ctx):
     Run tests.
     """
     test_cmd(ctx)
+
+
+@main.command()
+@click.pass_context
+def config(ctx):
+    """
+    Show or set configuration for wfpm.
+    """
+    config_cmd(ctx)

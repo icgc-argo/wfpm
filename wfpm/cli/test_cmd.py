@@ -20,33 +20,31 @@
 """
 
 import os
-from glob import glob
 from click import echo
 from ..utils import test_package
 
 
 def test_cmd(ctx):
-    config = ctx.obj['CONFIG']
     project = ctx.obj['PROJECT']
     if not project.root:
         echo("Not in a package project directory.")
         ctx.abort()
 
-    current_pkg = config.current_pkg
-    if current_pkg:
-        pkg_path = os.path.join(project.root, current_pkg)
+    if project.current_pkg:  # test the current pkg only
+        pkg_path = os.path.join(project.root, project.current_pkg.name)
         echo(f"Testing package: {pkg_path}")
         failed_test_count = test_package(pkg_path)
 
         if failed_test_count:
             ctx.exit(1)  # signal failure
 
-    elif config.cwd == project.root:
-        pkg_jsons = sorted(glob(os.path.join(project.root, '*', 'pkg.json')))
-        pkg_count = len(pkg_jsons)
+    elif project.cwd == project.root:  # test all pkgs
+        pkg_names = sorted([pkg.name for pkg in project.pkgs])
+        pkg_count = len(pkg_names)
         failed_test_count = 0
+
         for i in range(pkg_count):
-            pkg_path = os.path.dirname(pkg_jsons[i])
+            pkg_path = os.path.join(project.root, pkg_names[i])
             echo(f"Testing package: {pkg_path}")
             failed_test_count += test_package(pkg_path)
 
