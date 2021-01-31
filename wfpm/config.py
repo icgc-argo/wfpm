@@ -20,9 +20,7 @@
 """
 
 import os
-import sys
 import yaml
-from click import echo
 from .utils import auto_config
 
 

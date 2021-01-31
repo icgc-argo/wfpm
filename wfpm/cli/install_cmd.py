@@ -28,7 +28,7 @@ from wfpm.dependency import build_dep_graph
 from ..utils import test_package
 
 
-def install_cmd(ctx, force, skip_tests=False):
+def install_cmd(ctx, force=False, skip_tests=False):
     project = ctx.obj['PROJECT']
     if not project.root:
         echo("Not in a package project directory.")
@@ -52,7 +52,12 @@ def install_cmd(ctx, force, skip_tests=False):
         ctx.abort()
 
     # exclude the first one which is the current package itself, it's important to reverse the order
-    dep_pkgs = reversed(list(nx.topological_sort(dep_graph))[1:])
+    dep_pkgs = list(reversed(list(nx.topological_sort(dep_graph))[1:]))
+
+    if dep_pkgs:
+        echo("Start dependency installation.")
+    else:
+        echo("No dependency defined, no installation needed.")
 
     failed_pkgs = []
     for dep_pkg_uri in dep_pkgs:
@@ -66,7 +71,7 @@ def install_cmd(ctx, force, skip_tests=False):
             installed = True
             echo(f"Package installed in: {path.replace(os.path.join(os.getcwd(), ''), '')}")
         except Exception as ex:
-            echo(f"Warning: {ex}")
+            echo(f"{ex}")
             failed_pkgs.append(dep_pkg_uri)
 
         if not skip_tests and installed:
