@@ -20,6 +20,7 @@
 """
 
 import os
+import sys
 import yaml
 from click import echo
 from .utils import auto_config
@@ -43,23 +44,27 @@ class Config(object):
 
         config_file = os.path.join(home_dir, '.wfpmconfig')
 
-        if os.path.isfile(config_file):
-            with open(config_file, 'r') as c:
-                conf_dict = yaml.safe_load(c)
+        if not os.path.isfile(config_file):
+            try:
+                auto_config(config_file)
+            except Exception as ex:
+                echo(f"Unable to complete auto-config.\n{ex}")
 
-            if not conf_dict:
-                conf_dict = dict()
+        with open(config_file, 'r') as c:
+            conf_dict = yaml.safe_load(c)
 
-            fields = ['git_user_name', 'git_user_email']
-            if set(fields) - set(conf_dict.keys()):
-                echo(
-                    f"Incomplete config file: {config_file}, required fields: {', '.join(fields)}\n" +
-                    "Please run 'wfpm config' command to generate valid config file."
-                )
-            else:
-                self.git_user_name = conf_dict.get('git_user_name', '')
-                self.git_user_email = conf_dict.get('git_user_email', '')
-                self.default_license = conf_dict.get('default_license', '')
+        if not conf_dict:
+            conf_dict = dict()
 
+        fields = ['git_user_name', 'git_user_email']
+        if set(fields) - set(conf_dict.keys()):
+            echo(
+                f"Incomplete config file: {config_file}, required fields: {', '.join(fields)}\n" +
+                "Please run 'wfpm config --set' command to generate valid config file."
+            )
+
+            sys.exit(1)
         else:
-            auto_config(config_file)
+            self.git_user_name = conf_dict.get('git_user_name', '')
+            self.git_user_email = conf_dict.get('git_user_email', '')
+            self.default_license = conf_dict.get('default_license', '')

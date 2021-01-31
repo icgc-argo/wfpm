@@ -137,6 +137,9 @@ def auto_config(config_file):
     if ret:  # git command failed
         raise Exception(f"Unable to run git command, please make sure 'git' is installed.\n{err}")
 
+    if not git_cli_readiness():
+        raise Exception("Git is not setup or configured properly.")
+
     git_user_info = {}
     for info in git_user_info_str.split("\n"):
         key, value = info.split('=')
