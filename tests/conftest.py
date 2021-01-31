@@ -21,6 +21,15 @@
 
 import os
 import pytest
+from wfpm.utils import run_cmd
+
+
+@pytest.fixture(scope="session", autouse=True)
+def setup_git_user_info():
+    stdout, stderr, ret = run_cmd('git config --list | grep user')
+    if 'user.email' not in stdout or 'user.name' not in stdout:
+        cmd = 'git config --global user.name "$USER" && git config --global user.email "user@example.com"'
+        run_cmd(cmd)
 
 
 @pytest.fixture(scope="module")

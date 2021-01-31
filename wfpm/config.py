@@ -22,6 +22,7 @@
 import os
 import yaml
 from click import echo
+from .utils import auto_config
 
 
 class Config(object):
@@ -35,22 +36,30 @@ class Config(object):
 
         # find and parse system-wide wfpm config file: $HOME/.wfpmconfig
         home_dir = os.getenv('HOME')
+        if not home_dir:
+            echo("Environment variable 'HOME' not set.")
+        if not os.path.isdir(home_dir):
+            echo(f"'HOME' dir ({home_dir}) not exists or not accessible")
+
         config_file = os.path.join(home_dir, '.wfpmconfig')
 
-        if home_dir and os.path.isfile(config_file):
+        if os.path.isfile(config_file):
             with open(config_file, 'r') as c:
                 conf_dict = yaml.safe_load(c)
 
+            if not conf_dict:
+                conf_dict = dict()
+
             fields = ['git_user_name', 'git_user_email']
             if set(fields) - set(conf_dict.keys()):
-                raise Exception(
-                    f"Invalid config file: {config_file}, required fields: {', '.join(fields)}\n" +
+                echo(
+                    f"Incomplete config file: {config_file}, required fields: {', '.join(fields)}\n" +
                     "Please run 'wfpm config' command to generate valid config file."
                 )
             else:
-                self.git_user_name = conf_dict['git_user_name']
-                self.git_user_email = conf_dict['git_user_email']
+                self.git_user_name = conf_dict.get('git_user_name', '')
+                self.git_user_email = conf_dict.get('git_user_email', '')
                 self.default_license = conf_dict.get('default_license', '')
 
         else:
-            echo("No global wfpm configuration found, you may run 'wfpm config' to create it.")
+            auto_config(config_file)

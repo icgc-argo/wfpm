@@ -136,9 +136,10 @@ def test(ctx):
 
 
 @main.command()
+@click.option('--set', '-s', is_flag=True, help="Create global config file '.wfpmconf' under user home dir.")
 @click.pass_context
-def config(ctx):
+def config(ctx, set):
     """
     Show or set configuration for wfpm.
     """
-    config_cmd(ctx)
+    config_cmd(ctx, set=set)

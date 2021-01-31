@@ -21,7 +21,6 @@
 
 import os
 import json
-import yaml
 import tempfile
 import random
 import string
@@ -29,8 +28,9 @@ from shutil import copytree
 from click import echo
 from cookiecutter.main import cookiecutter
 from cookiecutter.exceptions import OutputDirExistsException, FailedHookException
+from wfpm.project import Project
 from ..pkg_templates import project_tmplt
-from ..utils import run_cmd, validate_project_name
+from ..utils import run_cmd, validate_project_name, git_cli_readiness
 
 
 def init_cmd(ctx, conf_json=None):
@@ -38,6 +38,9 @@ def init_cmd(ctx, conf_json=None):
     if project.root:
         echo(f"Already in a package project directory: {project.root}")
         ctx.abort()
+
+    if not git_cli_readiness():
+        ctx.exit(1)
 
     try:
         project_dir = gen_project(ctx, project_tmplt=project_tmplt, conf_json=conf_json)
@@ -49,11 +52,12 @@ def init_cmd(ctx, conf_json=None):
         echo(f"Failed to initialize the project. {ex}")
         ctx.abort()
 
-    with open(os.path.join(project_dir, '.wfpm'), 'r') as c:
-        conf = yaml.safe_load(c)
+    # recreate the project
+    project = Project(project_root=project_dir, debug=project.config.debug)
+    ctx.obj['PROJECT'] = project
 
     cmd = f"cd {project_dir} && git init && git add . && git commit -m 'inital commit' && git branch -M main && " \
-          f"git remote add origin git@{conf['repo_server']}:{conf['repo_account']}/{conf['project_name']}.git"
+          f"git remote add origin git@{project.repo_server}:{project.repo_account}/{project.name}.git"
 
     out, err, ret = run_cmd(cmd)
     if ret != 0:
@@ -62,7 +66,7 @@ def init_cmd(ctx, conf_json=None):
     else:
         echo(
             "Git repo initialized and first commit done. " +
-            f"When ready, you may push to {conf['repo_server']} using:\n" +
+            f"When ready, you may push to {project.repo_server} using:\n" +
             "git push -u origin main"
         )
 
