@@ -21,6 +21,7 @@
 
 import os
 import re
+import yaml
 import subprocess
 from glob import glob
 from click import echo
@@ -103,3 +104,46 @@ def validate_project_name(name):
         raise Exception(f"Name invalid, does not match the required pattern: {PRJ_NAME_REGEX}")
 
     return True
+
+
+def git_cli_readiness():
+    stdout, stderr, ret = run_cmd('git --version')
+    if ret:
+        echo("Please make sure git is installed.")
+        return False
+
+    ver = re.match(r'.*?([0-9]+)\.[0-9]+', stdout)
+    if ver:
+        if int(ver.groups()[0]) < 2:
+            echo("Must have git version 2.0 or greater.")
+            return False
+    else:
+        echo("Unable to determine git version.")
+        return False
+
+    stdout, stderr, ret = run_cmd('git config --list | grep user')
+    if 'user.email' not in stdout or 'user.name' not in stdout:
+        echo("Must set git user name and email. Please run the following commands:")
+        echo("git config --global user.name 'Your Name'")
+        echo("git config --global user.email 'you@example.com'")
+        return False
+
+    return True
+
+
+def auto_config(config_file):
+    git_user_info_str, err, ret = run_cmd('git config --list | grep user')
+
+    if ret:  # git command failed
+        raise Exception(f"Unable to run git command, please make sure 'git' is installed.\n{err}")
+
+    if not git_cli_readiness():
+        raise Exception("Git is not setup or configured properly.")
+
+    git_user_info = {}
+    for info in git_user_info_str.split("\n"):
+        key, value = info.split('=')
+        git_user_info[f"git_{key.replace('.', '_')}"] = value
+
+    with open(config_file, 'w') as c:
+        c.write(yaml.dump(git_user_info))

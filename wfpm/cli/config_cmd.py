@@ -19,10 +19,26 @@
         Junjun Zhang <junjun.zhang@oicr.on.ca>
 """
 
-
+import os
 from click import echo
+from wfpm.utils import auto_config
 
 
-def config_cmd(ctx):
-    echo('To be implemented, check back soon.\n')
-    ctx.exit()
+def config_cmd(ctx, set=False, force=False):
+    conf_file = os.path.join(os.getenv('HOME'), '.wfpmconfig')
+
+    if set:
+        if os.path.isfile(conf_file) and not force:
+            echo(f"Global config file already exists: {conf_file}, will not overwrite without force option '-f'.")
+            ctx.abort()
+
+        try:
+            auto_config(conf_file)
+        except Exception as ex:
+            echo(f"Unable to complete auto-config.\n{ex}")
+
+    if os.path.isfile(conf_file):
+        with open(conf_file, 'r') as c:
+            echo(c.read())
+    else:
+        echo("Global config file does not exist, please run 'wfpm config --set'")
