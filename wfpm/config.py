@@ -38,17 +38,14 @@ class Config(object):
         # find and parse system-wide wfpm config file: $HOME/.wfpmconfig
         home_dir = os.getenv('HOME')
         if not home_dir:
-            echo("Environment variable 'HOME' not set.")
+            raise Exception("Environment variable 'HOME' not set.")
         if not os.path.isdir(home_dir):
-            echo(f"'HOME' dir ({home_dir}) not exists or not accessible")
+            raise Exception(f"'HOME' dir ({home_dir}) not exists or not accessible")
 
         config_file = os.path.join(home_dir, '.wfpmconfig')
 
         if not os.path.isfile(config_file):
-            try:
-                auto_config(config_file)
-            except Exception as ex:
-                echo(f"Unable to complete auto-config.\n{ex}")
+            auto_config(config_file)
 
         with open(config_file, 'r') as c:
             conf_dict = yaml.safe_load(c)
@@ -58,12 +55,11 @@ class Config(object):
 
         fields = ['git_user_name', 'git_user_email']
         if set(fields) - set(conf_dict.keys()):
-            echo(
+            raise Exception(
                 f"Incomplete config file: {config_file}, required fields: {', '.join(fields)}\n" +
                 "Please run 'wfpm config --set' command to generate valid config file."
             )
 
-            sys.exit(1)
         else:
             self.git_user_name = conf_dict.get('git_user_name', '')
             self.git_user_email = conf_dict.get('git_user_email', '')
