@@ -20,6 +20,7 @@
 """
 
 import os
+import sys
 import yaml
 from glob import glob
 from typing import List
@@ -93,7 +94,9 @@ class Project(object):
             try:
                 pkg = Package(pkg_json=pkg_json)
             except Exception as ex:
-                echo(f"Invalid package json: {pkg_json}. {ex}", err=True)
+                echo(f"Problem encounter, invalid package json: {pkg_json}. {ex}", err=True)
+                echo("Please fix the issue before continue.", err=True)
+                sys.exit(1)
 
             self.pkgs.append(pkg)
 
@@ -112,7 +115,9 @@ class Project(object):
             try:
                 pkg = Package(pkg_json=pkg_json)
             except Exception as ex:
-                echo(f"Invalid package json: {pkg_json}. {ex}\n", err=True)
+                echo(f"Problem encounter, invalid package json: {pkg_json}. {ex}", err=True)
+                echo("Please fix the issue before continue.", err=True)
+                sys.exit(1)
 
             installed_pkgs.append(pkg)
 

@@ -6,7 +6,6 @@
     "pkg_description": "FastQC workflow",
     "keywords": "bioinformatics, seq, qc metrics",
     "_repo_account": "{{ cookiecutter._repo_account }}",
-    "registry_account": "{{ cookiecutter._repo_account }}",
     "dependencies": "github.com/icgc-tcga-pancancer/awesome-wfpkgs1/fastqc@0.1.0, github.com/icgc-argo/demo-wfpkgs/demo-utils@1.1.0",
     "devDependencies": "",
     "_copy_without_render": ["*.gz"],

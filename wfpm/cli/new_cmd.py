@@ -34,6 +34,7 @@ from ..pkg_templates import tool_tmplt
 from ..pkg_templates import workflow_tmplt
 from ..pkg_templates import function_tmplt
 from ..utils import run_cmd
+from .install_cmd import install_cmd
 
 
 def new_cmd(ctx, pkg_type, pkg_name, conf_json=None):
@@ -69,13 +70,7 @@ def new_cmd(ctx, pkg_type, pkg_name, conf_json=None):
             '_name': process_name
         }
 
-        path = gen_template(
-                ctx,
-                template=tool_tmplt,
-                pkg_name=pkg_name,
-                extra_context=extra_context,
-                conf_json=conf_json
-            )
+        template = tool_tmplt
 
     elif pkg_type == 'workflow':
         extra_context = {
@@ -88,22 +83,32 @@ def new_cmd(ctx, pkg_type, pkg_name, conf_json=None):
             '_name': workflow_name
         }
 
-        path = gen_template(
-                ctx,
-                template=workflow_tmplt,
-                pkg_name=pkg_name,
-                extra_context=extra_context,
-                conf_json=conf_json
-            )
+        template = workflow_tmplt
 
     elif pkg_type == 'function':
+        template = function_tmplt
+
         echo("Not implemented yet")
         ctx.exit()
+
+    path = gen_template(
+            ctx,
+            template=template,
+            pkg_name=pkg_name,
+            extra_context=extra_context,
+            conf_json=conf_json
+        )
 
     # create symlinks for 'wfpr_modules'
     cmd = f"cd {path} && ln -s ../wfpr_modules && cd tests && ln -s ../wfpr_modules"
     run_cmd(cmd)
     echo(f"New package created in: {os.path.basename(path)}")
+
+    # start installation of dependencies
+    # TODO: temp solution here, should have better way to know whether there are dependencies
+    # need to be installed
+    os.chdir(path)
+    install_cmd(ctx)
 
 
 def gen_template(
