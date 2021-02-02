@@ -24,6 +24,7 @@ import json
 import tempfile
 import random
 import string
+import questionary
 from shutil import copytree
 from click import echo
 from cookiecutter.main import cookiecutter
@@ -43,7 +44,7 @@ def init_cmd(ctx, conf_json=None):
         ctx.exit(1)
 
     try:
-        project_dir = gen_project(ctx, project_tmplt=project_tmplt, conf_json=conf_json)
+        project_dir = gen_project(ctx, project, project_tmplt=project_tmplt, conf_json=conf_json)
         echo(f"Project initialized in: {os.path.basename(project_dir)}")
     except FailedHookException as ex:
         echo(f"Failed to initialize the project. {ex}")
@@ -73,14 +74,13 @@ def init_cmd(ctx, conf_json=None):
 
 def gen_project(
     ctx,
+    project=None,
     project_tmplt=None,
     conf_json=None
 ) -> str:
     conf_dict = {}
     if conf_json:
         conf_dict = json.load(conf_json)
-        if "_copy_without_render" not in conf_dict:
-            conf_dict["_copy_without_render"] = [".github"]
 
         # TODO: complete the validation of user supplied config JSON
         project_name = conf_dict.get('project_slug', '')
@@ -89,6 +89,12 @@ def gen_project(
         except Exception as ex:
             echo(f"Provided project_slug: '{project_name}' invalid: {ex}")
             ctx.abort()
+
+    else:  # interactively provide inputs
+        conf_dict = collect_project_init_info(ctx, project)
+
+    if "_copy_without_render" not in conf_dict:
+        conf_dict["_copy_without_render"] = [".github"]
 
     with tempfile.TemporaryDirectory() as tmpdirname:
         # copy template directory tree to under tmpdir so that we can replace cookiecutter.json when needed
@@ -107,3 +113,58 @@ def gen_project(
         )
 
         return project_dir
+
+
+def collect_project_init_info(ctx, project=None):
+    defaults = {
+        "full_name": "Your Name",
+        "email": f"{project.config.git_user_email}",
+        "project_title": "Awesome Workflow Packages",
+        "github_account": "github-account",
+        "project_slug": "github-repo",
+    }
+
+    project_slug = questionary.text(
+            f"Project name / GitHub repo name [{defaults['project_slug']}]:", default=""
+        ).ask()
+
+    if project_slug is None:
+        ctx.abort()
+    elif project_slug == '':
+        project_slug = defaults['project_slug']
+
+    if os.path.isdir(project_slug):
+        echo(f"Error: '{project_slug}' directory already exists")
+        ctx.abort()
+
+    answers = questionary.form(
+        project_title=questionary.text(f"Project title [{defaults['project_title']}]:", default=""),
+        github_account=questionary.text(f"GitHub account [{defaults['github_account']}]:", default=""),
+        full_name=questionary.text(f"Organization or your name [{defaults['full_name']}]:", default=""),
+        email=questionary.text(f"Your email [{defaults['email']}]:", default=""),
+        open_source_license=questionary.select("Open source license:", choices=[
+            "MIT",
+            "BSD",
+            "ISC",
+            "Apache Software License 2.0",
+            "GNU General Public License v3",
+            "Not open source"
+        ])
+    ).ask()
+
+    if not answers:
+        ctx.abort()
+
+    answers = {'project_slug': project_slug, **answers}
+
+    for q in answers:
+        if answers[q] == "" and defaults.get(q):
+            answers[q] = defaults[q]
+
+    echo(json.dumps(answers, indent=4))
+    res = questionary.confirm("Please confirm the information and continue:", default=True).ask()
+
+    if not res:
+        ctx.abort()
+
+    return answers

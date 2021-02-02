@@ -6,7 +6,6 @@
     "keywords": "bioinformatics, seq, qc metrics",
     "docker_base_image": "pegi3s/fastqc:0.11.9",
     "container_registry": "ghcr.io",
-    "registry_account": "{{ cookiecutter._repo_account }}",
     "dependencies": "",
     "devDependencies": ""
 }
