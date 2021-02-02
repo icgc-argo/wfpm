@@ -25,6 +25,7 @@ import json
 import tempfile
 import random
 import string
+import questionary
 from shutil import copytree
 from collections import OrderedDict
 from click import echo
@@ -93,6 +94,7 @@ def new_cmd(ctx, pkg_type, pkg_name, conf_json=None):
 
     path = gen_template(
             ctx,
+            project,
             template=template,
             pkg_name=pkg_name,
             extra_context=extra_context,
@@ -113,6 +115,7 @@ def new_cmd(ctx, pkg_type, pkg_name, conf_json=None):
 
 def gen_template(
     ctx,
+    project=None,
     template=None,
     pkg_name=None,
     extra_context=None,
@@ -122,26 +125,30 @@ def gen_template(
     generate template in a temp dir by calling cookiecutter, then perform necessary post-gen
     check and processing, finally copy the template into the current project root dir
     """
+    pkg_type = os.path.basename(template)
     conf_dict = {}
     if conf_json:
         conf_dict = json.load(conf_json)
-        if "_copy_without_render" not in conf_dict:
-            conf_dict["_copy_without_render"] = ["*.gz"]
-
         # TODO: validate of user supplied config JSON
 
-        hidden_fields = {
-            "_pkg_name": "{{ cookiecutter._pkg_name }}",
-            "_repo_account": "{{ cookiecutter._repo_account }}",
-            "_repo_type": "{{ cookiecutter._repo_type }}",
-            "_repo_server": "{{ cookiecutter._repo_server }}",
-            "_repo_name": "{{ cookiecutter._repo_name }}",
-            "_name": "{{ cookiecutter._name }}",
-            "_license": "{{ cookiecutter._license }}",
-            "_copy_without_render": ["*.gz"]
-        }
+        if pkg_type == 'tool' and conf_dict.get("container_registry", "") == "ghcr.io":
+            conf_dict['registry_account'] = project.repo_account
 
-        conf_dict = {**conf_dict, **hidden_fields}
+    else:
+        conf_dict = collect_new_pkg_info(ctx, project, template)
+
+    hidden_fields = {
+        "_pkg_name": "{{ cookiecutter._pkg_name }}",
+        "_repo_account": "{{ cookiecutter._repo_account }}",
+        "_repo_type": "{{ cookiecutter._repo_type }}",
+        "_repo_server": "{{ cookiecutter._repo_server }}",
+        "_repo_name": "{{ cookiecutter._repo_name }}",
+        "_name": "{{ cookiecutter._name }}",
+        "_license": "{{ cookiecutter._license }}",
+        "_copy_without_render": ["*.gz"]
+    }
+
+    conf_dict = {**conf_dict, **hidden_fields}
 
     with tempfile.TemporaryDirectory() as tmpdirname:
         # copy template directory tree to under tmpdir so that we can replace cookiecutter.json when needed
@@ -155,7 +162,7 @@ def gen_template(
                 json.dump(conf_dict, j)
 
         path = cookiecutter(
-                template=template,
+                template=new_tmplt_dir,
                 extra_context=extra_context,
                 output_dir=tmpdirname,
                 no_input=True if conf_dict else False
@@ -186,3 +193,105 @@ def gen_template(
         copytree(path, dest)
 
     return dest
+
+
+def collect_new_pkg_info(ctx, project=None, template=None):
+    pkg_type = os.path.basename(template)
+
+    defaults = {
+        "full_name": f"{project.config.git_user_name}",
+        "email": f"{project.config.git_user_email}",
+        "pkg_version": "0.1.0",
+    }
+
+    if pkg_type == 'tool':
+        defaults.update({
+            "pkg_description": "FastQC tool",
+            "keywords": "bioinformatics, seq, qc metrics",
+            "docker_base_image": "pegi3s/fastqc:0.11.9",
+            "container_registry": "ghcr.io",
+            "registry_account": f"{project.repo_account}",
+            "dependencies": "",
+            "devDependencies": "",
+        })
+    elif pkg_type == 'workflow':
+        defaults.update({
+            "pkg_description": "FastQC workflow",
+            "keywords": "bioinformatics, seq, qc metrics",
+            "dependencies": "github.com/icgc-argo/demo-wfpkgs/demo-utils@1.1.0",
+            "devDependencies": "",
+        })
+    elif pkg_type == 'function':
+        defaults.update({
+            "pkg_description": "Awesome functions",
+            "keywords": "bioinformatics",
+            "dependencies": "",
+            "devDependencies": "",
+        })
+
+    answers_1 = questionary.form(
+        full_name=questionary.text(f"Your name [{defaults['full_name']}]:", default=""),
+        email=questionary.text(f"Your email [{defaults['email']}]:", default=""),
+        pkg_version=questionary.text(f"Package version [{defaults['pkg_version']}]:", default=""),
+        pkg_description=questionary.text(f"Package description [{defaults['pkg_description']}]:", default=""),
+        keywords=questionary.text(f"Keywords (use ',' to separate keywords) [{defaults['keywords']}]:", default=""),
+    ).ask()
+
+    if not answers_1:
+        ctx.abort()
+
+    if pkg_type == 'tool':
+        tool_only_answers = questionary.form(
+            docker_base_image=questionary.text(
+                f"Docker base image [{defaults.get('docker_base_image', '')}]:", default=""),
+            container_registry=questionary.text(
+                f"Container registory [{defaults.get('container_registry', '')}]:", default=""),
+            registry_account=questionary.text(
+                f"Container registory account [{defaults.get('registry_account', '')}]:", default=""),
+        ).ask()
+
+        if not tool_only_answers:
+            ctx.abort()
+    else:
+        tool_only_answers = {}
+
+    dependencies = questionary.text(
+            f"Dependencies (use ',' to separate dependencies) [{defaults['dependencies']}]:", default=""
+        ).ask()
+
+    if dependencies is None:
+        ctx.abort()
+    elif dependencies == '':
+        dependencies = defaults['dependencies']
+
+    # TODO: validate the dependencies, format and availability
+
+    devDependencies = questionary.text(
+            f"devDependencies (use ',' to separate devDependencies) [{defaults['devDependencies']}]:", default=""
+        ).ask()
+
+    if devDependencies is None:
+        ctx.abort()
+    elif devDependencies == '':
+        devDependencies = defaults['devDependencies']
+
+    # TODO: validate the devDependencies, format and availability
+
+    answers = {
+        **answers_1,
+        **tool_only_answers,
+        'dependencies': dependencies,
+        'devDependencies': devDependencies
+    }
+
+    for q in answers:
+        if answers[q] == "" and defaults.get(q):
+            answers[q] = defaults[q]
+
+    echo(json.dumps(answers, indent=4))
+    res = questionary.confirm("Please confirm the information and continue:", default=True).ask()
+
+    if not res:
+        ctx.abort()
+
+    return answers
