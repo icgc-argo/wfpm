@@ -23,21 +23,12 @@ import networkx as nx
 from .package import Package
 
 
-def build_dep_graph(
-    start_pkg: Package = None,
-    DG=nx.DiGraph(),
-    start_pkg_uris=set()
-) -> nx.DiGraph:
-    if start_pkg.pkg_uri not in start_pkg_uris:
-        start_pkg_uris.add(start_pkg.pkg_uri)
+def build_dep_graph(start_pkg: Package = None, DG: nx.DiGraph = None):
+    for dep in start_pkg.allDependencies:
+        if dep == start_pkg.pkg_uri:
+            raise Exception(f"Self dependency detected: {start_pkg.pkg_uri} -> {dep}")
 
-        for dep in start_pkg.allDependencies:
-            if dep == start_pkg.pkg_uri:
-                raise Exception(f"Self dependency detected: {start_pkg.pkg_uri} -> {dep}")
+        DG.add_edge(start_pkg.pkg_uri, dep)
 
-            DG.add_edge(start_pkg.pkg_uri, dep)
-
-            pkg = Package(pkg_uri=dep)
-            build_dep_graph(pkg, DG, start_pkg_uris)
-
-    return DG
+        pkg = Package(pkg_uri=dep)
+        build_dep_graph(pkg, DG)

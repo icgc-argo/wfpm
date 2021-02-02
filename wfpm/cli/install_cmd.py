@@ -46,7 +46,8 @@ def install_cmd(ctx, force=False, skip_tests=False):
 
     try:
         package = Package(pkg_json=pkg_json)
-        dep_graph = build_dep_graph(package)
+        dep_graph = nx.DiGraph()
+        build_dep_graph(package, DG=dep_graph)
     except Exception as ex:
         echo(f"Unable to build package dependency graph: {ex}")
         ctx.abort()

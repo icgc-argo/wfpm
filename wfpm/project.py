@@ -100,8 +100,8 @@ class Project(object):
 
             self.pkgs.append(pkg)
 
-            pkg_dir = os.path.dirname(pkg_json)
-            if self.cwd.startswith(pkg_dir):
+            pkg_dir = os.path.join(os.path.dirname(pkg_json), '')
+            if os.path.join(self.cwd, '').startswith(pkg_dir):
                 self.current_pkg = pkg
 
     @property
