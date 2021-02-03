@@ -73,7 +73,7 @@ To show usage information of WFPM CLI, run `wfpm --help`, or simply `wfpm`
 We present here step-by-step instructions how to use `wfpm` to create Nextflow DSL2 workflow packages.
 
 Our objective is to create a workflow that uses `FASTQC` tool to produce QC metrics for input sequencing
-reads. A utility `cleanup` tool is also used to remove unneeded intermediate files. The diagram below
+reads. A utility `cleanupWorkdir` tool is also used to remove unneeded intermediate files. The diagram below
 illustrates how the workflow is structured, basically, workflow package `fastqc-wf@0.1.0` contains two
 tool packages: `fastqc@0.1.0` and `demo-utils@1.1.0`. We will be creating `fastqc@0.1.0` and
 `fastqc-wf@0.1.0` while `demo-utils@1.1.0` is already available, we just need to import it as a dependency.
