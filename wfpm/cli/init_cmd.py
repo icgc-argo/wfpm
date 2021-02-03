@@ -20,6 +20,7 @@
 """
 
 import os
+import re
 import json
 import tempfile
 import random
@@ -29,6 +30,7 @@ from shutil import copytree
 from click import echo
 from cookiecutter.main import cookiecutter
 from cookiecutter.exceptions import OutputDirExistsException, FailedHookException
+from wfpm import PRJ_NAME_REGEX, GIT_ACCT_REGEX
 from wfpm.project import Project
 from ..pkg_templates import project_tmplt
 from ..utils import run_cmd, validate_project_name, git_cli_readiness
@@ -133,6 +135,10 @@ def collect_project_init_info(ctx, project=None):
     elif project_slug == '':
         project_slug = defaults['project_slug']
 
+    if not re.match(PRJ_NAME_REGEX, project_slug):
+        echo(f"Error: '{project_slug}' is not a valid project name. Expected pattern: {PRJ_NAME_REGEX}")
+        ctx.abort()
+
     if os.path.isdir(project_slug):
         echo(f"Error: '{project_slug}' directory already exists")
         ctx.abort()
@@ -160,6 +166,10 @@ def collect_project_init_info(ctx, project=None):
     for q in answers:
         if answers[q] == "" and defaults.get(q):
             answers[q] = defaults[q]
+
+    if not re.match(GIT_ACCT_REGEX, answers['github_account']):
+        echo(f"Invalid GitHub account: '{answers['github_account']}'. Excepted pattern: '{GIT_ACCT_REGEX}'")
+        ctx.abort()
 
     echo(json.dumps(answers, indent=4))
     res = questionary.confirm("Please confirm the information and continue:", default=True).ask()
