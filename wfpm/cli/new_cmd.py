@@ -106,12 +106,6 @@ def new_cmd(ctx, pkg_type, pkg_name, conf_json=None):
     run_cmd(cmd)
     echo(f"New package created in: {os.path.basename(path)}")
 
-    # start installation of dependencies
-    # TODO: temp solution here, should have better way to know whether there are dependencies
-    # need to be installed
-    os.chdir(path)
-    install_cmd(ctx)
-
 
 def gen_template(
     ctx,
@@ -189,8 +183,50 @@ def gen_template(
         with open(os.path.join(path, 'pkg.json'), 'w') as p:
             p.write(json.dumps(pkg_dict, indent=4))
 
+        installed_pkgs, failed_pkgs = install_cmd(
+                                          ctx,
+                                          pkg_json=os.path.join(path, 'pkg.json')
+                                      )
+
+        if failed_pkgs:
+            echo(f"Failed to install dependencies: {', '.join(failed_pkgs)}")
+            ctx.exit(1)
+
+        # update main script with proper include/call/output
+        main_script_name = pkg_dict['main'] if pkg_dict['main'].endswith('.nf') else f"{pkg_dict['main']}.nf"
+        update_pkg_main_nf(
+            main_script=os.path.join(path, main_script_name),
+            deps=installed_pkgs
+        )
+
+        # copy generated new package dir
         dest = os.path.join(os.getcwd(), pkg_name)
         copytree(path, dest)
+
+        # copy installed deps (skip those already installed)
+        for pkg_uri in installed_pkgs:
+            dep_src = os.path.join(tmpdirname, 'wfpr_modules', *(pkg_uri.split('/')))
+            dep_dest = os.path.join(project.root, 'wfpr_modules', *(pkg_uri.split('/')))
+
+            if not os.path.isdir(dep_dest):
+                # remove temp files created by tests
+                cmd = f"cd {dep_src}/tests && rm -fr work .nextflow* outdir"
+                run_cmd(cmd)
+
+                # remove symlinks 'wfpr_modules'
+                cmd = f"cd {dep_src} && rm -f wfpr_modules && cd tests && rm -f wfpr_modules"
+                run_cmd(cmd)
+
+                echo(f"Copy dependency to: {dep_dest}")
+                copytree(dep_src, dep_dest)
+
+                # create symlinks 'wfpr_modules'
+                cmd = f"cd {dep_dest} && ln -s ../../../../../wfpr_modules . && " \
+                      "cd tests && ln -s ../wfpr_modules ."
+                run_cmd(cmd)
+
+            else:
+                echo(f"Dependency already installed: {dep_dest}")
 
     return dest
 
@@ -218,7 +254,8 @@ def collect_new_pkg_info(ctx, project=None, template=None):
         defaults.update({
             "pkg_description": "FastQC workflow",
             "keywords": "bioinformatics, seq, qc metrics",
-            "dependencies": "github.com/icgc-argo/demo-wfpkgs/demo-utils@1.1.0",
+            "dependencies": "github.com/icgc-argo/demo-wfpkgs/demo-utils@1.1.0, "
+                            "github.com/icgc-tcga-pancancer/awesome-wfpkgs1/fastqc@0.1.0",
             "devDependencies": "",
         })
     elif pkg_type == 'function':
@@ -264,8 +301,6 @@ def collect_new_pkg_info(ctx, project=None, template=None):
     elif dependencies == '':
         dependencies = defaults['dependencies']
 
-    # TODO: validate the dependencies, format and availability
-
     devDependencies = questionary.text(
             f"devDependencies (use ',' to separate devDependencies) [{defaults['devDependencies']}]:", default=""
         ).ask()
@@ -274,8 +309,6 @@ def collect_new_pkg_info(ctx, project=None, template=None):
         ctx.abort()
     elif devDependencies == '':
         devDependencies = defaults['devDependencies']
-
-    # TODO: validate the devDependencies, format and availability
 
     answers = {
         **answers_1,
@@ -295,3 +328,75 @@ def collect_new_pkg_info(ctx, project=None, template=None):
         ctx.abort()
 
     return answers
+
+
+def update_pkg_main_nf(main_script=None, deps=None):
+    with open(main_script, 'r') as f:
+        main_script_str = f.read()
+
+    """
+    ### code fragments to be replaced ###
+    include { _replace_me_ } from "_replace_me_"
+
+      main:
+        _replace_me_(input_file)
+
+      emit:
+        output_file = _replace_me_.out.output
+    """
+
+    dep_names = {f"{dep.split('@')[0]}@": dep for dep in deps}
+
+    include_statements = ""
+    process_invoke_statements = ""
+    output_statements = ""
+
+    # let's hardcode some pkgs here for now, generalize later
+    if 'github.com/icgc-tcga-pancancer/awesome-wfpkgs1/fastqc@' in dep_names \
+            or 'github.com/icgc-tcga-pancancer/awesome-wfpkgs2/fastqc-wf@' in dep_names:
+
+        if 'github.com/icgc-tcga-pancancer/awesome-wfpkgs1/fastqc@' in dep_names:
+            call = 'fastqc'
+            include_statements = include_statements + \
+                'include { ' + call + ' } from "./wfpr_modules/' + \
+                dep_names['github.com/icgc-tcga-pancancer/awesome-wfpkgs1/fastqc@'] + f'/{call}"\n'
+
+            output_statements = f'{call}.out.output'
+
+        if 'github.com/icgc-tcga-pancancer/awesome-wfpkgs2/fastqc-wf@' in dep_names:
+            call = 'FastqcWf'
+            include_statements = include_statements + \
+                'include { ' + call + ' } from "./wfpr_modules/' + \
+                dep_names['github.com/icgc-tcga-pancancer/awesome-wfpkgs2/fastqc-wf@'] + '/fastqc-wf"\n'
+
+            output_statements = f'{call}.out.output_file'
+
+        process_invoke_statements = process_invoke_statements + \
+            f'{call}(input_file)\n'
+
+        if 'github.com/icgc-argo/demo-wfpkgs/demo-utils@' in dep_names:
+            include_statements = include_statements + \
+                'include { cleanupWorkdir } from "./wfpr_modules/' + \
+                dep_names['github.com/icgc-argo/demo-wfpkgs/demo-utils@'] + '/main"\n'
+
+            process_invoke_statements = process_invoke_statements + \
+                f'\n    cleanupWorkdir({call}.out, true)'
+
+    if include_statements and process_invoke_statements and output_statements:
+        main_script_str = main_script_str.replace(
+            'include { _replace_me_ } from "_replace_me_"',
+            include_statements
+        )
+
+        main_script_str = main_script_str.replace(
+            '_replace_me_(input_file)',
+            process_invoke_statements
+        )
+
+        main_script_str = main_script_str.replace(
+            '_replace_me_.out.output_file',
+            output_statements
+        )
+
+    with open(main_script, 'w') as f:
+        f.write(main_script_str)

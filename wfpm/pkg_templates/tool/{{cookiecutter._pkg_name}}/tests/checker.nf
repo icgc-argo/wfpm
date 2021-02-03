@@ -61,7 +61,7 @@ workflow checker {
     )
 
     file_diff(
-      {{ cookiecutter._name }}.out.output,
+      {{ cookiecutter._name }}.out.output_file,
       expected_output
     )
 }

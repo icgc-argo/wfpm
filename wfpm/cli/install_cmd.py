@@ -28,21 +28,26 @@ from wfpm.dependency import build_dep_graph
 from ..utils import test_package
 
 
-def install_cmd(ctx, force=False, skip_tests=False):
-    project = ctx.obj['PROJECT']
-    if not project.root:
-        echo("Not in a package project directory.")
-        ctx.abort()
+def install_cmd(ctx, force=False, skip_tests=False, pkg_json=None):
+    if not pkg_json:
+        project = ctx.obj['PROJECT']
+        if not project.root:
+            echo("Not in a package project directory.")
+            ctx.abort()
 
-    if str(Path(os.getcwd()).parent) != project.root:
-        echo("Not in a package directory.")
-        ctx.abort()
+        if str(Path(os.getcwd()).parent) != project.root:
+            echo("Not in a package directory.")
+            ctx.abort()
 
-    if not os.path.isfile('pkg.json'):
-        echo("Not in a package directory, 'pkg.json' not found in the current direcotry.")
-        ctx.abort()
+        if not os.path.isfile('pkg.json'):
+            echo("Not in a package directory, 'pkg.json' not found in the current direcotry.")
+            ctx.abort()
 
-    pkg_json = os.path.join(os.getcwd(), 'pkg.json')
+        install_dest = project.root
+        pkg_json = os.path.join(os.getcwd(), 'pkg.json')
+
+    else:
+        install_dest = os.path.dirname(os.path.dirname(pkg_json))  # parent dir of where pkg.json is
 
     try:
         package = Package(pkg_json=pkg_json)
@@ -61,16 +66,20 @@ def install_cmd(ctx, force=False, skip_tests=False):
         echo("No dependency defined, no installation needed.")
 
     failed_pkgs = []
+    installed_pkgs = []
     for dep_pkg_uri in dep_pkgs:
         package = Package(pkg_uri=dep_pkg_uri)
         installed = False
+
         try:
             path = package.install(
-                project.root,
+                install_dest,
                 force=force
             )
             installed = True
+            installed_pkgs.append(dep_pkg_uri)
             echo(f"Package installed in: {path.replace(os.path.join(os.getcwd(), ''), '')}")
+
         except Exception as ex:
             echo(f"{ex}")
             failed_pkgs.append(dep_pkg_uri)
@@ -78,5 +87,4 @@ def install_cmd(ctx, force=False, skip_tests=False):
         if not skip_tests and installed:
             test_package(path)
 
-    if failed_pkgs:
-        ctx.exit(1)
+    return installed_pkgs, failed_pkgs
