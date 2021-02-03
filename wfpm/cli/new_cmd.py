@@ -365,7 +365,8 @@ def update_pkg_main_nf(main_script=None, deps=None):
 
     # let's hardcode some pkgs here for now, generalize later
     if 'github.com/icgc-tcga-pancancer/awesome-wfpkgs1/fastqc@' in dep_names \
-            or 'github.com/icgc-tcga-pancancer/awesome-wfpkgs2/fastqc-wf@' in dep_names:
+            or 'github.com/icgc-tcga-pancancer/awesome-wfpkgs2/fastqc-wf@' in dep_names \
+            or 'github.com/icgc-tcga-pancancer/awesome-wfpkgs2/fastqc-wf2@' in dep_names:
 
         if 'github.com/icgc-tcga-pancancer/awesome-wfpkgs1/fastqc@' in dep_names:
             call = 'fastqc'
@@ -380,6 +381,14 @@ def update_pkg_main_nf(main_script=None, deps=None):
             include_statements = include_statements + \
                 'include { ' + call + ' } from "./wfpr_modules/' + \
                 dep_names['github.com/icgc-tcga-pancancer/awesome-wfpkgs2/fastqc-wf@'] + '/fastqc-wf"\n'
+
+            output_statements = f'{call}.out.output_file'
+
+        if 'github.com/icgc-tcga-pancancer/awesome-wfpkgs2/fastqc-wf2@' in dep_names:
+            call = 'FastqcWf2'
+            include_statements = include_statements + \
+                'include { ' + call + ' } from "./wfpr_modules/' + \
+                dep_names['github.com/icgc-tcga-pancancer/awesome-wfpkgs2/fastqc-wf2@'] + '/fastqc-wf2"\n'
 
             output_statements = f'{call}.out.output_file'
 

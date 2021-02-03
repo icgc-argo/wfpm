@@ -73,12 +73,12 @@ To show usage information of WFPM CLI, run `wfpm --help`, or simply `wfpm`
 We present here step-by-step instructions how to use `wfpm` to create Nextflow DSL2 workflow packages.
 
 Our objective is to create a workflow that uses `FASTQC` tool to produce QC metrics for input sequencing
-reads. A utility `cleanup` tool is also used to remove unneeded intermediate files. The diagram below
+reads. A utility `cleanupWorkdir` tool is also used to remove unneeded intermediate files. The diagram below
 illustrates how the workflow is structured, basically, workflow package `fastqc-wf@0.1.0` contains two
 tool packages: `fastqc@0.1.0` and `demo-utils@1.1.0`. We will be creating `fastqc@0.1.0` and
 `fastqc-wf@0.1.0` while `demo-utils@1.1.0` is already available, we just need to import it as a dependency.
 
-![](https://raw.githubusercontent.com/icgc-argo/wfpm/f76693a75eccf1226b879154cc3f137bc7955ccf/docs/source/_static/packages-to-be-built.png)
+![](https://raw.githubusercontent.com/icgc-argo/wfpm/c8b03243ea07d33ba9401fe655219273f8883f32/docs/source/_static/packages-to-be-built.png)
 
 The packages created by the demo cases can be found at:
 [https://github.com/ICGC-TCGA-PanCancer/awesome-wfpkgs1](https://github.com/ICGC-TCGA-PanCancer/awesome-wfpkgs1) and
@@ -116,7 +116,7 @@ wfpm init
 ```
 
 Please follow the prompt to provide necessary information. Most important information
-includes `github_account` (we use `ICGC-TCGA-PanCancer`) and `project_slug` (this is the project name, and
+includes `github_account` (we use `ICGC-TCGA-PanCancer`) and `Project name` (this is also the
 GitHub repo name, please make sure it matches what you have created at step 1. Here we use `awesome-wfpkgs1`).
 Once completed, you should see something similar as below:
 
@@ -173,7 +173,7 @@ the screenshot below. With this GitHub will first merge the `fastqc@0.1.0` branc
 then starts the release process, once tests are successful, a release of your first tool package
 will be made automatically.
 
-![](https://raw.githubusercontent.com/icgc-argo/wfpm/e79611e80f9fc10c728a404fd88798176add5ff7/docs/source/_static/merge-with-release.png)
+![](https://raw.githubusercontent.com/icgc-argo/wfpm/c8b03243ea07d33ba9401fe655219273f8883f32/docs/source/_static/merge-with-release.png)
 
 
 The release should be available at: [https://github.com/ICGC-TCGA-PanCancer/awesome-wfpkgs1/releases/tag/fastqc.0.1.0](https://github.com/ICGC-TCGA-PanCancer/awesome-wfpkgs1/releases/tag/fastqc.0.1.0)
@@ -199,7 +199,7 @@ wfpm init
 ```
 
 Same as in the previous demo, following the prompt to provide necessary information of the new project.
-For `github_account` and `project_slug`, we use `ICGC-TCGA-PanCancer` and `awesome-wfpkgs2` respectively
+For `github_account` and `Project name`, we use `ICGC-TCGA-PanCancer` and `awesome-wfpkgs2` respectively
 for this demo.
 
 Upon completion, the scaffold of our second project will be generated and first git commit will be done
@@ -218,18 +218,9 @@ workflow requires:
 * `github.com/icgc-tcga-pancancer/awesome-wfpkgs1/fastqc@0.1.0`
 * `github.com/icgc-argo/demo-wfpkgs/demo-utils@1.1.0`
 
-Install dependent packages so `fastqc-wf` workflow can import them.
-
-```
-wfpm install
-```
-
-The follow messages confirm the dependencies are installed properly:
-
-```
-Package installed in: wfpr_modules/github.com/icgc-tcga-pancancer/awesome-wfpkgs1/fastqc@0.1.0
-Package installed in: wfpr_modules/github.com/icgc-argo/demo-wfpkgs/demo-utils@1.1.0
-```
+`wfpm` will automatically install and test dependent packages in a temporary directory, once verified
+all dependencies tested successfully, they will be copied over to the project space. You should see the
+message: `New package created in: fastqc-wf`.
 
 Swith to a new branch named `fastqc-wf@0.1.0`, add the new files to git and push.
 
