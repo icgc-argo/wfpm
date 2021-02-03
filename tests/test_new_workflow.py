@@ -45,7 +45,7 @@ def test_good_new_workflow(workdir, datafiles):
 
     # after installation, check if tests of the installed dependencies run successful
     assert "Tested package: demo-utils@1.1.0, PASSED: 3, FAILED: 0" in result.output
-    assert "Tested package: fastqc@0.1.0, PASSED: 1, FAILED: 0" in result.output
+    assert "Tested package: fastqc@0.2.0, PASSED: 1, FAILED: 0" in result.output
 
 
 @pytest.mark.datafiles(DATA_DIR)
