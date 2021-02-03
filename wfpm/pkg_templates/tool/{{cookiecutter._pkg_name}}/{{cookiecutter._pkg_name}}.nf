@@ -38,7 +38,7 @@ process {{ cookiecutter._name }} {
     path input_file
 
   output:  // output, make update as needed
-    path "output_dir/${params.output_pattern}", emit: output
+    path "output_dir/${params.output_pattern}", emit: output_file
 
   script:
     // add and initialize variables here as needed
