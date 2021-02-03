@@ -30,7 +30,7 @@ from shutil import copytree
 from collections import OrderedDict
 from click import echo
 from cookiecutter.main import cookiecutter
-from wfpm import PKG_NAME_REGEX
+from wfpm import PKG_NAME_REGEX, PKG_VER_REGEX, CONTAINER_REG_ACCT_REGEX
 from ..pkg_templates import tool_tmplt
 from ..pkg_templates import workflow_tmplt
 from ..pkg_templates import function_tmplt
@@ -277,6 +277,11 @@ def collect_new_pkg_info(ctx, project=None, template=None):
     if not answers_1:
         ctx.abort()
 
+    if answers_1.get('pkg_version') and not re.match(PKG_VER_REGEX, answers_1['pkg_version']):
+        echo(f"Error: '{answers_1['pkg_version']}' is not a valid package version. "
+             f"Expected pattern: '{PKG_VER_REGEX}'")
+        ctx.abort()
+
     if pkg_type == 'tool':
         tool_only_answers = questionary.form(
             docker_base_image=questionary.text(
@@ -289,6 +294,13 @@ def collect_new_pkg_info(ctx, project=None, template=None):
 
         if not tool_only_answers:
             ctx.abort()
+
+        if tool_only_answers.get('registry_account') and \
+                not re.match(CONTAINER_REG_ACCT_REGEX, tool_only_answers['registry_account']):
+            echo(f"Error: '{tool_only_answers['registry_account']}' is not a valid container registry account. "
+                 f"Expected pattern: '{CONTAINER_REG_ACCT_REGEX}'")
+            ctx.abort()
+
     else:
         tool_only_answers = {}
 
@@ -361,7 +373,7 @@ def update_pkg_main_nf(main_script=None, deps=None):
                 'include { ' + call + ' } from "./wfpr_modules/' + \
                 dep_names['github.com/icgc-tcga-pancancer/awesome-wfpkgs1/fastqc@'] + f'/{call}"\n'
 
-            output_statements = f'{call}.out.output'
+            output_statements = f'{call}.out.output_file'
 
         if 'github.com/icgc-tcga-pancancer/awesome-wfpkgs2/fastqc-wf@' in dep_names:
             call = 'FastqcWf'

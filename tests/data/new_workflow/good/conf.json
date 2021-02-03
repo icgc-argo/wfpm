@@ -1,9 +1,9 @@
 {
     "full_name": "Junjun Zhang",
     "email": "junjun.ca@gmail.com",
-    "pkg_version": "0.1.0",
+    "pkg_version": "0.2.0",
     "pkg_description": "FastQC workflow",
     "keywords": "bioinformatics, seq, qc metrics",
-    "dependencies": "github.com/icgc-argo/demo-wfpkgs/demo-utils@1.1.0, github.com/icgc-tcga-pancancer/awesome-wfpkgs1/fastqc@0.1.0",
+    "dependencies": "github.com/icgc-argo/demo-wfpkgs/demo-utils@1.1.0, github.com/icgc-tcga-pancancer/awesome-wfpkgs1/fastqc@0.2.0",
     "devDependencies": ""
 }

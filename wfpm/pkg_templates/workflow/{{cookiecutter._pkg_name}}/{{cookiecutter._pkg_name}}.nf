@@ -1,7 +1,7 @@
 #!/usr/bin/env nextflow
 
 nextflow.enable.dsl = 2
-version = '{{ cookiecutter.pkg_version }}'  // tool version
+version = '{{ cookiecutter.pkg_version }}'  // package version
 
 // universal params go here, change default value as needed
 params.container_version = ""
