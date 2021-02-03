@@ -136,7 +136,7 @@ def collect_project_init_info(ctx, project=None):
         project_slug = defaults['project_slug']
 
     if not re.match(PRJ_NAME_REGEX, project_slug):
-        echo(f"Error: '{project_slug}' is not a valid project name. Expected pattern: {PRJ_NAME_REGEX}")
+        echo(f"Error: '{project_slug}' is not a valid project name. Expected pattern: '{PRJ_NAME_REGEX}'")
         ctx.abort()
 
     if os.path.isdir(project_slug):
