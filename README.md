@@ -173,7 +173,7 @@ the screenshot below. With this GitHub will first merge the `fastqc@0.1.0` branc
 then starts the release process, once tests are successful, a release of your first tool package
 will be made automatically.
 
-![](https://raw.githubusercontent.com/icgc-argo/wfpm/e79611e80f9fc10c728a404fd88798176add5ff7/docs/source/_static/merge-with-release.png)
+![](https://raw.githubusercontent.com/icgc-argo/wfpm/c8b03243ea07d33ba9401fe655219273f8883f32/docs/source/_static/merge-with-release.png)
 
 
 The release should be available at: [https://github.com/ICGC-TCGA-PanCancer/awesome-wfpkgs1/releases/tag/fastqc.0.1.0](https://github.com/ICGC-TCGA-PanCancer/awesome-wfpkgs1/releases/tag/fastqc.0.1.0)
