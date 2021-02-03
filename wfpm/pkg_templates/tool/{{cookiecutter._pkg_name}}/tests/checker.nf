@@ -4,7 +4,7 @@
 /* this block is auto-generated based on info from pkg.json where   */
 /* changes can be made if needed, do NOT modify this block manually */
 nextflow.enable.dsl = 2
-version = '{{ cookiecutter.pkg_version }}'  // tool version
+version = '{{ cookiecutter.pkg_version }}'  // package version
 
 container = [
     '{{ cookiecutter.container_registry }}': '{{ cookiecutter.container_registry }}/{{ cookiecutter.registry_account }}/{{ cookiecutter._repo_name }}.{{ cookiecutter._pkg_name }}'

@@ -5,7 +5,7 @@
 */
 
 nextflow.enable.dsl = 2
-version = '{{ cookiecutter.pkg_version }}'  // tool version
+version = '{{ cookiecutter.pkg_version }}'  // package version
 
 // universal params
 params.publish_dir = ""

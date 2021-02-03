@@ -144,8 +144,8 @@ def collect_project_init_info(ctx, project=None):
         ctx.abort()
 
     answers = questionary.form(
-        project_title=questionary.text(f"Project title [{defaults['project_title']}]:", default=""),
         github_account=questionary.text(f"GitHub account [{defaults['github_account']}]:", default=""),
+        project_title=questionary.text(f"Project title [{defaults['project_title']}]:", default=""),
         full_name=questionary.text(f"Organization or your name [{defaults['full_name']}]:", default=""),
         email=questionary.text(f"Your email [{defaults['email']}]:", default=""),
         open_source_license=questionary.select("Open source license:", choices=[

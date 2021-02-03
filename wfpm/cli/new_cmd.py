@@ -373,7 +373,7 @@ def update_pkg_main_nf(main_script=None, deps=None):
                 'include { ' + call + ' } from "./wfpr_modules/' + \
                 dep_names['github.com/icgc-tcga-pancancer/awesome-wfpkgs1/fastqc@'] + f'/{call}"\n'
 
-            output_statements = f'{call}.out.output'
+            output_statements = f'{call}.out.output_file'
 
         if 'github.com/icgc-tcga-pancancer/awesome-wfpkgs2/fastqc-wf@' in dep_names:
             call = 'FastqcWf'
