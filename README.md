@@ -116,7 +116,7 @@ wfpm init
 ```
 
 Please follow the prompt to provide necessary information. Most important information
-includes `github_account` (we use `ICGC-TCGA-PanCancer`) and `project_slug` (this is the project name, and
+includes `github_account` (we use `ICGC-TCGA-PanCancer`) and `Project name` (this is also the
 GitHub repo name, please make sure it matches what you have created at step 1. Here we use `awesome-wfpkgs1`).
 Once completed, you should see something similar as below:
 
@@ -199,7 +199,7 @@ wfpm init
 ```
 
 Same as in the previous demo, following the prompt to provide necessary information of the new project.
-For `github_account` and `project_slug`, we use `ICGC-TCGA-PanCancer` and `awesome-wfpkgs2` respectively
+For `github_account` and `Project name`, we use `ICGC-TCGA-PanCancer` and `awesome-wfpkgs2` respectively
 for this demo.
 
 Upon completion, the scaffold of our second project will be generated and first git commit will be done
@@ -218,18 +218,9 @@ workflow requires:
 * `github.com/icgc-tcga-pancancer/awesome-wfpkgs1/fastqc@0.1.0`
 * `github.com/icgc-argo/demo-wfpkgs/demo-utils@1.1.0`
 
-Install dependent packages so `fastqc-wf` workflow can import them.
-
-```
-wfpm install
-```
-
-The follow messages confirm the dependencies are installed properly:
-
-```
-Package installed in: wfpr_modules/github.com/icgc-tcga-pancancer/awesome-wfpkgs1/fastqc@0.1.0
-Package installed in: wfpr_modules/github.com/icgc-argo/demo-wfpkgs/demo-utils@1.1.0
-```
+`wfpm` will automatically install and test dependent packages in a temporary directory, once verified
+all dependencies tested successfully, they will be copied over to the project space. You should see the
+message: `New package created in: fastqc-wf`.
 
 Swith to a new branch named `fastqc-wf@0.1.0`, add the new files to git and push.
 
