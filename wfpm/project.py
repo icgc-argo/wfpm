@@ -25,7 +25,7 @@ import yaml
 from glob import glob
 from typing import List
 from click import echo
-from .config import Config
+from .git import Git
 from .package import Package
 from .utils import locate_nearest_parent_dir_with_file
 
@@ -34,7 +34,8 @@ class Project(object):
     """
     Project object keeps all information about the package project
     """
-    config: Config = None
+    debug: bool = False
+    git: Git = None
     root: str = None
     name: str = None
     fullname: str = None
@@ -49,7 +50,8 @@ class Project(object):
 
     def __init__(self, debug=False, project_root=None):
         self.cwd = os.getcwd()
-        self.config = Config(debug=debug)
+        self.debug = debug
+        self.git = Git()
 
         if project_root:
             if os.path.isfile(os.path.join(project_root, '.wfpm')):
@@ -70,7 +72,8 @@ class Project(object):
 
             fields = ['project_name', 'repo_type', 'repo_server', 'repo_account']
             if set(fields) - set(conf.keys()):
-                raise Exception(f"Invalid .wfpm file: {self.config_file}, expected fields: {', '.join(fields)}")
+                raise Exception(f"Invalid .wfpm file: {os.path.join(self.root, '.wfpm')}, "
+                                f"expected fields: {', '.join(fields)}")
             else:
                 self.name = conf['project_name']
                 self.repo_type = conf['repo_type']
