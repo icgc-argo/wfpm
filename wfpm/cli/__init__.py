@@ -28,7 +28,6 @@ from .list_cmd import list_cmd
 from .uninstall_cmd import uninstall_cmd
 from .outdated_cmd import outdated_cmd
 from .test_cmd import test_cmd
-from .config_cmd import config_cmd
 from wfpm.project import Project
 
 
@@ -133,14 +132,3 @@ def test(ctx):
     Run tests.
     """
     test_cmd(ctx)
-
-
-@main.command()
-@click.option('--set', '-s', is_flag=True, help="Create global config file '.wfpmconf' under user home dir.")
-@click.option('--force', '-f', is_flag=True, help="Force to overwrite.")
-@click.pass_context
-def config(ctx, set, force):
-    """
-    Show or set configuration for wfpm.
-    """
-    config_cmd(ctx, set=set, force=force)

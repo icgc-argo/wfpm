@@ -21,6 +21,7 @@
 
 import os
 import re
+import sys
 import json
 import tempfile
 import random
@@ -47,6 +48,10 @@ def new_cmd(ctx, pkg_type, pkg_name, conf_json=None):
     if project.root != os.getcwd():
         echo(f"Must run this command under the project root dir: {project.root}")
         ctx.abort()
+
+    if not (project.git.user_name and project.git.user_email):
+        echo("Git not configured with 'user.name' and 'user.email', please set them using 'git config'.")
+        sys.exit(1)
 
     if not re.match(PKG_NAME_REGEX, pkg_name):
         echo(f"'{pkg_name}' is not a valid package name, expected name pattern: '{PKG_NAME_REGEX}'")
@@ -235,8 +240,8 @@ def collect_new_pkg_info(ctx, project=None, template=None):
     pkg_type = os.path.basename(template)
 
     defaults = {
-        "full_name": f"{project.config.git_user_name}",
-        "email": f"{project.config.git_user_email}",
+        "full_name": f"{project.git.user_name}",
+        "email": f"{project.git.user_email}",
         "pkg_version": "0.1.0",
     }
 
@@ -255,7 +260,7 @@ def collect_new_pkg_info(ctx, project=None, template=None):
             "pkg_description": "FastQC workflow",
             "keywords": "bioinformatics, seq, qc metrics",
             "dependencies": "github.com/icgc-argo/demo-wfpkgs/demo-utils@1.1.0, "
-                            "github.com/icgc-tcga-pancancer/awesome-wfpkgs1/fastqc@0.1.0",
+                            "github.com/icgc-tcga-pancancer/awesome-wfpkgs1/fastqc@0.2.0",
             "devDependencies": "",
         })
     elif pkg_type == 'function':

@@ -21,6 +21,7 @@
 
 import os
 import re
+import sys
 import json
 import tempfile
 import random
@@ -33,17 +34,18 @@ from cookiecutter.exceptions import OutputDirExistsException, FailedHookExceptio
 from wfpm import PRJ_NAME_REGEX, GIT_ACCT_REGEX
 from wfpm.project import Project
 from ..pkg_templates import project_tmplt
-from ..utils import run_cmd, validate_project_name, git_cli_readiness
+from ..utils import run_cmd, validate_project_name
 
 
 def init_cmd(ctx, conf_json=None):
     project = ctx.obj['PROJECT']
     if project.root:
         echo(f"Already in a package project directory: {project.root}")
-        ctx.abort()
+        sys.exit(1)
 
-    if not git_cli_readiness():
-        ctx.exit(1)
+    if not (project.git.user_name and project.git.user_email):
+        echo("Git not configured with 'user.name' and 'user.email', please set them using 'git config'.")
+        sys.exit(1)
 
     try:
         project_dir = gen_project(ctx, project, project_tmplt=project_tmplt, conf_json=conf_json)
@@ -56,7 +58,7 @@ def init_cmd(ctx, conf_json=None):
         ctx.abort()
 
     # recreate the project
-    project = Project(project_root=project_dir, debug=project.config.debug)
+    project = Project(project_root=project_dir, debug=project.debug)
     ctx.obj['PROJECT'] = project
 
     cmd = f"cd {project_dir} && git init && git add . && git commit -m 'inital commit' && git branch -M main && " \
@@ -119,8 +121,8 @@ def gen_project(
 
 def collect_project_init_info(ctx, project=None):
     defaults = {
-        "full_name": "Your Name",
-        "email": f"{project.config.git_user_email}",
+        "full_name": "Organization Name",
+        "email": f"{project.git.user_email}",
         "project_title": "Awesome Workflow Packages",
         "github_account": "github-account",
         "project_slug": "github-repo",
