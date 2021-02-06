@@ -21,11 +21,10 @@
 
 import os
 import re
-import yaml
 import subprocess
 from glob import glob
 from click import echo
-from typing import Tuple
+from typing import Tuple, List
 from wfpm import PRJ_NAME_REGEX, PKG_NAME_REGEX, PKG_VER_REGEX
 
 
@@ -104,3 +103,29 @@ def validate_project_name(name):
         raise Exception(f"Name invalid, does not match the required pattern: {PRJ_NAME_REGEX}")
 
     return True
+
+
+def pkg_asset_download_urls(url) -> List[str]:
+    """
+    Example URL Patterns
+       package tarball: https://github.com/ICGC-TCGA-PanCancer/awesome-wfpkgs2/releases/download/fastqc-wf.0.2.0/fastqc-wf.0.2.0.tar.gz
+       package json: https://github.com/ICGC-TCGA-PanCancer/awesome-wfpkgs2/releases/download/fastqc-wf.0.2.0/pkg-release.json
+    This currently is to address the compatibilty issue related to
+    release tag change, eg, fastqc-wf.0.2.0 => fastqc-wf.v0.2.0
+    The added 'v' provides a bit more clarity and it's mentioned in github as a common practice
+
+    Later it's possible we use this to expand support for downloading package asset in multiple mirror sites
+    """
+    urls = [url]
+
+    url_parts = url.split('/')
+    release_tag, filename = url_parts[-2:]
+
+    if release_tag.split('.')[1].startswith('v'):
+        release_tag = release_tag.replace('.v', '.', 1)
+        if filename.endswith('.tar.gz'):
+            filename = filename.replace('.v', '.', 1)
+
+        urls.append('/'.join(url_parts[:-2] + [release_tag, filename]))
+
+    return urls

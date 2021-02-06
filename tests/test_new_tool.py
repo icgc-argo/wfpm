@@ -25,6 +25,7 @@ from pathlib import Path
 from shutil import copytree
 from click.testing import CliRunner
 from wfpm.cli import main
+from wfpm.utils import run_cmd
 
 TEST_DIR = Path(__file__).parent
 DATA_DIR = os.path.join(TEST_DIR, 'data')
@@ -35,7 +36,13 @@ def test_good_new_tool(workdir, datafiles):
     # copy _project_dir to under workdir, then make it cwd
     copytree(os.path.join(datafiles, '_project_dir'), os.path.join(workdir, '_project_dir'))
     os.chdir(os.path.join(workdir, '_project_dir'))
-    print(os.getcwd())
+
+    run_cmd('mv .git-db .git')
+    # workaround for now, otherwise it complains git branch not clean,
+    # two scripts strangely render mode change
+    # old mode 100755
+    # new mode 100644
+    run_cmd('git checkout .')
 
     runner = CliRunner()
     conf_json = os.path.join(datafiles, 'new_tool', 'good', 'conf.json')

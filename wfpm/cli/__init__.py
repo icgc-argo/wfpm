@@ -28,6 +28,7 @@ from .list_cmd import list_cmd
 from .uninstall_cmd import uninstall_cmd
 from .outdated_cmd import outdated_cmd
 from .test_cmd import test_cmd
+from .workon_cmd import workon_cmd
 from wfpm.project import Project
 
 
@@ -132,3 +133,18 @@ def test(ctx):
     Run tests.
     """
     test_cmd(ctx)
+
+
+@main.command()
+@click.argument('pkg', required=False)
+@click.option('--stop', '-s', is_flag=True, help='Stop working on the current package.')
+@click.pass_context
+def workon(ctx, pkg=None, stop=False):
+    """
+    Start to work on a package or show in progress packages.
+    """
+    workon_cmd(
+        project=ctx.obj['PROJECT'],
+        pkg=pkg,
+        stop=stop
+    )
