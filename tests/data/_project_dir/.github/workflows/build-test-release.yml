@@ -156,7 +156,7 @@ jobs:
       shell: bash
       run: |
         ./scripts/cleanup_temp_files.sh  # just in case
-        PKG_TAR=${{ steps.get_pkg_info.outputs.pkg_name }}.v${{ steps.get_pkg_info.outputs.pkg_ver }}.tar.gz
+        PKG_TAR=${{ steps.get_pkg_info.outputs.pkg_name }}.${{ steps.get_pkg_info.outputs.pkg_ver }}.tar.gz
         pushd ${{ steps.get_pkg_info.outputs.pkg_name }}
         tar --exclude=wfpr_modules --dereference -czvf ../$PKG_TAR .
         popd
@@ -172,8 +172,8 @@ jobs:
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
-        tag_name: ${{ steps.get_pkg_info.outputs.pkg_name }}.v${{ steps.get_pkg_info.outputs.pkg_ver }}
-        release_name: ${{ steps.get_pkg_info.outputs.pkg_name }}.v${{ steps.get_pkg_info.outputs.pkg_ver }}
+        tag_name: ${{ steps.get_pkg_info.outputs.pkg_name }}.${{ steps.get_pkg_info.outputs.pkg_ver }}
+        release_name: ${{ steps.get_pkg_info.outputs.pkg_name }}.${{ steps.get_pkg_info.outputs.pkg_ver }}
         body: |
           * Release `${{ steps.get_pkg_info.outputs.pkg_name }}.${{ steps.get_pkg_info.outputs.pkg_ver }}` (${{ github.sha }})
           * Package `${{ steps.prep_assets.outputs.pkg_tar }}` (sha256: `${{ steps.prep_assets.outputs.pkg_tar_sha }}`)

@@ -32,11 +32,14 @@ from collections import OrderedDict
 from click import echo
 from cookiecutter.main import cookiecutter
 from wfpm import PKG_NAME_REGEX, PKG_VER_REGEX, CONTAINER_REG_ACCT_REGEX
+from wfpm.project import Project
+from wfpm.package import Package
 from ..pkg_templates import tool_tmplt
 from ..pkg_templates import workflow_tmplt
 from ..pkg_templates import function_tmplt
 from ..utils import run_cmd
 from .install_cmd import install_cmd
+from .workon_cmd import workon_cmd
 
 
 def new_cmd(ctx, pkg_type, pkg_name, conf_json=None):
@@ -53,6 +56,11 @@ def new_cmd(ctx, pkg_type, pkg_name, conf_json=None):
         echo("Git not configured with 'user.name' and 'user.email', please set them using 'git config'.")
         sys.exit(1)
 
+    if project.pkg_workon:
+        echo(f"Must stop working on '{project.pkg_workon}' before creating a new one. "
+             "Please run 'wfpm workon -s'")
+        sys.exit(1)
+
     if not re.match(PKG_NAME_REGEX, pkg_name):
         echo(f"'{pkg_name}' is not a valid package name, expected name pattern: '{PKG_NAME_REGEX}'")
         ctx.abort()
@@ -60,6 +68,11 @@ def new_cmd(ctx, pkg_type, pkg_name, conf_json=None):
     if os.path.isdir(os.path.join(project.root, pkg_name)):
         echo(f"Package '{ pkg_name }' already exists.")
         ctx.abort()
+
+    if not project.git.branch_clean():
+        echo(f"Unable to create new package, git branch '{project.git.current_branch}' not clean. "
+             "Please complete current work and commit changes.")
+        sys.exit(1)
 
     name_parts = pkg_name.split('-')
     workflow_name = ''.join([p.capitalize() for p in name_parts])  # workflow name starts with upper
@@ -109,6 +122,11 @@ def new_cmd(ctx, pkg_type, pkg_name, conf_json=None):
     # create symlinks for 'wfpr_modules'
     cmd = f"cd {path} && ln -s ../wfpr_modules && cd tests && ln -s ../wfpr_modules"
     run_cmd(cmd)
+
+    new_pkg = Package(pkg_json=os.path.join(path, 'pkg.json'))
+    project.git.cmd_new_branch(new_pkg.fullname)
+    project = Project(project_root=project.root, debug=project.debug)
+    workon_cmd(project=project, pkg=new_pkg.fullname)
     echo(f"New package created in: {os.path.basename(path)}")
 
 

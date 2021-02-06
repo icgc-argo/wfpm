@@ -20,6 +20,11 @@
 """
 
 import re
+from click import echo
+from typing import List, Dict
+from functools import lru_cache
+from collections import defaultdict
+from distutils.version import LooseVersion
 from .utils import run_cmd
 
 
@@ -30,6 +35,13 @@ class Git(object):
     version: str = None
     user_name: str = ''
     user_email: str = ''
+    remote_repo: bool = True
+    current_branch: str = None
+    local_branches: List[str] = []
+    remote_branches: List[str] = []
+    tags: List[str] = []
+    offline: bool = False
+    releases: Dict = {}
 
     def __init__(self):
         self._get_git_info()
@@ -54,3 +66,103 @@ class Git(object):
 
                 if key.strip() == 'user.email':
                     self.user_email = value.strip()
+
+        """
+        Need to think about it more how/when to do this
+        # fetch remote branches and tags
+        stdout, stderr, ret = run_cmd('git fetch --all --tags')
+        if ret != 0:  # cmd failed
+            if 'Repository not found' in stdout:
+                echo("Remote repository not found. Please make sure the repository exists.")
+                self.remote_repo = False
+            else:
+                echo("Info: unable to fetch remote git origin. "
+                     "Seems like you are offline or don't have the correct access rights.")
+                self.remote_repo = None
+                self.offline = True
+        """
+
+        branch_info_str, stderr, ret = run_cmd('git branch -a')
+        if ret == 0:
+            for branch in branch_info_str.split('\n'):
+                branch = branch.strip()
+                if len(branch) == 0:
+                    continue
+
+                if branch.startswith('remotes/origin/'):
+                    self.remote_branches.append(branch.replace('remotes/origin/', ''))
+                else:
+                    if branch.startswith('*'):
+                        self.current_branch = branch.split(' ')[1]
+                        self.local_branches.append(self.current_branch)
+                    else:
+                        self.local_branches.append(branch)
+
+        tag_info_str, stderr, ret = run_cmd('git tag -l')
+        if ret == 0:
+            for tag in tag_info_str.split('\n'):
+                if len(tag) == 0:
+                    continue
+                self.tags.append(tag)
+
+    @property
+    @lru_cache()
+    def rel_candidates(self):
+        cans = {}
+        rel_cans = {}
+        branches = set(self.remote_branches).union(set(self.local_branches))
+        for br in branches:
+            if '@' not in br:
+                continue
+            name, ver = br.split('@')
+            if name not in cans:
+                cans[name] = set()
+            cans[name].add(ver)
+
+        for pkg in cans:
+            if pkg in self.releases:
+                x = cans[pkg] - self.releases[pkg]
+                if x:
+                    rel_cans[pkg] = sorted(x, key=LooseVersion, reverse=True)
+            else:
+                rel_cans[pkg] = sorted(cans[pkg], key=LooseVersion, reverse=True)
+
+        return rel_cans
+
+    @property
+    @lru_cache()
+    def releases(self):
+        rels = defaultdict(set)
+        for t in self.tags:
+            parts = t.split('.')
+            name = parts[0]
+            ver = '.'.join(parts[1:]).lstrip('v')
+            rels[name].add(ver)
+
+        return rels
+
+    def cmd_checkout_branch(self, branch=None):
+        if not branch:
+            raise Exception("Error: must specify a branch to switch to.")
+
+        stdout, stderr, ret = run_cmd(f'git checkout {branch}')
+        if ret != 0:
+            raise Exception(f"Failed to switch to '{branch}'.\nSTDOUT: {stdout}\nSTDERR: {stderr}")
+        else:
+            self.current_branch = branch
+
+    def cmd_new_branch(self, branch=None):
+        if not branch:
+            raise Exception("Error: must specify a new branch name.")
+
+        stdout, stderr, ret = run_cmd(f'git checkout -b {branch}')
+        if ret != 0:
+            raise Exception(f"Failed to create new branch '{branch}'.\nSTDOUT: {stdout}\nSTDERR: {stderr}")
+        else:
+            self.current_branch = branch
+
+    def branch_clean(self):
+        stdout, stderr, ret = run_cmd('git status')
+        if 'working tree clean' in stdout:
+            return True
+        return False

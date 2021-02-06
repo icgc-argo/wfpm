@@ -25,6 +25,7 @@ import yaml
 from glob import glob
 from typing import List
 from click import echo
+from functools import lru_cache
 from .git import Git
 from .package import Package
 from .utils import locate_nearest_parent_dir_with_file
@@ -47,6 +48,9 @@ class Project(object):
     current_pkg: Package = None
     pkgs: List[Package] = []
     installed_pkgs: List[Package] = []
+    pkg_workon: str = None
+    pkgs_in_dev: List[str] = []
+    pkgs_released: List[str] = []
 
     def __init__(self, debug=False, project_root=None):
         self.cwd = os.getcwd()
@@ -82,6 +86,7 @@ class Project(object):
                 self.license = conf.get('license', '')
 
         self._populate_pkgs()
+        self._populate_pkg_status()
 
     @property
     def fullname(self):
@@ -108,6 +113,7 @@ class Project(object):
                 self.current_pkg = pkg
 
     @property
+    @lru_cache()
     def installed_pkgs(self):
         installed_pkgs = []
         pkg_jsons = glob(os.path.join(
@@ -125,3 +131,21 @@ class Project(object):
             installed_pkgs.append(pkg)
 
         return installed_pkgs
+
+    def _populate_pkg_status(self):
+        rel_cans = self.git.rel_candidates
+        for pkg in sorted(rel_cans.keys()):
+            self.pkgs_in_dev += [f"{pkg}@{v}" for v in rel_cans[pkg]]
+
+        rels = self.git.releases
+        for pkg in sorted(rels.keys()):
+            self.pkgs_released += [f"{pkg}@{v}" for v in rels[pkg]]
+
+        if self.git.current_branch and \
+                '@' in self.git.current_branch and \
+                self.git.current_branch in self.pkgs_in_dev:
+            self.pkg_workon = self.git.current_branch
+
+    def set_workon(self, pkg_fullname):
+        self.git.cmd_checkout_branch(branch=pkg_fullname)
+        self.pkg_workon = pkg_fullname

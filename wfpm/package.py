@@ -24,7 +24,7 @@ import json
 import requests
 import tempfile
 from typing import Set
-from .utils import run_cmd, pkg_uri_parser
+from .utils import run_cmd, pkg_uri_parser, pkg_asset_download_urls
 
 
 class Package(object):
@@ -65,11 +65,17 @@ class Package(object):
         self.repo_name = repo_name
 
         # download pkg-release.json from github release asset and parse it to get addition info
-        r = requests.get(self.pkg_json_url)
-        if r.status_code == 200:
-            pkg_json_str = r.text
-        else:
-            raise Exception(f"Failed to download package json from: {self.pkg_json_url}")
+        pkg_json_str = ''
+        download_urls = pkg_asset_download_urls(self.pkg_json_url)
+        for download_url in download_urls:
+            r = requests.get(download_url)
+            if r.status_code == 200:
+                pkg_json_str = r.text
+                break
+
+        if not pkg_json_str:
+            raise Exception("Failed to download 'pkg-release.json'. Looks like this package has "
+                            f"not been released: {self.pkg_uri}.")
 
         self._init_by_json(pkg_json_str=pkg_json_str)
 
@@ -111,20 +117,16 @@ class Package(object):
         return f"{self.project_fullname}/{self.fullname}"
 
     @property
-    def pkg_tar(self):
-        return self.fullname.replace('@', '.')
-
-    @property
-    def pkg_tarfile(self):
-        return f"{self.pkg_tar}.tar.gz"
+    def release_tag(self):
+        return self.fullname.replace('@', '.v')
 
     @property
     def pkg_tar_url(self):
-        return f"https://{self.project_fullname}/releases/download/{self.pkg_tar}/{self.pkg_tarfile}"
+        return f"https://{self.project_fullname}/releases/download/{self.release_tag}/{self.release_tag}.tar.gz"
 
     @property
     def pkg_json_url(self):
-        return f"https://{self.project_fullname}/releases/download/{self.pkg_tar}/pkg-release.json"
+        return f"https://{self.project_fullname}/releases/download/{self.release_tag}/pkg-release.json"
 
     def install(self, target_project_root, force=False):
         target_path = os.path.join(
@@ -145,8 +147,17 @@ class Package(object):
             if ret != 0:
                 raise Exception(f"Unable to remove previously installed package: {err}")
 
-        response = requests.get(self.pkg_tar_url, stream=True)
-        if response.status_code == 200:
+        return self._download_and_install(target_path)
+
+    def _download_and_install(self, target_path=None):
+        success = False
+        for download_url in pkg_asset_download_urls(self.pkg_tar_url):
+            response = requests.get(download_url, stream=True)
+            if response.status_code == 200:
+                success = True
+                break
+
+        if success:
             with tempfile.TemporaryDirectory() as tmpdirname:
                 local_tar_path = os.path.join(tmpdirname, os.path.basename(self.pkg_tar_url))
 
