@@ -27,7 +27,7 @@ import tempfile
 import random
 import string
 import questionary
-from shutil import copytree
+from shutil import copytree, rmtree
 from collections import OrderedDict
 from click import echo
 from cookiecutter.main import cookiecutter
@@ -68,6 +68,17 @@ def new_cmd(ctx, pkg_type, pkg_name, conf_json=None):
     if os.path.isdir(os.path.join(project.root, pkg_name)):
         echo(f"Package '{ pkg_name }' already exists.")
         ctx.abort()
+
+    for pkg in project.pkgs_in_dev:
+        if pkg_name == pkg.split('@')[0]:
+            echo(f"Package '{pkg_name}' is already in development as '{pkg}'. "
+                 f"To continue work on it, run: wfpm workon {pkg}")
+            sys.exit(1)
+
+    for pkg in project.pkgs_released:
+        if pkg_name == pkg.split('@')[0]:
+            echo(f"Package '{pkg_name}' is already released as '{pkg}', not create.")
+            sys.exit(1)
 
     if not project.git.branch_clean():
         echo(f"Unable to create new package, git branch '{project.git.current_branch}' not clean. "
@@ -127,7 +138,12 @@ def new_cmd(ctx, pkg_type, pkg_name, conf_json=None):
     project.git.cmd_new_branch(new_pkg.fullname)
     project = Project(project_root=project.root, debug=project.debug)
     workon_cmd(project=project, pkg=new_pkg.fullname)
-    echo(f"New package created in: {os.path.basename(path)}")
+
+    paths_to_add = f"{path} {os.path.join(project.root, 'wfpr_modules')}"
+    project.git.cmd_add_and_commit(path=paths_to_add, message=f'added {project.pkg_workon}')
+
+    echo(f"New package created in: {os.path.basename(path)}. Starting code added and "
+         "committed to git. Please continue working on it.")
 
 
 def gen_template(
@@ -231,25 +247,24 @@ def gen_template(
             dep_src = os.path.join(tmpdirname, 'wfpr_modules', *(pkg_uri.split('/')))
             dep_dest = os.path.join(project.root, 'wfpr_modules', *(pkg_uri.split('/')))
 
-            if not os.path.isdir(dep_dest):
-                # remove temp files created by tests
-                cmd = f"cd {dep_src}/tests && rm -fr work .nextflow* outdir"
-                run_cmd(cmd)
+            if os.path.exists(dep_dest):
+                # we could choose skipping for previously installed package, but let's
+                # remove and re-copying again, we may later let the user choose what to do
+                rmtree(dep_dest)
 
-                # remove symlinks 'wfpr_modules'
-                cmd = f"cd {dep_src} && rm -f wfpr_modules && cd tests && rm -f wfpr_modules"
-                run_cmd(cmd)
+            # remove temp files created by tests
+            cmd = f"cd {dep_src}/tests && rm -fr work .nextflow* outdir"
+            # remove symlinks 'wfpr_modules'
+            cmd += f"&& cd {dep_src} && rm -f wfpr_modules && cd tests && rm -f wfpr_modules"
+            run_cmd(cmd)
 
-                echo(f"Copy dependency to: {dep_dest}")
-                copytree(dep_src, dep_dest)
+            echo(f"Copying dependency '{pkg_uri}' to: {os.path.join(project.root, 'wfpr_modules')}")
+            copytree(dep_src, dep_dest)
 
-                # create symlinks 'wfpr_modules'
-                cmd = f"cd {dep_dest} && ln -s ../../../../../wfpr_modules . && " \
-                      "cd tests && ln -s ../wfpr_modules ."
-                run_cmd(cmd)
-
-            else:
-                echo(f"Dependency already installed: {dep_dest}")
+            # create symlinks 'wfpr_modules'
+            cmd = f"cd {dep_dest} && ln -s ../../../../../wfpr_modules . && " \
+                  "cd tests && ln -s ../wfpr_modules ."
+            run_cmd(cmd)
 
     return dest
 

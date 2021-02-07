@@ -29,6 +29,7 @@ from .uninstall_cmd import uninstall_cmd
 from .outdated_cmd import outdated_cmd
 from .test_cmd import test_cmd
 from .workon_cmd import workon_cmd
+from .bumpver_cmd import bumpver_cmd
 from wfpm.project import Project
 
 
@@ -127,12 +128,18 @@ def outdated(ctx):
 
 
 @main.command()
+# TODO: add an optional argument to specify which package to test
 @click.pass_context
 def test(ctx):
     """
     Run tests.
     """
-    test_cmd(ctx)
+    project = ctx.obj.get('PROJECT')
+    if not project.root:
+        click.echo("Not in a package project directory.")
+        ctx.abort()
+
+    test_cmd(project)
 
 
 @main.command()
@@ -143,8 +150,33 @@ def workon(ctx, pkg=None, stop=False):
     """
     Start to work on a package or show in progress packages.
     """
+    project = ctx.obj.get('PROJECT')
+    if not project.root:
+        click.echo("Not in a package project directory.")
+        ctx.abort()
+
     workon_cmd(
-        project=ctx.obj['PROJECT'],
+        project=project,
         pkg=pkg,
         stop=stop
+    )
+
+
+@main.command()
+@click.argument('pkg', type=str, required=True)
+@click.argument('version', type=str, required=True)
+@click.pass_context
+def bumpver(ctx, pkg=None, version=False):
+    """
+    Bump up version of a released or in development package.
+    """
+    project = ctx.obj.get('PROJECT')
+    if not project.root:
+        click.echo("Not in a package project directory.")
+        ctx.abort()
+
+    bumpver_cmd(
+        project=project,
+        pkg=pkg,
+        version=version
     )

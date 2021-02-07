@@ -19,6 +19,7 @@
         Junjun Zhang <junjun.zhang@oicr.on.ca>
 """
 
+import os
 import sys
 from click import echo
 from wfpm.project import Project
@@ -29,26 +30,79 @@ def workon_cmd(
     pkg: str = None,
     stop: bool = False
 ):
-    if stop:
-        if project.pkg_workon:
-            if not project.git.branch_clean():
-                echo(f"Package branch '{project.pkg_workon}' not clean, please complete on-going work and commit changes.")
-                sys.exit(1)
+    if stop and pkg:
+        echo("When '-s' is used, no pkg argument can be supplied.")
+        sys.exit(1)
 
-            project.git.cmd_checkout_branch('main')
-            echo(f"Stopped work on {project.pkg_workon}")
-        else:
-            echo("Not working on any package.")
+    if pkg is None and not stop:
+        display_pkg_info(project)
         sys.exit()
 
-    if pkg is None:
-        echo(f"Package being worked on: {project.pkg_workon if project.pkg_workon else '<none>'}")
-        echo(f"Packages in development: {', '.join(project.pkgs_in_dev) if project.pkgs_in_dev else '<none>'}")
+    if stop:
+        stop_workon(project)
+        sys.exit()
+
+    if project.pkg_workon and (pkg == project.pkg_workon or pkg == project.pkg_workon.split('@')[0]):
+        echo(f"Working on '{project.pkg_workon}', no change.")
 
     elif pkg in project.pkgs_in_dev:
         project.set_workon(pkg)
         echo(f"Now work on '{pkg}'")
 
+    elif pkg in project.git.rel_candidates:
+        if len(project.git.rel_candidates[pkg]) == 1:
+            workon_pkg = '@'.join([pkg, project.git.rel_candidates[pkg][0]])
+            project.set_workon(workon_pkg)
+            echo(f"Now work on '{workon_pkg}'")
+
+        else:
+            echo(f"Multiple versions of the package are in development: {', '.join(project.git.rel_candidates[pkg])}")
+
+            workon_pkg_1 = '@'.join([pkg, project.git.rel_candidates[pkg][0]])
+            workon_pkg_2 = '@'.join([pkg, project.git.rel_candidates[pkg][1]])
+            echo("Please specify which version to work on, eg, ", nl=False)
+            echo(f"'wfpm workon {workon_pkg_1}' or 'wfpm workon {workon_pkg_2}'")
+
     else:
         echo(f"Not a package in development: '{pkg}'")
-        echo("To create a new package, please run 'wfpm new' command.")
+
+
+def display_pkg_info(project=None):
+    echo(f"Package being worked on: {project.pkg_workon if project.pkg_workon else '<none>'}")
+
+    echo("Packages in development:", nl=False)
+    if not project.git.rel_candidates:
+        echo(" <none>")
+    else:
+        echo("")
+
+    for pkg in sorted(project.git.rel_candidates):
+        echo(f"  {pkg}: ", nl=False)
+        echo(', '.join(project.git.rel_candidates[pkg]))
+
+    echo("Packages released:", nl=False)
+    if not project.git.releases:
+        echo(" <none>")
+    else:
+        echo("")
+
+    for pkg in sorted(project.git.releases):
+        echo(f"  {pkg}: ", nl=False)
+        echo(', '.join(project.git.releases[pkg]))
+
+
+def stop_workon(project=None):
+    if project.pkg_workon:
+        if os.getcwd() != project.root:
+            echo("Must run this command under project root dir.")
+            sys.exit(1)
+
+        if not project.git.branch_clean():
+            echo(f"Package branch '{project.pkg_workon}' not clean, please complete on-going work and commit changes.")
+            sys.exit(1)
+
+        project.git.cmd_checkout_branch('main')
+        echo(f"Stopped work on {project.pkg_workon}")
+
+    else:
+        echo("Not working on any package.")
