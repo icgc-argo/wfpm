@@ -43,7 +43,7 @@ def workon_cmd(
         sys.exit()
 
     if project.pkg_workon and (pkg == project.pkg_workon or pkg == project.pkg_workon.split('@')[0]):
-        echo(f"Working on '{project.pkg_workon}', no change.")
+        echo(f"Working on '{project.pkg_workon}'")
 
     elif pkg in project.pkgs_in_dev:
         project.set_workon(pkg)
