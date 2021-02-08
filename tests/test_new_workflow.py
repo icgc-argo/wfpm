@@ -51,6 +51,9 @@ def test_good_new_workflow(workdir, datafiles):
     assert "Tested package: demo-utils@1.1.0, PASSED: 3, FAILED: 0" in result.output
     assert "Tested package: fastqc@0.2.0, PASSED: 1, FAILED: 0" in result.output
 
+    assert "Copying dependency 'github.com/icgc-argo/demo-wfpkgs/demo-utils@1.1.0' to:" in result.output
+    assert "Copying dependency 'github.com/icgc-tcga-pancancer/awesome-wfpkgs1/fastqc@0.2.0' to:" in result.output
+
 
 @pytest.mark.datafiles(DATA_DIR)
 def test_good_new_workflow_install(workdir, datafiles):
@@ -64,6 +67,18 @@ def test_good_new_workflow_install(workdir, datafiles):
 
 
 @pytest.mark.datafiles(DATA_DIR)
+def test_good_new_workflow_install_force(workdir, datafiles):
+    os.chdir(os.path.join(workdir, '_project_dir', 'fastqc-wf'))
+
+    runner = CliRunner()
+    cli_option = ['install', '-f']
+    result = runner.invoke(main, cli_option)
+
+    assert "Tested package: demo-utils@1.1.0, PASSED: 3, FAILED: 0" in result.output
+    assert "Tested package: fastqc@0.2.0, PASSED: 1, FAILED: 0" in result.output
+
+
+@pytest.mark.datafiles(DATA_DIR)
 def test_good_new_workflow_test(workdir, datafiles):
     os.chdir(os.path.join(workdir, '_project_dir', 'fastqc-wf'))
 
@@ -72,3 +87,49 @@ def test_good_new_workflow_test(workdir, datafiles):
     result = runner.invoke(main, cli_option)
 
     assert "Tested package: fastqc-wf, PASSED: 1, FAILED: 0" in result.output
+
+
+@pytest.mark.datafiles(DATA_DIR)
+def test_good_new_workflow_workon(workdir, datafiles):
+    os.chdir(os.path.join(workdir, '_project_dir', 'fastqc-wf'))
+
+    runner = CliRunner()
+    cli_option = ['workon']
+    result = runner.invoke(main, cli_option)
+
+    assert "Package being worked on: fastqc-wf@0.2.0" in result.output
+    assert "Packages released: <none>\nPackages in development:\n  fastqc: 0.2.0\n  fastqc-wf: 0.2.0" in result.output
+
+
+@pytest.mark.datafiles(DATA_DIR)
+def test_good_new_workflow_workon_stop_fail(workdir, datafiles):
+    os.chdir(os.path.join(workdir, '_project_dir', 'fastqc-wf'))
+
+    runner = CliRunner()
+    cli_option = ['workon', '-s']
+    result = runner.invoke(main, cli_option)
+
+    assert "Must run this command under project root dir" in result.output
+
+
+@pytest.mark.datafiles(DATA_DIR)
+def test_good_new_workflow_workon_stop_ok(workdir, datafiles):
+    os.chdir(os.path.join(workdir, '_project_dir'))
+
+    runner = CliRunner()
+    cli_option = ['workon', '-s']
+    result = runner.invoke(main, cli_option)
+
+    assert "Stopped work on fastqc-wf@0.2.0" in result.output
+
+
+@pytest.mark.datafiles(DATA_DIR)
+def test_good_new_workflow_workon_none(workdir, datafiles):
+    os.chdir(os.path.join(workdir, '_project_dir'))
+
+    runner = CliRunner()
+    cli_option = ['workon']
+    result = runner.invoke(main, cli_option)
+
+    assert "Package being worked on: <none>" in result.output
+    assert "Packages released: <none>\nPackages in development:\n  fastqc: 0.2.0\n  fastqc-wf: 0.2.0" in result.output

@@ -19,11 +19,11 @@
         Junjun Zhang <junjun.zhang@oicr.on.ca>
 """
 
+import os
 import re
 from click import echo
 from typing import List, Dict
 from functools import lru_cache
-from collections import defaultdict
 from distutils.version import LooseVersion
 from .utils import run_cmd
 
@@ -63,24 +63,8 @@ class Git(object):
                 key, value = info.split('=')
                 if key.strip() == 'user.name':
                     self.user_name = value.strip()
-
-                if key.strip() == 'user.email':
+                elif key.strip() == 'user.email':
                     self.user_email = value.strip()
-
-        """
-        Need to think about it more how/when to do this
-        # fetch remote branches and tags
-        stdout, stderr, ret = run_cmd('git fetch --all --tags')
-        if ret != 0:  # cmd failed
-            if 'Repository not found' in stdout:
-                echo("Remote repository not found. Please make sure the repository exists.")
-                self.remote_repo = False
-            else:
-                echo("Info: unable to fetch remote git origin. "
-                     "Seems like you are offline or don't have the correct access rights.")
-                self.remote_repo = None
-                self.offline = True
-        """
 
         branch_info_str, stderr, ret = run_cmd('git branch -a')
         if ret == 0:
@@ -91,25 +75,23 @@ class Git(object):
 
                 if branch.startswith('remotes/origin/'):
                     self.remote_branches.append(branch.replace('remotes/origin/', ''))
+                elif branch.startswith('*'):
+                    self.current_branch = branch.split(' ')[1]
+                    self.local_branches.append(self.current_branch)
                 else:
-                    if branch.startswith('*'):
-                        self.current_branch = branch.split(' ')[1]
-                        self.local_branches.append(self.current_branch)
-                    else:
-                        self.local_branches.append(branch)
+                    self.local_branches.append(branch)
 
         tag_info_str, stderr, ret = run_cmd('git tag -l')
         if ret == 0:
             for tag in tag_info_str.split('\n'):
-                if len(tag) == 0:
-                    continue
-                self.tags.append(tag)
+                if len(tag) > 0:
+                    self.tags.append(tag)
 
     @property
     @lru_cache()
     def rel_candidates(self):
-        cans = {}
-        rel_cans = {}
+        cans = dict()
+        rel_cans = dict()
         branches = set(self.remote_branches).union(set(self.local_branches))
         for br in branches:
             if '@' not in br:
@@ -121,7 +103,7 @@ class Git(object):
 
         for pkg in cans:
             if pkg in self.releases:
-                x = cans[pkg] - self.releases[pkg]
+                x = cans[pkg] - set(self.releases[pkg])
                 if x:
                     rel_cans[pkg] = sorted(x, key=LooseVersion, reverse=True)
             else:
@@ -132,12 +114,18 @@ class Git(object):
     @property
     @lru_cache()
     def releases(self):
-        rels = defaultdict(set)
+        unsorted_rels = dict()
+        rels = dict()
         for t in self.tags:
             parts = t.split('.')
             name = parts[0]
             ver = '.'.join(parts[1:]).lstrip('v')
-            rels[name].add(ver)
+            if name not in unsorted_rels:
+                unsorted_rels[name] = set()
+            unsorted_rels[name].add(ver)
+
+        for r in unsorted_rels:
+            rels[r] = sorted(unsorted_rels[r], key=LooseVersion, reverse=True)
 
         return rels
 
@@ -145,7 +133,18 @@ class Git(object):
         if not branch:
             raise Exception("Error: must specify a branch to switch to.")
 
-        stdout, stderr, ret = run_cmd(f'git checkout {branch}')
+        # always cleanup module dir when switching branches
+        paths_to_cleanup = [os.path.join('wfpr_modules', 'github.com')]
+        if '@' in self.current_branch:  # whether currently on a package branch
+            # clean up files/folders under the current package that are git ignored,
+            # removing other untracked files can not happen because they will cause branch 'not clean'
+            # that prevents branch switching from being started
+            paths_to_cleanup.append(self.current_branch.split('@')[0])
+
+        cmd = f'cd $(git rev-parse --show-toplevel) && git checkout {branch}' + \
+              f' && git clean -xdf {" ".join(paths_to_cleanup)}'
+
+        stdout, stderr, ret = run_cmd(cmd)
         if ret != 0:
             raise Exception(f"Failed to switch to '{branch}'.\nSTDOUT: {stdout}\nSTDERR: {stderr}")
         else:
@@ -161,8 +160,30 @@ class Git(object):
         else:
             self.current_branch = branch
 
+    def cmd_add_and_commit(self, path=None, message=None):
+        if not (path and message):
+            raise Exception("Error: must specify path to add and commit message.")
+
+        cmd = f"git add {path} && git commit -m '{message}'"
+        stdout, stderr, ret = run_cmd(cmd)
+        if ret != 0:
+            raise Exception(f"Failed to execute: {cmd}.\nSTDOUT: {stdout}\nSTDERR: {stderr}")
+
     def branch_clean(self):
         stdout, stderr, ret = run_cmd('git status')
         if 'working tree clean' in stdout:
             return True
         return False
+
+    def fetch_and_housekeeping(self) -> bool:
+        cmd = 'git fetch --all --tags'
+        # if currently on main branch, we can prune local branches that reference to deleted remote branch
+        if self.current_branch == 'main':
+            cmd += ' && git remote prune origin'
+
+        stdout, stderr, ret = run_cmd(cmd)
+        if ret == 0:
+            return True
+        else:
+            echo(f"Info: failed to perform '{cmd}'.\nSTDOUT: {stdout}\nSTDERR: {stderr}")
+            return False

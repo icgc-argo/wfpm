@@ -23,6 +23,7 @@ import os
 import sys
 import yaml
 from glob import glob
+from collections import OrderedDict
 from typing import List
 from click import echo
 from functools import lru_cache
@@ -45,7 +46,7 @@ class Project(object):
     repo_server: str = None
     repo_account: str = None
     cwd: str = None
-    current_pkg: Package = None
+    pkg_cwd_under: Package = None
     pkgs: List[Package] = []
     installed_pkgs: List[Package] = []
     pkg_workon: str = None
@@ -110,7 +111,7 @@ class Project(object):
 
             pkg_dir = os.path.join(os.path.dirname(pkg_json), '')
             if os.path.join(self.cwd, '').startswith(pkg_dir):
-                self.current_pkg = pkg
+                self.pkg_cwd_under = pkg
 
     @property
     @lru_cache()
@@ -134,12 +135,20 @@ class Project(object):
 
     def _populate_pkg_status(self):
         rel_cans = self.git.rel_candidates
+        pkgs_in_dev = OrderedDict()
         for pkg in sorted(rel_cans.keys()):
-            self.pkgs_in_dev += [f"{pkg}@{v}" for v in rel_cans[pkg]]
+            for v in rel_cans[pkg]:
+                pkgs_in_dev[f"{pkg}@{v}"] = 1
+
+        self.pkgs_in_dev = list(pkgs_in_dev.keys())
 
         rels = self.git.releases
+        pkgs_released = OrderedDict()
         for pkg in sorted(rels.keys()):
-            self.pkgs_released += [f"{pkg}@{v}" for v in rels[pkg]]
+            for v in rels[pkg]:
+                pkgs_released[f"{pkg}@{v}"] = 1
+
+        self.pkgs_released = list(pkgs_released.keys())
 
         if self.git.current_branch and \
                 '@' in self.git.current_branch and \

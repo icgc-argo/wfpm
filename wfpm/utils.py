@@ -107,9 +107,9 @@ def validate_project_name(name):
 
 def pkg_asset_download_urls(url) -> List[str]:
     """
-    Example URL Patterns
-       package tarball: https://github.com/ICGC-TCGA-PanCancer/awesome-wfpkgs2/releases/download/fastqc-wf.0.2.0/fastqc-wf.0.2.0.tar.gz
-       package json: https://github.com/ICGC-TCGA-PanCancer/awesome-wfpkgs2/releases/download/fastqc-wf.0.2.0/pkg-release.json
+    Example URL for release assets:
+       tarball: https://github.com/ICGC-TCGA-PanCancer/awesome-wfpkgs2/releases/download/fastqc-wf.0.2.0/fastqc-wf.0.2.0.tar.gz
+       json: https://github.com/ICGC-TCGA-PanCancer/awesome-wfpkgs2/releases/download/fastqc-wf.0.2.0/pkg-release.json
     This currently is to address the compatibilty issue related to
     release tag change, eg, fastqc-wf.0.2.0 => fastqc-wf.v0.2.0
     The added 'v' provides a bit more clarity and it's mentioned in github as a common practice

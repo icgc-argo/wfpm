@@ -20,25 +20,21 @@
 """
 
 import os
+import sys
 from click import echo
 from ..utils import test_package
 
 
-def test_cmd(ctx):
-    project = ctx.obj['PROJECT']
-    if not project.root:
-        echo("Not in a package project directory.")
-        ctx.abort()
-
-    if project.current_pkg:  # test the current pkg only
-        pkg_path = os.path.join(project.root, project.current_pkg.name)
+def test_cmd(project):
+    if project.pkg_workon:  # test the current pkg only
+        pkg_path = os.path.join(project.root, project.pkg_workon.split('@')[0])
         echo(f"Testing package: {pkg_path}")
         failed_test_count = test_package(pkg_path)
 
         if failed_test_count:
-            ctx.exit(1)  # signal failure
+            sys.exit(1)  # signal failure
 
-    elif project.cwd == project.root:  # test all pkgs
+    else:  # test all pkgs
         pkg_names = sorted([pkg.name for pkg in project.pkgs])
         pkg_count = len(pkg_names)
         failed_test_count = 0
@@ -52,8 +48,4 @@ def test_cmd(ctx):
             echo("No test to run.")
 
         if failed_test_count:
-            ctx.exit(1)  # signal failure
-
-    else:
-        echo("Must run test under the project root dir or a package dir.")
-        ctx.abort()
+            sys.exit(1)  # signal failure
