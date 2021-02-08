@@ -31,7 +31,10 @@ def workon_cmd(
     stop: bool = False,
     update: bool = False
 ):
-    if update and project.git.fetch_and_housekeeping():
+    if update and project.git.current_branch != 'main':
+        echo(f"Can only use '-u' when on the 'main' branch, currently on '{project.git.current_branch}'")
+        sys.exit(1)
+    elif update and project.git.fetch_and_housekeeping():
         # refresh the project object
         project = Project(project_root=project.root, debug=project.debug)
 
