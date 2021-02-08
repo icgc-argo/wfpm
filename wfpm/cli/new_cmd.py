@@ -255,7 +255,7 @@ def gen_template(
             # remove temp files created by tests
             cmd = f"cd {dep_src}/tests && rm -fr work .nextflow* outdir"
             # remove symlinks 'wfpr_modules'
-            cmd += f"&& cd {dep_src} && rm -f wfpr_modules && cd tests && rm -f wfpr_modules"
+            cmd += f" && cd {dep_src} && rm -f wfpr_modules && cd tests && rm -f wfpr_modules"
             run_cmd(cmd)
 
             echo(f"Copying dependency '{pkg_uri}' to: {os.path.join(project.root, 'wfpr_modules')}")

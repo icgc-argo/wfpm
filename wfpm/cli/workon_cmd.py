@@ -21,6 +21,7 @@
 
 import os
 import sys
+from random import random
 from click import echo
 from wfpm.project import Project
 
@@ -30,12 +31,25 @@ def workon_cmd(
     pkg: str = None,
     stop: bool = False
 ):
+    # about 15% of the chance to run git housekeeping, this is just to avoid possible slow communication with git remote
+    up_to_date = False
+    if random() < 0.15:
+        up_to_date = project.git.fetch_and_housekeeping()
+        if up_to_date:  # refresh the project object
+            project = Project(project_root=project.root, debug=project.debug)
+
+    if project.git.current_branch and project.git.current_branch in project.pkgs_released:
+        echo(f"You are on a package branch that has been released '{project.git.current_branch}'.")
+        echo(f"Please switch to the 'main' branch, run 'git branch -D {project.git.current_branch}' to delete the "
+             "local branch. Make sure to delete it on GitHub as well.")
+        sys.exit(1)
+
     if stop and pkg:
         echo("When '-s' is used, no pkg argument can be supplied.")
         sys.exit(1)
 
     if pkg is None and not stop:
-        display_pkg_info(project)
+        display_pkg_info(project, up_to_date)
         sys.exit()
 
     if stop:
@@ -67,7 +81,7 @@ def workon_cmd(
         echo(f"Not a package in development: '{pkg}'")
 
 
-def display_pkg_info(project=None):
+def display_pkg_info(project=None, up_to_date=False):
     echo(f"Package being worked on: {project.pkg_workon if project.pkg_workon else '<none>'}")
 
     echo("Packages in development:", nl=False)
@@ -89,6 +103,9 @@ def display_pkg_info(project=None):
     for pkg in sorted(project.git.releases):
         echo(f"  {pkg}: ", nl=False)
         echo(', '.join(project.git.releases[pkg]))
+
+    if not up_to_date:
+        echo("\n|* this info may be out-of-date, you may run 'git fetch --all --tags' to fetch branches / tags from remote *|")
 
 
 def stop_workon(project=None):

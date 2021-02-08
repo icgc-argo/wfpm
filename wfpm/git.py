@@ -67,21 +67,6 @@ class Git(object):
                 if key.strip() == 'user.email':
                     self.user_email = value.strip()
 
-        """
-        Need to think about it more how/when to do this
-        # fetch remote branches and tags
-        stdout, stderr, ret = run_cmd('git fetch --all --tags')
-        if ret != 0:  # cmd failed
-            if 'Repository not found' in stdout:
-                echo("Remote repository not found. Please make sure the repository exists.")
-                self.remote_repo = False
-            else:
-                echo("Info: unable to fetch remote git origin. "
-                     "Seems like you are offline or don't have the correct access rights.")
-                self.remote_repo = None
-                self.offline = True
-        """
-
         branch_info_str, stderr, ret = run_cmd('git branch -a')
         if ret == 0:
             for branch in branch_info_str.split('\n'):
@@ -192,3 +177,16 @@ class Git(object):
         if 'working tree clean' in stdout:
             return True
         return False
+
+    def fetch_and_housekeeping(self) -> bool:
+        cmd = 'git fetch --all --tags'
+        # if currently on main branch, we can prune local branches that reference to deleted remote branch
+        if self.current_branch == 'main':
+            cmd += ' && git remote prune origin'
+
+        stdout, stderr, ret = run_cmd(cmd)
+        if ret == 0:
+            return True
+        else:
+            echo(f"Info: failed to perform '{cmd}'.\nSTDOUT: {stdout}\nSTDERR: {stderr}")
+            return False

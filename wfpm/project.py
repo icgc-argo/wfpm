@@ -145,7 +145,8 @@ class Project(object):
         rels = self.git.releases
         pkgs_released = OrderedDict()
         for pkg in sorted(rels.keys()):
-            pkgs_released[f"{pkg}@{v}"] = 1
+            for v in rels[pkg]:
+                pkgs_released[f"{pkg}@{v}"] = 1
 
         self.pkgs_released = list(pkgs_released.keys())
 
