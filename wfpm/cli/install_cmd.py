@@ -20,31 +20,28 @@
 """
 
 import os
+import sys
 import networkx as nx
-from pathlib import Path
 from click import echo
+from wfpm.project import Project
 from wfpm.package import Package
 from wfpm.dependency import build_dep_graph
 from ..utils import test_package
 
 
-def install_cmd(ctx, force=False, skip_tests=False, pkg_json=None):
+def install_cmd(
+    project: Project = None,
+    force=False,
+    skip_tests=False,
+    pkg_json=None
+):
     if not pkg_json:
-        project = ctx.obj['PROJECT']
-        if not project.root:
-            echo("Not in a package project directory.")
-            ctx.abort()
-
-        if str(Path(os.getcwd()).parent) != project.root:
-            echo("Not in a package directory.")
-            ctx.abort()
-
-        if not os.path.isfile('pkg.json'):
-            echo("Not in a package directory, 'pkg.json' not found in the current direcotry.")
-            ctx.abort()
+        if not project.pkg_workon:
+            echo("Not working on any package. Run 'wfpm workon <pkg>' command to start working on a package.")
+            sys.exit(1)
 
         install_dest = project.root
-        pkg_json = os.path.join(os.getcwd(), 'pkg.json')
+        pkg_json = os.path.join(project.root, project.pkg_workon.split('@')[0], 'pkg.json')
 
     else:
         install_dest = os.path.dirname(os.path.dirname(pkg_json))  # parent dir of where pkg.json is
@@ -55,7 +52,7 @@ def install_cmd(ctx, force=False, skip_tests=False, pkg_json=None):
         build_dep_graph(package, DG=dep_graph)
     except Exception as ex:
         echo(f"Unable to build package dependency graph: {ex}")
-        ctx.abort()
+        sys.exit(1)
 
     # exclude the first one which is the current package itself, it's important to reverse the order
     dep_pkgs = list(reversed(list(nx.topological_sort(dep_graph))[1:]))

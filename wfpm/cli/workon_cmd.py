@@ -21,7 +21,6 @@
 
 import os
 import sys
-from random import random
 from click import echo
 from wfpm.project import Project
 
@@ -29,14 +28,12 @@ from wfpm.project import Project
 def workon_cmd(
     project: Project = None,
     pkg: str = None,
-    stop: bool = False
+    stop: bool = False,
+    update: bool = False
 ):
-    # about 15% of the chance to run git housekeeping, this is just to avoid possible slow communication with git remote
-    up_to_date = False
-    if random() < 0.15:
-        up_to_date = project.git.fetch_and_housekeeping()
-        if up_to_date:  # refresh the project object
-            project = Project(project_root=project.root, debug=project.debug)
+    if update and project.git.fetch_and_housekeeping():
+        # refresh the project object
+        project = Project(project_root=project.root, debug=project.debug)
 
     if project.git.current_branch and project.git.current_branch in project.pkgs_released:
         echo(f"You are on a package branch that has been released '{project.git.current_branch}'.")
@@ -49,7 +46,7 @@ def workon_cmd(
         sys.exit(1)
 
     if pkg is None and not stop:
-        display_pkg_info(project, up_to_date)
+        display_pkg_info(project)
         sys.exit()
 
     if stop:
@@ -57,7 +54,7 @@ def workon_cmd(
         sys.exit()
 
     if project.pkg_workon and (pkg == project.pkg_workon or pkg == project.pkg_workon.split('@')[0]):
-        echo(f"Working on '{project.pkg_workon}'")
+        echo(f"Continue working on '{project.pkg_workon}', no change.")
 
     elif pkg in project.pkgs_in_dev:
         project.set_workon(pkg)
@@ -81,8 +78,16 @@ def workon_cmd(
         echo(f"Not a package in development: '{pkg}'")
 
 
-def display_pkg_info(project=None, up_to_date=False):
-    echo(f"Package being worked on: {project.pkg_workon if project.pkg_workon else '<none>'}")
+def display_pkg_info(project=None):
+    echo("Packages released:", nl=False)
+    if not project.git.releases:
+        echo(" <none>")
+    else:
+        echo("")
+
+    for pkg in sorted(project.git.releases):
+        echo(f"  {pkg}: ", nl=False)
+        echo(', '.join(project.git.releases[pkg]))
 
     echo("Packages in development:", nl=False)
     if not project.git.rel_candidates:
@@ -94,18 +99,7 @@ def display_pkg_info(project=None, up_to_date=False):
         echo(f"  {pkg}: ", nl=False)
         echo(', '.join(project.git.rel_candidates[pkg]))
 
-    echo("Packages released:", nl=False)
-    if not project.git.releases:
-        echo(" <none>")
-    else:
-        echo("")
-
-    for pkg in sorted(project.git.releases):
-        echo(f"  {pkg}: ", nl=False)
-        echo(', '.join(project.git.releases[pkg]))
-
-    if not up_to_date:
-        echo("\n|* this info may be out-of-date, you may run 'git fetch --all --tags' to fetch branches / tags from remote *|")
+    echo(f"Package being worked on: {project.pkg_workon if project.pkg_workon else '<none>'}")
 
 
 def stop_workon(project=None):

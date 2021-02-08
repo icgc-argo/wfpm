@@ -39,7 +39,6 @@ from ..pkg_templates import workflow_tmplt
 from ..pkg_templates import function_tmplt
 from ..utils import run_cmd
 from .install_cmd import install_cmd
-from .workon_cmd import workon_cmd
 
 
 def new_cmd(ctx, pkg_type, pkg_name, conf_json=None):
@@ -137,12 +136,11 @@ def new_cmd(ctx, pkg_type, pkg_name, conf_json=None):
     new_pkg = Package(pkg_json=os.path.join(path, 'pkg.json'))
     project.git.cmd_new_branch(new_pkg.fullname)
     project = Project(project_root=project.root, debug=project.debug)
-    workon_cmd(project=project, pkg=new_pkg.fullname)
 
     paths_to_add = f"{path} {os.path.join(project.root, 'wfpr_modules')}"
-    project.git.cmd_add_and_commit(path=paths_to_add, message=f'added {project.pkg_workon}')
+    project.git.cmd_add_and_commit(path=paths_to_add, message=f'added starting template for {project.pkg_workon}')
 
-    echo(f"New package created in: {os.path.basename(path)}. Starting code added and "
+    echo(f"New package created in: {os.path.basename(path)}. Starting template added and "
          "committed to git. Please continue working on it.")
 
 
@@ -223,7 +221,6 @@ def gen_template(
             p.write(json.dumps(pkg_dict, indent=4))
 
         installed_pkgs, failed_pkgs = install_cmd(
-                                          ctx,
                                           pkg_json=os.path.join(path, 'pkg.json')
                                       )
 

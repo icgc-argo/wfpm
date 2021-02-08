@@ -61,8 +61,10 @@ def init_cmd(ctx, conf_json=None):
     project = Project(project_root=project_dir, debug=project.debug)
     ctx.obj['PROJECT'] = project
 
-    cmd = f"cd {project_dir} && git init && git add . && git commit -m 'inital commit' && git branch -M main && " \
-          f"git remote add origin git@{project.repo_server}:{project.repo_account}/{project.name}.git"
+    cmd = f"cd {project_dir} && git init && git add . " \
+          f" && git commit -m 'initial commit for {project.name} project' " \
+          f" && git branch -M main " \
+          f" && git remote add origin git@{project.repo_server}:{project.repo_account}/{project.name}.git"
 
     out, err, ret = run_cmd(cmd)
     if ret != 0:

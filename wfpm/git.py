@@ -63,8 +63,7 @@ class Git(object):
                 key, value = info.split('=')
                 if key.strip() == 'user.name':
                     self.user_name = value.strip()
-
-                if key.strip() == 'user.email':
+                elif key.strip() == 'user.email':
                     self.user_email = value.strip()
 
         branch_info_str, stderr, ret = run_cmd('git branch -a')
@@ -76,19 +75,17 @@ class Git(object):
 
                 if branch.startswith('remotes/origin/'):
                     self.remote_branches.append(branch.replace('remotes/origin/', ''))
+                elif branch.startswith('*'):
+                    self.current_branch = branch.split(' ')[1]
+                    self.local_branches.append(self.current_branch)
                 else:
-                    if branch.startswith('*'):
-                        self.current_branch = branch.split(' ')[1]
-                        self.local_branches.append(self.current_branch)
-                    else:
-                        self.local_branches.append(branch)
+                    self.local_branches.append(branch)
 
         tag_info_str, stderr, ret = run_cmd('git tag -l')
         if ret == 0:
             for tag in tag_info_str.split('\n'):
-                if len(tag) == 0:
-                    continue
-                self.tags.append(tag)
+                if len(tag) > 0:
+                    self.tags.append(tag)
 
     @property
     @lru_cache()

@@ -61,7 +61,7 @@ def test_good_new_tool_workon(workdir, datafiles):
     result = runner.invoke(main, cli_option)
 
     assert "Package being worked on: fastqc@0.2.0" in result.output
-    assert "Packages in development:\n  fastqc: 0.2.0\nPackages released: <none>" in result.output
+    assert "Packages released: <none>\nPackages in development:\n  fastqc: 0.2.0" in result.output
 
 
 @pytest.mark.datafiles(DATA_DIR)
@@ -95,4 +95,4 @@ def test_good_new_tool_workon_none(workdir, datafiles):
     result = runner.invoke(main, cli_option)
 
     assert "Package being worked on: <none>" in result.output
-    assert "Packages in development:\n  fastqc: 0.2.0\nPackages released: <none>" in result.output
+    assert "Packages released: <none>\nPackages in development:\n  fastqc: 0.2.0" in result.output

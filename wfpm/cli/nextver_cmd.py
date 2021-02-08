@@ -24,10 +24,13 @@ from click import echo
 from wfpm.project import Project
 
 
-def bumpver_cmd(
+def nextver_cmd(
     project: Project = None,
     pkg: str = None,
     version: str = None
 ):
     echo('To be implemented, check back soon.\n')
+    # need to make sure local repo is sync'd with remote before proceeding
+    # checkout from a release tag: git checkout tags/fastqc.v0.1.0 -b fastqc@0.1.3
+
     sys.exit()

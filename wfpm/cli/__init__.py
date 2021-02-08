@@ -29,7 +29,7 @@ from .uninstall_cmd import uninstall_cmd
 from .outdated_cmd import outdated_cmd
 from .test_cmd import test_cmd
 from .workon_cmd import workon_cmd
-from .bumpver_cmd import bumpver_cmd
+from .nextver_cmd import nextver_cmd
 from wfpm.project import Project
 
 
@@ -95,9 +95,14 @@ def new(ctx, pkg_type, pkg_name, conf_json):
 @click.pass_context
 def install(ctx, force, skip_tests):
     """
-    Install dependent packages.
+    Install dependencies for the package currently being worked on.
     """
-    install_cmd(ctx, force, skip_tests)
+    project = ctx.obj.get('PROJECT')
+    if not project.root:
+        click.echo("Not in a package project directory.")
+        ctx.abort()
+
+    install_cmd(project, force, skip_tests)
 
 
 @main.command()
@@ -145,10 +150,11 @@ def test(ctx):
 @main.command()
 @click.argument('pkg', required=False)
 @click.option('--stop', '-s', is_flag=True, help='Stop working on the current package.')
+@click.option('--update', '-u', is_flag=True, help='Perform git fetch to update branches/tags.')
 @click.pass_context
-def workon(ctx, pkg=None, stop=False):
+def workon(ctx, pkg=None, stop=False, update=False):
     """
-    Start to work on a package or show in progress packages.
+    Start to work on a package or display/update package info.
     """
     project = ctx.obj.get('PROJECT')
     if not project.root:
@@ -158,7 +164,8 @@ def workon(ctx, pkg=None, stop=False):
     workon_cmd(
         project=project,
         pkg=pkg,
-        stop=stop
+        stop=stop,
+        update=update
     )
 
 
@@ -166,16 +173,16 @@ def workon(ctx, pkg=None, stop=False):
 @click.argument('pkg', type=str, required=True)
 @click.argument('version', type=str, required=True)
 @click.pass_context
-def bumpver(ctx, pkg=None, version=False):
+def nextver(ctx, pkg=None, version=False):
     """
-    Bump up version of a released or in development package.
+    Start a new version of a released or in development package.
     """
     project = ctx.obj.get('PROJECT')
     if not project.root:
         click.echo("Not in a package project directory.")
         ctx.abort()
 
-    bumpver_cmd(
+    nextver_cmd(
         project=project,
         pkg=pkg,
         version=version
