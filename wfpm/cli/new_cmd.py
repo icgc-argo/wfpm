@@ -56,8 +56,8 @@ def new_cmd(ctx, pkg_type, pkg_name, conf_json=None):
         sys.exit(1)
 
     if project.pkg_workon:
-        echo(f"Must stop working on '{project.pkg_workon}' before creating a new one. "
-             "Please run 'wfpm workon -s'")
+        echo(f"Must stop working on '{project.pkg_workon}' before creating a new package. "
+             "Please run: wfpm workon -s")
         sys.exit(1)
 
     if not re.match(PKG_NAME_REGEX, pkg_name):
