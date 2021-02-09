@@ -43,46 +43,7 @@ from .install_cmd import install_cmd
 
 def new_cmd(ctx, pkg_type, pkg_name, conf_json=None):
     project = ctx.obj['PROJECT']
-    if not project.root:
-        echo("Not in a package project directory.")
-        ctx.abort()
-
-    if project.root != os.getcwd():
-        echo(f"Must run this command under the project root dir: {project.root}")
-        ctx.abort()
-
-    if not (project.git.user_name and project.git.user_email):
-        echo("Git not configured with 'user.name' and 'user.email', please set them using 'git config'.")
-        sys.exit(1)
-
-    if project.pkg_workon:
-        echo(f"Must stop working on '{project.pkg_workon}' before creating a new package. "
-             "Please run: wfpm workon -s")
-        sys.exit(1)
-
-    if not re.match(PKG_NAME_REGEX, pkg_name):
-        echo(f"'{pkg_name}' is not a valid package name, expected name pattern: '{PKG_NAME_REGEX}'")
-        ctx.abort()
-
-    if os.path.isdir(os.path.join(project.root, pkg_name)):
-        echo(f"Package '{ pkg_name }' already exists.")
-        ctx.abort()
-
-    for pkg in project.pkgs_in_dev:
-        if pkg_name == pkg.split('@')[0]:
-            echo(f"Package '{pkg_name}' is already in development as '{pkg}'. "
-                 f"To continue work on it, run: wfpm workon {pkg}")
-            sys.exit(1)
-
-    for pkg in project.pkgs_released:
-        if pkg_name == pkg.split('@')[0]:
-            echo(f"Package '{pkg_name}' is already released as '{pkg}', not create.")
-            sys.exit(1)
-
-    if not project.git.branch_clean():
-        echo(f"Unable to create new package, git branch '{project.git.current_branch}' not clean. "
-             "Please complete current work and commit changes.")
-        sys.exit(1)
+    validate_input(project, pkg_name)
 
     name_parts = pkg_name.split('-')
     workflow_name = ''.join([p.capitalize() for p in name_parts])  # workflow name starts with upper
@@ -142,6 +103,49 @@ def new_cmd(ctx, pkg_type, pkg_name, conf_json=None):
 
     echo(f"New package created in: {os.path.basename(path)}. Starting template added and "
          "committed to git. Please continue working on it.")
+
+
+def validate_input(project, pkg_name):
+    if not project.root:
+        echo("Not in a package project directory.")
+        sys.exit(1)
+
+    if project.root != os.getcwd():
+        echo(f"Must run this command under the project root dir: {project.root}")
+        sys.exit(1)
+
+    if not (project.git.user_name and project.git.user_email):
+        echo("Git not configured with 'user.name' and 'user.email', please set them using 'git config'.")
+        sys.exit(1)
+
+    if project.pkg_workon:
+        echo(f"Must stop working on '{project.pkg_workon}' before creating a new package. "
+             "Please run: wfpm workon -s")
+        sys.exit(1)
+
+    if not re.match(PKG_NAME_REGEX, pkg_name):
+        echo(f"'{pkg_name}' is not a valid package name, expected name pattern: '{PKG_NAME_REGEX}'")
+        sys.exit(1)
+
+    if os.path.isdir(os.path.join(project.root, pkg_name)):
+        echo(f"Package '{ pkg_name }' already exists.")
+        sys.exit(1)
+
+    for pkg in project.pkgs_in_dev:
+        if pkg_name == pkg.split('@')[0]:
+            echo(f"Package '{pkg_name}' is already in development as '{pkg}'. "
+                 f"To continue work on it, run: wfpm workon {pkg}")
+            sys.exit(1)
+
+    for pkg in project.pkgs_released:
+        if pkg_name == pkg.split('@')[0]:
+            echo(f"Package '{pkg_name}' is already released as '{pkg}', not create.")
+            sys.exit(1)
+
+    if not project.git.branch_clean():
+        echo(f"Unable to create new package, git branch '{project.git.current_branch}' not clean. "
+             "Please complete current work and commit changes.")
+        sys.exit(1)
 
 
 def gen_template(

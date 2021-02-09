@@ -41,7 +41,33 @@ NOTE: WFPM CLI is in active development. More features, documentation and tutori
   - configure and enable continuous integration testing
 
 
-## Prerequisites
+## ICGC ARGO workflow implementation
+
+Sometime around August 2019, ICGC ARGO started to experiment a modular approach to create workflows using
+individual analytic tools as reusable building blocks with each tool completely self-contained
+and independently developed, tested and released. As each tool being fairly small and well decoupled from
+others, it gave the team high confidence in developing and delivering the tools. Importing a specific version
+of a tool into a workflow codebase was extremely easy, we were able to reuse same tools in **different workflows**
+(residing in different code repositories) for common steps without duplicating a single line of code. In subsequent
+months, prototyping and testing assured us this was the right approach. Eventually, the aforementioned best
+practices were established, following which four ICGC ARGO production workflows have been implemented:
+
+* [DNA Sequence Alignment Workflow](https://github.com/icgc-argo/dna-seq-processing-wfs)
+* [Sanger WGS Somatic Variant Calling Workflow](https://github.com/icgc-argo/sanger-wgs-variant-calling)
+* [Sanger WXS Somatic Variant Calling Workflow](https://github.com/icgc-argo/sanger-wxs-variant-calling)
+* [GATK Mutect2 Somatic Variant Calling Workflow](https://github.com/icgc-argo/gatk-mutect2-variant-calling)
+
+Before having the WFPM CLI tool, [a development procedure](https://github.com/icgc-argo/dna-seq-processing-tools/blob/c58a6fa3bae998a7a12778bc2950acd4776de314/README.md#development) was followed manually to ensure adherence to
+the best practices, which was undoubtedly cumbersome and error-prone. Aimed to provide maximized automation and
+development productivity, the WFPM CLI tool is able to generate templates that include starter workflow code,
+code for testing, and GitHub Actions code for automated continuous integration (CI) and continuous delivery (CD).
+We expect WFPM to significantly lower the barriers for scientific workflow developers to adopt the established
+best practices and accelerate collaborative workflow development within the ICGC ARGO community and beyond.
+
+
+## Installation
+
+### Prerequisites
 
 Please ensure the following prerequisites are met before moving on to installation.
 
@@ -54,10 +80,7 @@ nextflow >= 20.10
 docker >= 19.0
 ```
 
-
-## Installation
-
-Install WFPM CLI with a single command:
+### Install WFPM CLI with only a single command
 
 ```
 pip install wfpm
