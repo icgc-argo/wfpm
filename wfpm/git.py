@@ -160,6 +160,16 @@ class Git(object):
         else:
             self.current_branch = branch
 
+    def cmd_new_branch_from_tag(self, tag=None, branch=None):
+        if not tag or not branch:
+            raise Exception("Error: must specify both the tag and new branch name.")
+
+        stdout, stderr, ret = run_cmd(f'git checkout tags/{tag} -b {branch}')
+        if ret != 0:
+            raise Exception(f"Failed to create new branch '{branch}' from tag '{tag}'.\nSTDOUT: {stdout}\nSTDERR: {stderr}")
+        else:
+            self.current_branch = branch
+
     def cmd_add_and_commit(self, path=None, message=None):
         if not (path and message):
             raise Exception("Error: must specify path to add and commit message.")
@@ -187,3 +197,27 @@ class Git(object):
         else:
             echo(f"Info: failed to perform '{cmd}'.\nSTDOUT: {stdout}\nSTDERR: {stderr}")
             return False
+
+    def get_status(self):
+        stdout, stderr, ret = run_cmd('git status')
+        if ret == 0:
+            if 'branch is behind ' in stdout and 'working tree clean' in stdout:
+                return 'behind-clean'
+            elif 'branch is behind ' in stdout:
+                return 'behind'
+            elif 'branch is ahead of ' in stdout and 'working tree clean' in stdout:
+                return 'ahead-clean'
+            elif 'branch is ahead of ' in stdout:
+                return 'ahead'
+            elif 'have diverged' in stdout and 'working tree clean' in stdout:
+                return 'diverged-clean'
+            elif 'have diverged' in stdout:
+                return 'diverged'
+            elif 'branch is up to date' in stdout:
+                return 'up-to-date'
+            elif 'working tree clean' in stdout:
+                return 'clean'
+            else:
+                return ''
+        else:
+            raise Exception("Failed to run 'git status'")
