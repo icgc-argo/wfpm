@@ -42,7 +42,6 @@ def test_good_workon_01(workdir, datafiles):
     cli_option = ['workon', '-u']
     result = runner.invoke(main, cli_option)
 
-    assert "Packages released:\n  fastqc-wf: 0.2.0, 0.1.0\n  fastqc-wf2: 0.1.0\n" in result.output
     assert "Package being worked on: <none>" in result.output
 
 
@@ -51,7 +50,7 @@ def test_good_workon_nextver_fail_01(workdir, datafiles):
     os.chdir(os.path.join(workdir, 'awesome-wfpkgs2'))
 
     runner = CliRunner()
-    cli_option = ['nextver', 'fastqc-wf2@0.1', '0.1.2']
+    cli_option = ['nextver', 'fastqc-wf2@0.1', '0.1.1']
     result = runner.invoke(main, cli_option)
 
     assert "No package found as: 'fastqc-wf2@0.1'. Run 'wfpm workon' to display package info." in result.output
@@ -62,10 +61,10 @@ def test_good_workon_nextver_ok(workdir, datafiles):
     os.chdir(os.path.join(workdir, 'awesome-wfpkgs2'))
 
     runner = CliRunner()
-    cli_option = ['nextver', 'fastqc-wf2@0.1.0', '0.1.2']
+    cli_option = ['nextver', 'fastqc-wf2@0.1.0', '0.1.1']
     result = runner.invoke(main, cli_option)
 
-    assert "Started a new package version: fastqc-wf2@0.1.2" in result.output
+    assert "Started a new package version: fastqc-wf2@0.1.1" in result.output
 
 
 @pytest.mark.datafiles(DATA_DIR)
@@ -79,8 +78,7 @@ def test_good_workon_02(workdir, datafiles):
     cli_option = ['workon']
     result = runner.invoke(main, cli_option)
 
-    assert "Packages released:\n  fastqc-wf: 0.2.0, 0.1.0\n  fastqc-wf2: 0.1.0\n" in result.output
-    assert "Package being worked on: fastqc-wf2@0.1.2" in result.output
+    assert "Package being worked on: fastqc-wf2@0.1.1" in result.output
 
 
 @pytest.mark.datafiles(DATA_DIR)
@@ -88,7 +86,7 @@ def test_good_workon_nextver_fail_02(workdir, datafiles):
     os.chdir(os.path.join(workdir, 'awesome-wfpkgs2'))
 
     runner = CliRunner()
-    cli_option = ['nextver', 'fastqc-wf2@0.1.0', '0.1.2']
+    cli_option = ['nextver', 'fastqc-wf2@0.1.0', '0.1.1']
     result = runner.invoke(main, cli_option)
 
-    assert "Must stop working on 'fastqc-wf2@0.1.2' before creating a new package version" in result.output
+    assert "Must stop working on 'fastqc-wf2@0.1.1' before creating a new package version" in result.output
