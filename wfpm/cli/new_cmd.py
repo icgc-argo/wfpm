@@ -413,7 +413,7 @@ def update_wf_pkg_scripts_nf(
     // include statements go here for dev dependencies
     """
 
-    dep_names = {f"{dep.pkg_uri.split('@')[0]}@": dep.pkg_uri for dep in deps}
+    dep_names = {f"{dep.pkg_uri.split('@')[0]}@": dep.pkg_uri for dep in deps if dep.pkg_uri in package.dependencies}
 
     include_statements = ""
     process_invoke_statements = ""
