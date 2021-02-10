@@ -27,6 +27,7 @@ import tempfile
 import random
 import string
 import questionary
+from typing import List
 from shutil import copytree, rmtree
 from collections import OrderedDict
 from click import echo
@@ -234,9 +235,12 @@ def gen_template(
 
         # update main script with proper include/call/output
         main_script_name = pkg_dict['main'] if pkg_dict['main'].endswith('.nf') else f"{pkg_dict['main']}.nf"
-        update_pkg_main_nf(
+        update_wf_pkg_scripts_nf(
             main_script=os.path.join(path, main_script_name),
-            deps=installed_pkgs
+            checker_script=os.path.join(path, 'tests', 'checker.nf'),
+            package=Package(pkg_json=os.path.join(path, 'pkg.json')),
+            deps=installed_pkgs,
+            deps_installed_dir=os.path.join(tmpdirname, 'wfpr_modules')
         )
 
         # copy generated new package dir
@@ -244,7 +248,8 @@ def gen_template(
         copytree(path, dest)
 
         # copy installed deps (skip those already installed)
-        for pkg_uri in installed_pkgs:
+        for pkg in installed_pkgs:
+            pkg_uri = pkg.pkg_uri
             dep_src = os.path.join(tmpdirname, 'wfpr_modules', *(pkg_uri.split('/')))
             dep_dest = os.path.join(project.root, 'wfpr_modules', *(pkg_uri.split('/')))
 
@@ -381,12 +386,21 @@ def collect_new_pkg_info(ctx, project=None, template=None):
     return answers
 
 
-def update_pkg_main_nf(main_script=None, deps=None):
+def update_wf_pkg_scripts_nf(
+    main_script: str = None,
+    checker_script: str = None,
+    package: Package = None,
+    deps: List[Package] = [],
+    deps_installed_dir: str = None
+) -> None:
     with open(main_script, 'r') as f:
         main_script_str = f.read()
 
+    with open(checker_script, 'r') as f:
+        checker_script_str = f.read()
+
     """
-    ### code fragments to be replaced ###
+    ### main script code fragments to be replaced ###
     include { _replace_me_ } from "_replace_me_"
 
       main:
@@ -394,9 +408,12 @@ def update_pkg_main_nf(main_script=None, deps=None):
 
       emit:
         output_file = _replace_me_.out.output
+
+    ### checker script code fragments to be replaced ###
+    // include statements go here for dev dependencies
     """
 
-    dep_names = {f"{dep.split('@')[0]}@": dep for dep in deps}
+    dep_names = {f"{dep.pkg_uri.split('@')[0]}@": dep.pkg_uri for dep in deps}
 
     include_statements = ""
     process_invoke_statements = ""

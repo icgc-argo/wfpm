@@ -74,12 +74,12 @@ def install_cmd(
                 force=force
             )
             installed = True
-            installed_pkgs.append(dep_pkg_uri)
+            installed_pkgs.append(package)
             echo(f"Package installed in: {path.replace(os.path.join(os.getcwd(), ''), '')}")
 
         except Exception as ex:
             echo(f"{ex}")
-            failed_pkgs.append(dep_pkg_uri)
+            failed_pkgs.append(package)
 
         if not skip_tests and installed:
             test_package(path)

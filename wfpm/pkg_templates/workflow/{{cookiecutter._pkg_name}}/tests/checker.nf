@@ -16,6 +16,7 @@ params.input_file = ""
 params.expected_output = ""
 
 include { {{ cookiecutter._name }} } from '../{{ cookiecutter._pkg_name }}'
+// include statements go here for dev dependencies
 
 Channel
   .fromPath(params.input_file, checkIfExists: true)
