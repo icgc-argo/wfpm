@@ -31,6 +31,9 @@ NOTE: WFPM CLI is in active development. More features, documentation and tutori
   - break down big tasks into small tasks (each carried out by a small software tool)
   - one tool per container image
   - version and release independently every tool and its associated container image
+  - a released tool is immutable and can be imported into any workflow where it is needed
+  - a workflow can also be imported as sub-workflow to build a larger workflow
+  - similar to tools, workflows are versioned, immutable once released
 
 * **Findable** - easy to find by research community members
   - register components and workflows in public tool registries, such as Dockstore, BioContainers etc
@@ -101,7 +104,7 @@ illustrates how the workflow is structured, basically, workflow package `fastqc-
 tool packages: `fastqc@0.1.0` and `demo-utils@1.1.0`. We will be creating `fastqc@0.1.0` and
 `fastqc-wf@0.1.0` while `demo-utils@1.1.0` is already available, we just need to import it as a dependency.
 
-![](https://raw.githubusercontent.com/icgc-argo/wfpm/c8b03243ea07d33ba9401fe655219273f8883f32/docs/source/_static/packages-to-be-built.png)
+![](https://raw.githubusercontent.com/icgc-argo/wfpm/8b966d125f815178fee13769c8e549b87ad44b96/docs/source/_static/packages-to-be-built.png)
 
 The packages created by the demo cases can be found at:
 [https://github.com/ICGC-TCGA-PanCancer/awesome-wfpkgs1](https://github.com/ICGC-TCGA-PanCancer/awesome-wfpkgs1) and
@@ -196,7 +199,7 @@ the screenshot below. With this GitHub will first merge the `fastqc@0.1.0` branc
 then starts the release process, once tests are successful, a release of your first tool package
 will be made automatically.
 
-![](https://raw.githubusercontent.com/icgc-argo/wfpm/c8b03243ea07d33ba9401fe655219273f8883f32/docs/source/_static/merge-with-release.png)
+![](https://raw.githubusercontent.com/icgc-argo/wfpm/8b966d125f815178fee13769c8e549b87ad44b96/docs/source/_static/merge-with-release.png)
 
 
 The release should be available at: [https://github.com/ICGC-TCGA-PanCancer/awesome-wfpkgs1/releases/tag/fastqc.0.1.0](https://github.com/ICGC-TCGA-PanCancer/awesome-wfpkgs1/releases/tag/fastqc.0.1.0)
