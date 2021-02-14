@@ -104,7 +104,7 @@ illustrates how the workflow is structured, basically, workflow package `demo-fa
 tool packages: `deom-fastqc@0.1.0` and `demo-utils@1.1.0`. We will be creating `demo-fastqc@0.1.0` and
 `demo-fastqc-wf@0.1.0` while `demo-utils@1.1.0` is already available, we just need to import it as a dependency.
 
-![](https://raw.githubusercontent.com/icgc-argo/wfpm/8b966d125f815178fee13769c8e549b87ad44b96/docs/source/_static/packages-to-be-built.png)
+![](https://raw.githubusercontent.com/icgc-argo/wfpm/415dd6ccb33424ea738abd543a867f202f1fc66c/docs/source/_static/packages-to-be-built.png)
 
 The packages created by the demo cases can be found at:
 [https://github.com/ICGC-TCGA-PanCancer/awesome-wfpkgs1](https://github.com/ICGC-TCGA-PanCancer/awesome-wfpkgs1) and
