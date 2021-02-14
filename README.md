@@ -101,8 +101,8 @@ We present here step-by-step instructions how to use `wfpm` to create Nextflow D
 Our objective is to create a workflow that uses `FASTQC` tool to produce QC metrics for input sequencing
 reads. A utility `cleanupWorkdir` tool is also used to remove unneeded intermediate files. The diagram below
 illustrates how the workflow is structured, basically, workflow package `demo-fastqc-wf@0.1.0` contains two
-tool packages: `deom-fastqc@0.1.0` and `demo-utils@1.1.0`. We will be creating `demo-fastqc@0.1.0` and
-`demo-fastqc-wf@0.1.0` while `demo-utils@1.1.0` is already available, we just need to import it as a dependency.
+tool packages: `deom-fastqc@0.1.0` and `demo-utils@1.2.0`. We will be creating `demo-fastqc@0.1.0` and
+`demo-fastqc-wf@0.1.0` while `demo-utils@1.2.0` is already available, we just need to import it as a dependency.
 
 ![](https://raw.githubusercontent.com/icgc-argo/wfpm/415dd6ccb33424ea738abd543a867f202f1fc66c/docs/source/_static/packages-to-be-built.png)
 
