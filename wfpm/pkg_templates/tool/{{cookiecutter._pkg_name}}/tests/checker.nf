@@ -21,30 +21,31 @@ params.container_version = ""
 params.input_file = ""
 params.expected_output = ""
 
-include { {{ cookiecutter._name }} } from '../{{ cookiecutter._pkg_name }}'
+include { {{ cookiecutter._name }} } from '../{{ cookiecutter._pkg_name }}' params(['cleanup': false])
 
 Channel
   .fromPath(params.input_file, checkIfExists: true)
   .set { input_file }
 
 
-process file_diff {
+process file_smart_diff {
   container "${container[params.container_registry]}:${params.container_version ?: version}"
 
   input:
     path output_file
-    path expected_gzip
+    path expected_file
 
   output:
     stdout()
 
   script:
     """
+    # Note: this is only for demo purpose, please write your own 'diff' according to your own needs.
     # remove date field before comparison eg, <div id="header_filename">Tue 19 Jan 2021<br/>test_rg_3.bam</div>
     # sed -e 's#"header_filename">.*<br/>test_rg_3.bam#"header_filename"><br/>test_rg_3.bam</div>#'
 
-    diff <( cat ${output_file} | sed -e 's#"header_filename">.*<br/>test_rg_3.bam#"header_filename"><br/>test_rg_3.bam</div>#' ) \
-         <( gunzip -c ${expected_gzip} | sed -e 's#"header_filename">.*<br/>test_rg_3.bam#"header_filename"><br/>test_rg_3.bam</div>#' ) \
+    diff <( cat ${output_file} | sed -e 's#"header_filename">.*<br/>#"header_filename"><br/>#' ) \
+         <( ([[ '${expected_file}' == *.gz ]] && gunzip -c ${expected_file} || cat ${expected_file}) | sed -e 's#"header_filename">.*<br/>#"header_filename"><br/>#' ) \
     && ( echo "Test PASSED" && exit 0 ) || ( echo "Test FAILED, output file mismatch." && exit 1 )
     """
 }
@@ -60,7 +61,7 @@ workflow checker {
       input_file
     )
 
-    file_diff(
+    file_smart_diff(
       {{ cookiecutter._name }}.out.output_file,
       expected_output
     )

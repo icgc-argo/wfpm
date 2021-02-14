@@ -125,7 +125,7 @@ def git_branch_local_remote_cmp(project):
     git_status = project.git.get_status()
     branch = project.git.current_branch
 
-    if git_status in ('clean', ''):
+    if git_status in ('up_to_date-clean', 'up_to_date', 'clean', ''):  # good statuses
         return
 
     if git_status.startswith('behind'):

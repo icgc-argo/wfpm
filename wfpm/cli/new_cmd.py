@@ -27,6 +27,8 @@ import tempfile
 import random
 import string
 import questionary
+from pathlib import Path
+from typing import List
 from shutil import copytree, rmtree
 from collections import OrderedDict
 from click import echo
@@ -233,18 +235,23 @@ def gen_template(
             ctx.exit(1)
 
         # update main script with proper include/call/output
-        main_script_name = pkg_dict['main'] if pkg_dict['main'].endswith('.nf') else f"{pkg_dict['main']}.nf"
-        update_pkg_main_nf(
-            main_script=os.path.join(path, main_script_name),
-            deps=installed_pkgs
-        )
+        if pkg_type == 'workflow':
+            main_script_name = pkg_dict['main'] if pkg_dict['main'].endswith('.nf') else f"{pkg_dict['main']}.nf"
+            update_wf_pkg_scripts_nf(
+                main_script=os.path.join(path, main_script_name),
+                checker_script=os.path.join(path, 'tests', 'checker.nf'),
+                package=Package(pkg_json=os.path.join(path, 'pkg.json')),
+                deps=installed_pkgs,
+                deps_installed_dir=tmpdirname
+            )
 
         # copy generated new package dir
         dest = os.path.join(os.getcwd(), pkg_name)
         copytree(path, dest)
 
         # copy installed deps (skip those already installed)
-        for pkg_uri in installed_pkgs:
+        for pkg in installed_pkgs:
+            pkg_uri = pkg.pkg_uri
             dep_src = os.path.join(tmpdirname, 'wfpr_modules', *(pkg_uri.split('/')))
             dep_dest = os.path.join(project.root, 'wfpr_modules', *(pkg_uri.split('/')))
 
@@ -293,8 +300,8 @@ def collect_new_pkg_info(ctx, project=None, template=None):
         defaults.update({
             "pkg_description": "FastQC workflow",
             "keywords": "bioinformatics, seq, qc metrics",
-            "dependencies": "github.com/icgc-argo/demo-wfpkgs/demo-utils@1.1.0, "
-                            "github.com/icgc-tcga-pancancer/awesome-wfpkgs1/fastqc@0.2.0",
+            "dependencies": "github.com/icgc-argo/demo-wfpkgs/demo-utils@1.2.0, "
+                            "github.com/icgc-tcga-pancancer/awesome-wfpkgs1/demo-fastqc@0.1.0",
             "devDependencies": "",
         })
     elif pkg_type == 'function':
@@ -381,82 +388,184 @@ def collect_new_pkg_info(ctx, project=None, template=None):
     return answers
 
 
-def update_pkg_main_nf(main_script=None, deps=None):
+def update_wf_pkg_scripts_nf(
+    main_script: str = None,
+    checker_script: str = None,
+    package: Package = None,
+    deps: List[Package] = [],
+    deps_installed_dir: str = None
+) -> None:
     with open(main_script, 'r') as f:
         main_script_str = f.read()
 
-    """
-    ### code fragments to be replaced ###
-    include { _replace_me_ } from "_replace_me_"
+    # let's set up a convention here, packages whose name starts with 'demo-fastqc' and 'demo-utils'
+    # are reserved for demonstration purposes. We expect them to have fixed processes and their
+    # interfaces, ie, input and output params and types etc. With this we will be able to generate
+    # workflow parts: take (input), main (body) and emit (output)
+    # Here are the specific rules:
+    #   - replace 'demoCopyFile' by workflow/process name from 'demo-fastqc*' if it's a dependency
+    #   - add 'cleanupWorkdir' in main section when 'demo-utils' is a dependency
 
-      main:
-        _replace_me_(input_file)
+    dep_names = [dep.name for dep in deps if dep.pkg_uri in package.dependencies]
+    has_demo_fastqc_dep = len([dname for dname in dep_names if dname.startswith('demo-fastqc')]) > 0
 
-      emit:
-        output_file = _replace_me_.out.output
-    """
+    # hardcode test job file for now
+    test_job_file = os.path.join(Path(checker_script).parent, 'test-job-1.json')
 
-    dep_names = {f"{dep.split('@')[0]}@": dep for dep in deps}
+    if os.path.isfile(test_job_file) and not has_demo_fastqc_dep:
+        job_dict = json.load(
+            open(test_job_file),
+            object_pairs_hook=OrderedDict
+        )
+        job_dict['expected_output'] = 'expected/expected.test_rg_3.bam'
 
-    include_statements = ""
-    process_invoke_statements = ""
-    output_statements = ""
+        with open(test_job_file, 'w') as j:
+            j.write(json.dumps(job_dict, indent=4))
 
-    # let's hardcode some pkgs here for now, generalize later
-    if 'github.com/icgc-tcga-pancancer/awesome-wfpkgs1/fastqc@' in dep_names \
-            or 'github.com/icgc-tcga-pancancer/awesome-wfpkgs2/fastqc-wf@' in dep_names \
-            or 'github.com/icgc-tcga-pancancer/awesome-wfpkgs2/fastqc-wf2@' in dep_names:
+    main_call = 'demoCopyFile'
 
-        if 'github.com/icgc-tcga-pancancer/awesome-wfpkgs1/fastqc@' in dep_names:
-            call = 'fastqc'
-            include_statements = include_statements + \
-                'include { ' + call + ' } from "./wfpr_modules/' + \
-                dep_names['github.com/icgc-tcga-pancancer/awesome-wfpkgs1/fastqc@'] + f'/{call}"\n'
+    # include section
+    include_statements = []
+    for dep in deps:
+        if dep.pkg_uri not in package.dependencies:  # only include direct deps
+            continue
 
-            output_statements = f'{call}.out.output_file'
+        import_path = os.path.join('.', 'wfpr_modules', dep.pkg_uri, dep.main)
+        import_script_file = os.path.join(deps_installed_dir, import_path)
 
-        if 'github.com/icgc-tcga-pancancer/awesome-wfpkgs2/fastqc-wf@' in dep_names:
-            call = 'FastqcWf'
-            include_statements = include_statements + \
-                'include { ' + call + ' } from "./wfpr_modules/' + \
-                dep_names['github.com/icgc-tcga-pancancer/awesome-wfpkgs2/fastqc-wf@'] + '/fastqc-wf"\n'
-
-            output_statements = f'{call}.out.output_file'
-
-        if 'github.com/icgc-tcga-pancancer/awesome-wfpkgs2/fastqc-wf2@' in dep_names:
-            call = 'FastqcWf2'
-            include_statements = include_statements + \
-                'include { ' + call + ' } from "./wfpr_modules/' + \
-                dep_names['github.com/icgc-tcga-pancancer/awesome-wfpkgs2/fastqc-wf2@'] + '/fastqc-wf2"\n'
-
-            output_statements = f'{call}.out.output_file'
-
-        process_invoke_statements = process_invoke_statements + \
-            f'{call}(input_file)\n'
-
-        if 'github.com/icgc-argo/demo-wfpkgs/demo-utils@' in dep_names:
-            include_statements = include_statements + \
-                'include { cleanupWorkdir } from "./wfpr_modules/' + \
-                dep_names['github.com/icgc-argo/demo-wfpkgs/demo-utils@'] + '/main"\n'
-
-            process_invoke_statements = process_invoke_statements + \
-                f'\n    cleanupWorkdir({call}.out, true)'
-
-    if include_statements and process_invoke_statements and output_statements:
-        main_script_str = main_script_str.replace(
-            'include { _replace_me_ } from "_replace_me_"',
-            include_statements
+        import_items = get_export_items(
+            pkg_name=dep.name,
+            script_file=(import_script_file if import_script_file.endswith('.nf') else f"{import_script_file}.nf")
         )
 
-        main_script_str = main_script_str.replace(
-            '_replace_me_(input_file)',
-            process_invoke_statements
+        if dep.name.startswith('demo-fastqc'):
+            main_call = import_items[0]
+
+        include_statements.append(
+                                    "include { " +
+                                    '; '.join(import_items) + " } " +
+                                    f"from '{import_path}'"
+                                 )
+
+    main_script_str = script_section_replacement(
+        script_str=main_script_str,
+        section='include',
+        fragments=include_statements,
+        keep_original=not has_demo_fastqc_dep
+    )
+
+    # input section
+    input_statements = []
+    main_script_str = script_section_replacement(
+        script_str=main_script_str,
+        section='input',
+        fragments=input_statements,
+        keep_original=True
+    )
+
+    # main section
+    main_statements = []
+    if has_demo_fastqc_dep:
+        main_statements.append(
+            f'{main_call}(input_file)'
         )
 
-        main_script_str = main_script_str.replace(
-            '_replace_me_.out.output_file',
-            output_statements
+    if 'demo-utils' in dep_names:
+        main_statements.append(
+            "if (params.cleanup) { " + f"cleanupWorkdir({main_call}.out, true)" + " }"
         )
+
+    main_script_str = script_section_replacement(
+        script_str=main_script_str,
+        section='main',
+        fragments=main_statements,
+        keep_original=not has_demo_fastqc_dep
+    )
+
+    # output section
+    output_statements = []
+    if has_demo_fastqc_dep:
+        output_statements.append(
+            f"output_file = {main_call}.out.output_file"
+        )
+
+    main_script_str = script_section_replacement(
+        script_str=main_script_str,
+        section='output',
+        fragments=output_statements,
+        keep_original=not has_demo_fastqc_dep
+    )
 
     with open(main_script, 'w') as f:
         f.write(main_script_str)
+
+
+def script_section_replacement(
+    script_str: str = None,
+    section: str = None,
+    fragments: str = None,
+    keep_original: bool = False
+) -> str:
+    if section not in ('include', 'input', 'main', 'output'):
+        raise Exception(f"Unknown section name: {section}. Allowed sections: include, input, main, output")
+
+    start_line_pattern = re.compile(f"(\\s*)// {section} section starts")
+    end_line_pattern = re.compile(f"(\\s*)// {section} section ends")
+
+    updated_script_str = ''
+
+    in_section = False
+    leading_space = ''
+    original_lines = []
+    replacement_lines = []
+    for line in script_str.split('\n'):
+        sec_start = re.match(start_line_pattern, line)
+        sec_end = re.match(end_line_pattern, line)
+
+        if sec_start:
+            in_section = True
+            leading_space = sec_start.groups()[0]
+            replacement_lines = [f"{leading_space}{frag}" for frag in fragments]
+            continue
+
+        elif sec_end:
+            in_section = False
+            if keep_original:
+                line = '\n'.join(original_lines) + '\n'
+            else:
+                line = ''
+
+            if replacement_lines:
+                line = line + '\n'.join(replacement_lines)
+
+        if in_section:
+            original_lines.append(line)
+        else:
+            updated_script_str = updated_script_str + line + '\n'
+
+    return updated_script_str.strip()
+
+
+def get_export_items(pkg_name=None, script_file=None):
+    export_items = []
+    # hardcode for demo-utils
+    if pkg_name == 'demo-utils':
+        # this is an imported (as opposite to defined) item in demo-utils.nf
+        export_items.append('cleanupWorkdir')
+
+    # this is a very rudimentary implementation of finding exportable names
+    with open(script_file, 'r') as f:
+        for line in f:
+            workflow_name = re.match(r'^workflow\s+([A-Z][0-9a-zA-Z]+)\s*\{', line)
+            if workflow_name:
+                export_items.append(workflow_name.groups()[0])
+
+            process_name = re.match(r'^process\s+([a-z][0-9a-zA-Z]+)\s*\{', line)
+            if process_name:
+                export_items.append(process_name.groups()[0])
+
+            function_name = re.match(r'^def\s+([a-z][0-9a-zA-Z]+)\s*\(', line)
+            if function_name:
+                export_items.append(function_name.groups()[0])
+
+    return export_items

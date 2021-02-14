@@ -11,18 +11,27 @@ params.publish_dir = ""  // set to empty string will disable publishDir
 
 // tool specific parmas go here, add / change as needed
 params.input_file = ""
-params.output_pattern = "*.html"  // fastqc output html report
+params.cleanup = true
 
-include { _replace_me_ } from "_replace_me_"
+// include section starts
+include { demoCopyFile } from "./local_modules/demo-copy-file"
+// include section ends
 
 
+// please update workflow code as needed
 workflow {{ cookiecutter._name }} {
-  take:  // input, make update as needed
+  take:  // update as needed
+    // input section starts
     input_file
+    // input section ends
 
-  main:
-    _replace_me_(input_file)
+  main:  // update as needed
+    // main section starts
+    demoCopyFile(input_file)
+    // main section ends
 
-  emit:
-    output_file = _replace_me_.out.output_file
+  emit:  // update as needed
+    // output section starts
+    output_file = demoCopyFile.out.output_file
+    // output section ends
 }

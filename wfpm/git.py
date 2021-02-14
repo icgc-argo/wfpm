@@ -213,9 +213,11 @@ class Git(object):
                 return 'diverged-clean'
             elif 'have diverged' in stdout:
                 return 'diverged'
+            elif 'branch is up to date' in stdout and 'working tree clean' in stdout:
+                return 'up_to_date-clean'
             elif 'branch is up to date' in stdout:
-                return 'up-to-date'
-            elif 'working tree clean' in stdout:
+                return 'up_to_date'
+            elif 'working tree clean' in stdout:  # this is when local branch does not have a tracking remote branch yet
                 return 'clean'
             else:
                 return ''
