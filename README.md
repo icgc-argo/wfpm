@@ -110,6 +110,9 @@ The packages created by the demo cases can be found at:
 [https://github.com/ICGC-TCGA-PanCancer/awesome-wfpkgs1](https://github.com/ICGC-TCGA-PanCancer/awesome-wfpkgs1) and
 [https://github.com/ICGC-TCGA-PanCancer/awesome-wfpkgs2](https://github.com/ICGC-TCGA-PanCancer/awesome-wfpkgs2) for your reference.
 
+**NOTE**: You are encouraged to follow these steps to create your own tool / workflow packages. Simply replacing
+the GitHub organization `ICGC-TCGA-PanCancer` used here by your own GitHub org, it should just work.
+
 ### Demo use case 1: create and publish a demo `tool` package
 
 1. Prepare a GitHub repository under an organization account
@@ -266,13 +269,13 @@ The auto-generated workflow code is fully functional, you may invoke tests as:
 wfpm test
 ```
 
-This is equivalent to run the test using Nextflow directly:
+This is equivalent to running the test using Nextflow command directly:
 ```
 cd demo-fastqc-wf/tests
 nextflow run checker.nf -params-file test-job-1.json
 ```
-You should see the test run successfully. We now simply push the code to github:
 
+You should see the test run successfully. We now simply push the code to GitHub:
 ```
 git push -u origin demo-fastqc-wf@0.1.0
 ```
@@ -284,3 +287,9 @@ a PR as usual.
 
 When merge the PR, type the special instruction `[release]` in the comment (similar as in the previous demo)
 to trigger the CI/CD release process via GitHub Actions. Once released, the demo workflow package will be available at: [https://github.com/ICGC-TCGA-PanCancer/awesome-wfpkgs2/releases/tag/demo-fastqc-wf.v0.1.0](https://github.com/ICGC-TCGA-PanCancer/awesome-wfpkgs2/releases/tag/demo-fastqc-wf.v0.1.0)
+
+
+### Summary
+
+By now, you should have a clear picture how WFPM CLI helps to create independent workflow packages and how
+these packages may be used/reused as building blocks to build larger workflows.
