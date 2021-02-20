@@ -19,10 +19,10 @@
         Junjun Zhang <junjun.zhang@oicr.on.ca>
 """
 
+import sys
+from click import echo
 
-import click
 
-
-def outdated_cmd(ctx):
-    click.echo('To be implemented, check back soon.\n')
-    ctx.exit()
+def outdated_cmd(project):
+    echo('To be implemented, check back soon.\n')
+    sys.exit(1)

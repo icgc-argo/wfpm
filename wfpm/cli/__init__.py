@@ -53,7 +53,7 @@ def main(ctx, debug):
     try:
         ctx.obj['PROJECT'] = Project(debug=debug)
     except Exception as ex:
-        click.echo(ex)
+        click.echo(f"Failed to create the project object: {ex}")
         ctx.exit(1)
 
 
@@ -65,11 +65,12 @@ def init(ctx, conf_json):
     """
     Start a workflow package project with necessary scaffolds.
     """
-    if ctx.obj['PROJECT'].root:
-        click.echo(f"Already under a project directory: {ctx.obj['PROJECT'].root}")
+    project = ctx.obj.get('PROJECT')
+    if project.root:
+        click.echo(f"Already under a project directory: {project.root}")
         ctx.abort()
 
-    init_cmd(ctx, conf_json)
+    init_cmd(project, conf_json)
 
 
 @main.command()
@@ -85,7 +86,12 @@ def new(ctx, pkg_type, pkg_name, conf_json):
     """
     Start a new package with necessary scaffolds.
     """
-    new_cmd(ctx, pkg_type, pkg_name, conf_json)
+    project = ctx.obj.get('PROJECT')
+    if not project.root:
+        click.echo("Not in a package project directory.")
+        ctx.abort()
+
+    new_cmd(project, pkg_type, pkg_name, conf_json)
 
 
 @main.command()
@@ -111,7 +117,12 @@ def list(ctx):
     """
     List local and installed dependent packages.
     """
-    list_cmd(ctx)
+    project = ctx.obj.get('PROJECT')
+    if not project.root:
+        click.echo("Not in a package project directory.")
+        ctx.abort()
+
+    list_cmd(project)
 
 
 @main.command()
@@ -120,7 +131,12 @@ def uninstall(ctx):
     """
     Uninstall packages.
     """
-    uninstall_cmd(ctx)
+    project = ctx.obj.get('PROJECT')
+    if not project.root:
+        click.echo("Not in a package project directory.")
+        ctx.abort()
+
+    uninstall_cmd(project)
 
 
 @main.command()
@@ -129,7 +145,12 @@ def outdated(ctx):
     """
     List outdated dependent packages.
     """
-    outdated_cmd(ctx)
+    project = ctx.obj.get('PROJECT')
+    if not project.root:
+        click.echo("Not in a package project directory.")
+        ctx.abort()
+
+    outdated_cmd(project)
 
 
 @main.command()
