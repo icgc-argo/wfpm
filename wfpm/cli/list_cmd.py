@@ -19,14 +19,14 @@
         Junjun Zhang <junjun.zhang@oicr.on.ca>
 """
 
+import sys
 from click import echo
 
 
-def list_cmd(ctx):
-    project = ctx.obj['PROJECT']
+def list_cmd(project):
     if not project.root:
         echo("Not in a package project directory.")
-        ctx.abort()
+        sys.exit(1)
 
     echo('\t'.join(['TYPE', 'PKG_URI']))
     for pkg in sorted([pkg.pkg_uri for pkg in project.pkgs]):

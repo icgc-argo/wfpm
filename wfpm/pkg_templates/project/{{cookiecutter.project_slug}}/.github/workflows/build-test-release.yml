@@ -99,7 +99,7 @@ jobs:
         sudo chmod 755 nextflow
         sudo mv nextflow /usr/local/bin/
 
-    - name: "Login to GitHub Container Registry"  # normally shouldn't need to loging, but new image when just created is private
+    - name: "Login to GitHub Container Registry"  # normally shouldn't need to login, but new image when just created is private
       uses: docker/login-action@v1
       with:
         registry: ghcr.io

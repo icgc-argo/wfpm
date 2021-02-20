@@ -37,8 +37,7 @@ from ..pkg_templates import project_tmplt
 from ..utils import run_cmd, validate_project_name
 
 
-def init_cmd(ctx, conf_json=None):
-    project = ctx.obj['PROJECT']
+def init_cmd(project=None, conf_json=None):
     if project.root:
         echo(f"Already in a package project directory: {project.root}")
         sys.exit(1)
@@ -48,18 +47,17 @@ def init_cmd(ctx, conf_json=None):
         sys.exit(1)
 
     try:
-        project_dir = gen_project(ctx, project, project_tmplt=project_tmplt, conf_json=conf_json)
+        project_dir = gen_project(project, project_tmplt=project_tmplt, conf_json=conf_json)
         echo(f"Project initialized in: {os.path.basename(project_dir)}")
     except FailedHookException as ex:
         echo(f"Failed to initialize the project. {ex}")
-        ctx.abort()
+        sys.exit(1)
     except OutputDirExistsException as ex:
         echo(f"Failed to initialize the project. {ex}")
-        ctx.abort()
+        sys.exit(1)
 
     # recreate the project
     project = Project(project_root=project_dir, debug=project.debug)
-    ctx.obj['PROJECT'] = project
 
     cmd = f"cd {project_dir} && git init && git add . " \
           f" && git commit -m 'initial commit for {project.name} project' " \
@@ -69,7 +67,7 @@ def init_cmd(ctx, conf_json=None):
     out, err, ret = run_cmd(cmd)
     if ret != 0:
         echo(f"Git commands failed, please ensure 'git' is installed. STDERR: {err}. STDOUT: {out}")
-        ctx.exit(1)
+        sys.exit(1)
     else:
         echo(
             "Git repo initialized and first commit done. " +
@@ -79,7 +77,6 @@ def init_cmd(ctx, conf_json=None):
 
 
 def gen_project(
-    ctx,
     project=None,
     project_tmplt=None,
     conf_json=None
@@ -94,10 +91,10 @@ def gen_project(
             validate_project_name(project_name)
         except Exception as ex:
             echo(f"Provided project_slug: '{project_name}' invalid: {ex}")
-            ctx.abort()
+            sys.exit(1)
 
     else:  # interactively provide inputs
-        conf_dict = collect_project_init_info(ctx, project)
+        conf_dict = collect_project_init_info(project)
 
     if "_copy_without_render" not in conf_dict:
         conf_dict["_copy_without_render"] = [".github"]
@@ -121,7 +118,7 @@ def gen_project(
         return project_dir
 
 
-def collect_project_init_info(ctx, project=None):
+def collect_project_init_info(project=None):
     defaults = {
         "full_name": "Organization Name",
         "email": f"{project.git.user_email}",
@@ -135,17 +132,17 @@ def collect_project_init_info(ctx, project=None):
         ).ask()
 
     if project_slug is None:
-        ctx.abort()
+        sys.exit(1)
     elif project_slug == '':
         project_slug = defaults['project_slug']
 
     if not re.match(PRJ_NAME_REGEX, project_slug):
         echo(f"Error: '{project_slug}' is not a valid project name. Expected pattern: '{PRJ_NAME_REGEX}'")
-        ctx.abort()
+        sys.exit(1)
 
     if os.path.isdir(project_slug):
         echo(f"Error: '{project_slug}' directory already exists")
-        ctx.abort()
+        sys.exit(1)
 
     answers = questionary.form(
         github_account=questionary.text(f"GitHub account [{defaults['github_account']}]:", default=""),
@@ -163,7 +160,7 @@ def collect_project_init_info(ctx, project=None):
     ).ask()
 
     if not answers:
-        ctx.abort()
+        sys.exit(1)
 
     answers = {'project_slug': project_slug, **answers}
 
@@ -173,12 +170,12 @@ def collect_project_init_info(ctx, project=None):
 
     if not re.match(GIT_ACCT_REGEX, answers['github_account']):
         echo(f"Invalid GitHub account: '{answers['github_account']}'. Excepted pattern: '{GIT_ACCT_REGEX}'")
-        ctx.abort()
+        sys.exit(1)
 
     echo(json.dumps(answers, indent=4))
     res = questionary.confirm("Please confirm the information and continue:", default=True).ask()
 
     if not res:
-        ctx.abort()
+        sys.exit(1)
 
     return answers

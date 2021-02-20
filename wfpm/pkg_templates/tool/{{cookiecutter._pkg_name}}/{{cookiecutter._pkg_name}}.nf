@@ -14,8 +14,9 @@ default_container_registry = '{{ cookiecutter.container_registry }}'
 
 
 // universal params go here
-params.container_registry = default_container_registry
+params.container_registry = ""
 params.container_version = ""
+params.container = ""
 
 params.cpus = 1
 params.mem = 1  // GB
@@ -28,7 +29,7 @@ params.output_pattern = "*.html"  // fastqc output html report
 
 
 process {{ cookiecutter._name }} {
-  container "${container[params.container_registry]}:${params.container_version ?: version}"
+  container "${container[params.container_registry ?: default_container_registry] ?: params.container}:${params.container_version ?: version}"
   publishDir "${params.publish_dir}/${task.process.replaceAll(':', '_')}", mode: "copy", enabled: "${params.publish_dir ? true : ''}"
 
   cpus params.cpus

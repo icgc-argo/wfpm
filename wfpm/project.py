@@ -156,5 +156,9 @@ class Project(object):
             self.pkg_workon = self.git.current_branch
 
     def set_workon(self, pkg_fullname):
+        if os.getcwd() != self.root:
+            echo("Must run this command under project root dir.")
+            sys.exit(1)
+
         self.git.cmd_checkout_branch(branch=pkg_fullname)
         self.pkg_workon = pkg_fullname

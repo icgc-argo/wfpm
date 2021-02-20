@@ -43,8 +43,7 @@ from ..utils import run_cmd
 from .install_cmd import install_cmd
 
 
-def new_cmd(ctx, pkg_type, pkg_name, conf_json=None):
-    project = ctx.obj['PROJECT']
+def new_cmd(project, pkg_type, pkg_name, conf_json=None):
     validate_input(project, pkg_name)
 
     name_parts = pkg_name.split('-')
@@ -81,10 +80,9 @@ def new_cmd(ctx, pkg_type, pkg_name, conf_json=None):
         template = function_tmplt
 
         echo("Not implemented yet")
-        ctx.exit()
+        sys.exit(1)
 
     path = gen_template(
-            ctx,
             project,
             template=template,
             pkg_name=pkg_name,
@@ -151,7 +149,6 @@ def validate_input(project, pkg_name):
 
 
 def gen_template(
-    ctx,
     project=None,
     template=None,
     pkg_name=None,
@@ -172,7 +169,7 @@ def gen_template(
             conf_dict['registry_account'] = project.repo_account
 
     else:
-        conf_dict = collect_new_pkg_info(ctx, project, template)
+        conf_dict = collect_new_pkg_info(project, template)
 
     hidden_fields = {
         "_pkg_name": "{{ cookiecutter._pkg_name }}",
@@ -232,7 +229,7 @@ def gen_template(
 
         if failed_pkgs:
             echo(f"Failed to install dependencies: {', '.join(failed_pkgs)}")
-            ctx.exit(1)
+            sys.exit(1)
 
         # update main script with proper include/call/output
         if pkg_type == 'workflow':
@@ -277,7 +274,7 @@ def gen_template(
     return dest
 
 
-def collect_new_pkg_info(ctx, project=None, template=None):
+def collect_new_pkg_info(project=None, template=None):
     pkg_type = os.path.basename(template)
 
     defaults = {
@@ -321,12 +318,12 @@ def collect_new_pkg_info(ctx, project=None, template=None):
     ).ask()
 
     if not answers_1:
-        ctx.abort()
+        sys.exit(1)
 
     if answers_1.get('pkg_version') and not re.match(PKG_VER_REGEX, answers_1['pkg_version']):
         echo(f"Error: '{answers_1['pkg_version']}' is not a valid package version. "
              f"Expected pattern: '{PKG_VER_REGEX}'")
-        ctx.abort()
+        sys.exit(1)
 
     if pkg_type == 'tool':
         tool_only_answers = questionary.form(
@@ -339,13 +336,13 @@ def collect_new_pkg_info(ctx, project=None, template=None):
         ).ask()
 
         if not tool_only_answers:
-            ctx.abort()
+            sys.exit(1)
 
         if tool_only_answers.get('registry_account') and \
                 not re.match(CONTAINER_REG_ACCT_REGEX, tool_only_answers['registry_account']):
             echo(f"Error: '{tool_only_answers['registry_account']}' is not a valid container registry account. "
                  f"Expected pattern: '{CONTAINER_REG_ACCT_REGEX}'")
-            ctx.abort()
+            sys.exit(1)
 
     else:
         tool_only_answers = {}
@@ -355,7 +352,7 @@ def collect_new_pkg_info(ctx, project=None, template=None):
         ).ask()
 
     if dependencies is None:
-        ctx.abort()
+        sys.exit(1)
     elif dependencies == '':
         dependencies = defaults['dependencies']
 
@@ -364,7 +361,7 @@ def collect_new_pkg_info(ctx, project=None, template=None):
         ).ask()
 
     if devDependencies is None:
-        ctx.abort()
+        sys.exit(1)
     elif devDependencies == '':
         devDependencies = defaults['devDependencies']
 
@@ -383,7 +380,7 @@ def collect_new_pkg_info(ctx, project=None, template=None):
     res = questionary.confirm("Please confirm the information and continue:", default=True).ask()
 
     if not res:
-        ctx.abort()
+        sys.exit(1)
 
     return answers
 
