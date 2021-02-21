@@ -20,6 +20,7 @@
 """
 
 import click
+import traceback
 from wfpm import __version__ as ver
 from .init_cmd import init_cmd
 from .new_cmd import new_cmd
@@ -54,6 +55,7 @@ def main(ctx, debug):
         ctx.obj['PROJECT'] = Project(debug=debug)
     except Exception as ex:
         click.echo(f"Failed to create the project object: {ex}")
+        traceback.print_exc()
         ctx.exit(1)
 
 
