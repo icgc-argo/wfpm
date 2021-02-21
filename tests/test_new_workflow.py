@@ -42,22 +42,22 @@ def test_good_new_workflow(workdir, datafiles):
 
     runner = CliRunner()
     conf_json = os.path.join(datafiles, 'new_workflow', 'good', '01.conf.json')
-    cli_option = ['new', 'workflow', 'fastqc-wf', '-c', conf_json]
+    cli_option = ['new', 'workflow', 'demo-fastqc-wf', '-c', conf_json]
 
     result = runner.invoke(main, cli_option)
-    assert "New package created in: fastqc-wf" in result.output
+    assert "New package created in: demo-fastqc-wf" in result.output
 
     # after installation, check if tests of the installed dependencies run successful
-    assert "Tested package: demo-utils@1.1.0, PASSED: 3, FAILED: 0" in result.output
-    assert "Tested package: fastqc@0.2.0, PASSED: 1, FAILED: 0" in result.output
+    assert "Tested package: demo-utils@1.2.0, PASSED: 3, FAILED: 0" in result.output
+    assert "Tested package: demo-fastqc@0.2.0, PASSED: 2, FAILED: 0" in result.output
 
-    assert "Copying dependency 'github.com/icgc-argo/demo-wfpkgs/demo-utils@1.1.0' to:" in result.output
-    assert "Copying dependency 'github.com/icgc-tcga-pancancer/awesome-wfpkgs1/fastqc@0.2.0' to:" in result.output
+    assert "Copying dependency 'github.com/icgc-argo/demo-wfpkgs/demo-utils@1.2.0' to:" in result.output
+    assert "Copying dependency 'github.com/icgc-tcga-pancancer/awesome-wfpkgs1/demo-fastqc@0.2.0' to:" in result.output
 
 
 @pytest.mark.datafiles(DATA_DIR)
 def test_good_new_workflow_install(workdir, datafiles):
-    os.chdir(os.path.join(workdir, '_project_dir', 'fastqc-wf'))
+    os.chdir(os.path.join(workdir, '_project_dir', 'demo-fastqc-wf'))
 
     runner = CliRunner()
     cli_option = ['install']
@@ -68,42 +68,42 @@ def test_good_new_workflow_install(workdir, datafiles):
 
 @pytest.mark.datafiles(DATA_DIR)
 def test_good_new_workflow_install_force(workdir, datafiles):
-    os.chdir(os.path.join(workdir, '_project_dir', 'fastqc-wf'))
+    os.chdir(os.path.join(workdir, '_project_dir', 'demo-fastqc-wf'))
 
     runner = CliRunner()
     cli_option = ['install', '-f']
     result = runner.invoke(main, cli_option)
 
-    assert "Tested package: demo-utils@1.1.0, PASSED: 3, FAILED: 0" in result.output
-    assert "Tested package: fastqc@0.2.0, PASSED: 1, FAILED: 0" in result.output
+    assert "Tested package: demo-utils@1.2.0, PASSED: 3, FAILED: 0" in result.output
+    assert "Tested package: demo-fastqc@0.2.0, PASSED: 2, FAILED: 0" in result.output
 
 
 @pytest.mark.datafiles(DATA_DIR)
 def test_good_new_workflow_test(workdir, datafiles):
-    os.chdir(os.path.join(workdir, '_project_dir', 'fastqc-wf'))
+    os.chdir(os.path.join(workdir, '_project_dir', 'demo-fastqc-wf'))
 
     runner = CliRunner()
     cli_option = ['test']  # right, we are testing 'test' here
     result = runner.invoke(main, cli_option)
 
-    assert "Tested package: fastqc-wf, PASSED: 1, FAILED: 0" in result.output
+    assert "Tested package: demo-fastqc-wf, PASSED: 2, FAILED: 0" in result.output
 
 
 @pytest.mark.datafiles(DATA_DIR)
 def test_good_new_workflow_workon(workdir, datafiles):
-    os.chdir(os.path.join(workdir, '_project_dir', 'fastqc-wf'))
+    os.chdir(os.path.join(workdir, '_project_dir', 'demo-fastqc-wf'))
 
     runner = CliRunner()
     cli_option = ['workon']
     result = runner.invoke(main, cli_option)
 
-    assert "Package being worked on: fastqc-wf@0.2.0" in result.output
-    assert "Packages released: <none>\nPackages in development:\n  fastqc: 0.2.0\n  fastqc-wf: 0.2.0" in result.output
+    assert "Package being worked on: demo-fastqc-wf@0.2.0" in result.output
+    assert "Packages released: <none>\nPackages in development:\n  demo-fastqc-wf: 0.2.0\n  fastqc: 0.2.0" in result.output
 
 
 @pytest.mark.datafiles(DATA_DIR)
 def test_good_new_workflow_workon_stop_fail(workdir, datafiles):
-    os.chdir(os.path.join(workdir, '_project_dir', 'fastqc-wf'))
+    os.chdir(os.path.join(workdir, '_project_dir', 'demo-fastqc-wf'))
 
     runner = CliRunner()
     cli_option = ['workon', '-s']
@@ -120,7 +120,7 @@ def test_good_new_workflow_workon_stop_ok(workdir, datafiles):
     cli_option = ['workon', '-s']
     result = runner.invoke(main, cli_option)
 
-    assert "Stopped work on fastqc-wf@0.2.0" in result.output
+    assert "Stopped work on demo-fastqc-wf@0.2.0" in result.output
 
 
 @pytest.mark.datafiles(DATA_DIR)
@@ -132,4 +132,4 @@ def test_good_new_workflow_workon_none(workdir, datafiles):
     result = runner.invoke(main, cli_option)
 
     assert "Package being worked on: <none>" in result.output
-    assert "Packages released: <none>\nPackages in development:\n  fastqc: 0.2.0\n  fastqc-wf: 0.2.0" in result.output
+    assert "Packages released: <none>\nPackages in development:\n  demo-fastqc-wf: 0.2.0\n  fastqc: 0.2.0" in result.output
