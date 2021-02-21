@@ -27,10 +27,10 @@ import tempfile
 import random
 import string
 import questionary
+import traceback
 from shutil import copytree
 from click import echo
 from cookiecutter.main import cookiecutter
-from cookiecutter.exceptions import OutputDirExistsException, FailedHookException
 from wfpm import PRJ_NAME_REGEX, GIT_ACCT_REGEX
 from wfpm.project import Project
 from ..pkg_templates import project_tmplt
@@ -49,11 +49,8 @@ def init_cmd(project=None, conf_json=None):
     try:
         project_dir = gen_project(project, project_tmplt=project_tmplt, conf_json=conf_json)
         echo(f"Project initialized in: {os.path.basename(project_dir)}")
-    except FailedHookException as ex:
-        echo(f"Failed to initialize the project. {ex}")
-        sys.exit(1)
-    except OutputDirExistsException as ex:
-        echo(f"Failed to initialize the project. {ex}")
+    except Exception:
+        project.logger.error(traceback.format_exc())
         sys.exit(1)
 
     # recreate the project

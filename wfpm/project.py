@@ -22,6 +22,7 @@
 import os
 import sys
 import yaml
+import logging
 from glob import glob
 from collections import OrderedDict
 from typing import List
@@ -37,6 +38,7 @@ class Project(object):
     Project object keeps all information about the package project
     """
     debug: bool = False
+    logger: logging.Logger = None
     git: Git = None
     root: str = None
     name: str = None
@@ -69,8 +71,13 @@ class Project(object):
                 filename='.wfpm'
             )
 
+        self._init_logger()
+
         if not self.root:
-            return  # not a project yet, no need to go further
+            self.logger.info('Project object initialized without root dir.')
+            return  # not a real project yet, no need to go further
+        else:
+            self.logger.info(f'Project object initialized in {self.root}')
 
         with open(os.path.join(self.root, '.wfpm'), 'r') as c:
             conf = yaml.safe_load(c)
@@ -162,3 +169,24 @@ class Project(object):
 
         self.git.cmd_checkout_branch(branch=pkg_fullname)
         self.pkg_workon = pkg_fullname
+
+    def _init_logger(self):
+        logger = logging.getLogger('wfpm')
+        if self.debug:
+            logger.setLevel(logging.DEBUG)
+        else:
+            logger.setLevel(logging.WARN)
+
+        if self.root:
+            log_file = os.path.join(self.root, ".log")
+            fh = logging.FileHandler(log_file)
+            logFormatter = logging.Formatter("%(asctime)s [%(threadName)-12.12s] [%(levelname)-5.5s] %(message)s")
+            fh.setFormatter(logFormatter)
+            logger.addHandler(fh)
+
+        else:  # don't create log file, output logging to console
+            ch = logging.StreamHandler()
+            ch.setFormatter(logging.Formatter("[%(levelname)-5.5s] %(message)s"))
+            logger.addHandler(ch)
+
+        self.logger = logger
