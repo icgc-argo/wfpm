@@ -29,7 +29,7 @@ params.output_pattern = "*.html"  // fastqc output html report
 
 
 process {{ cookiecutter._name }} {
-  container "${container[params.container_registry ?: default_container_registry] ?: params.container}:${params.container_version ?: version}"
+  container "${params.container ?: container[params.container_registry ?: default_container_registry]}:${params.container_version ?: version}"
   publishDir "${params.publish_dir}/${task.process.replaceAll(':', '_')}", mode: "copy", enabled: "${params.publish_dir ? true : ''}"
 
   cpus params.cpus
