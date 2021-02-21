@@ -4,6 +4,8 @@ nextflow.enable.dsl = 2
 version = '{{ cookiecutter.pkg_version }}'  // package version
 
 // universal params go here, change default value as needed
+params.container = ""
+params.container_registry = ""
 params.container_version = ""
 params.cpus = 1
 params.mem = 1  // GB

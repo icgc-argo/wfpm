@@ -13,7 +13,7 @@ default_container_registry = '{{ cookiecutter.container_registry }}'
 /********************************************************************/
 
 // universal params
-params.container_registry = default_container_registry
+params.container_registry = ""
 params.container_version = ""
 params.container = ""
 
