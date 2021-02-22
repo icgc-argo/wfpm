@@ -297,7 +297,7 @@ def collect_new_pkg_info(project=None, template=None):
         defaults.update({
             "pkg_description": "FastQC workflow",
             "keywords": "bioinformatics, seq, qc metrics",
-            "dependencies": "github.com/icgc-argo/demo-wfpkgs/demo-utils@1.2.0, "
+            "dependencies": "github.com/icgc-argo/demo-wfpkgs/demo-utils@1.3.0, "
                             "github.com/icgc-tcga-pancancer/awesome-wfpkgs1/demo-fastqc@0.2.0",
             "devDependencies": "",
         })

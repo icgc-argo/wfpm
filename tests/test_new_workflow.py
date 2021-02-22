@@ -48,10 +48,10 @@ def test_good_new_workflow(workdir, datafiles):
     assert "New package created in: demo-fastqc-wf" in result.output
 
     # after installation, check if tests of the installed dependencies run successful
-    assert "Tested package: demo-utils@1.2.0, PASSED: 3, FAILED: 0" in result.output
+    assert "Tested package: demo-utils@1.3.0, PASSED: 3, FAILED: 0" in result.output
     assert "Tested package: demo-fastqc@0.2.0, PASSED: 2, FAILED: 0" in result.output
 
-    assert "Copying dependency 'github.com/icgc-argo/demo-wfpkgs/demo-utils@1.2.0' to:" in result.output
+    assert "Copying dependency 'github.com/icgc-argo/demo-wfpkgs/demo-utils@1.3.0' to:" in result.output
     assert "Copying dependency 'github.com/icgc-tcga-pancancer/awesome-wfpkgs1/demo-fastqc@0.2.0' to:" in result.output
 
 
@@ -74,7 +74,7 @@ def test_good_new_workflow_install_force(workdir, datafiles):
     cli_option = ['install', '-f']
     result = runner.invoke(main, cli_option)
 
-    assert "Tested package: demo-utils@1.2.0, PASSED: 3, FAILED: 0" in result.output
+    assert "Tested package: demo-utils@1.3.0, PASSED: 3, FAILED: 0" in result.output
     assert "Tested package: demo-fastqc@0.2.0, PASSED: 2, FAILED: 0" in result.output
 
 
