@@ -100,15 +100,15 @@ We present here step-by-step instructions how to use `wfpm` to create Nextflow D
 
 Our objective is to create a workflow that uses `FASTQC` tool to produce QC metrics for input sequencing
 reads. A utility `cleanupWorkdir` tool is also used to remove unneeded intermediate files. The diagram below
-illustrates how the workflow is structured, basically, workflow package `demo-fastqc-wf@0.1.0` contains two
-tool packages: `deom-fastqc@0.1.0` and `demo-utils@1.2.0`. We will be creating `demo-fastqc@0.1.0` and
-`demo-fastqc-wf@0.1.0` while `demo-utils@1.2.0` is already available, we just need to import it as a dependency.
+illustrates how the workflow is structured, basically, workflow package `demo-fastqc-wf@0.2.0` contains two
+tool packages: `deom-fastqc@0.2.0` and `demo-utils@1.2.0`. We will be creating `demo-fastqc@0.2.0` and
+`demo-fastqc-wf@0.2.0` while `demo-utils@1.2.0` is already available, we just need to import it as a dependency.
 
 ![](https://raw.githubusercontent.com/icgc-argo/wfpm/415dd6ccb33424ea738abd543a867f202f1fc66c/docs/source/_static/packages-to-be-built.png)
 
 The packages created by the demo cases can be found at:
-[https://github.com/ICGC-TCGA-PanCancer/awesome-wfpkgs1](https://github.com/ICGC-TCGA-PanCancer/awesome-wfpkgs1) and
-[https://github.com/ICGC-TCGA-PanCancer/awesome-wfpkgs2](https://github.com/ICGC-TCGA-PanCancer/awesome-wfpkgs2) for your reference.
+[https://github.com/ICGC-TCGA-PanCancer/awesome-wfpkgs1/releases/tag/demo-fastqc.v0.2.0](https://github.com/ICGC-TCGA-PanCancer/awesome-wfpkgs1/releases/tag/demo-fastqc.v0.2.0) and
+[https://github.com/ICGC-TCGA-PanCancer/awesome-wfpkgs2/releases/tag/demo-fastqc-wf.v0.2.0](https://github.com/ICGC-TCGA-PanCancer/awesome-wfpkgs2/releases/tag/demo-fastqc-wf.v0.2.0) for your reference.
 
 **NOTE**: You are encouraged to follow these steps to create your own tool / workflow packages. Simply replacing
 the GitHub organization `ICGC-TCGA-PanCancer` used here by your own GitHub org, it should just work.
@@ -155,7 +155,7 @@ git push -u origin main
 ```
 
 When you are ready, as suggested above you can push the code to GitHub. Upon push received at
-GitHub, CI/CD process will be automatically triggered.
+GitHub, CI/CD process will be automatically triggered. You should see CI tests pass, which indicates everything went well.
 
 
 3. Create your first tool package
@@ -165,8 +165,8 @@ wfpm new tool demo-fastqc
 ```
 
 We use the bioinformatics tool `fastqc` as an example here. You
-can pretty much use the default values in the prompt to advance forward. Upon completion,
-you should see a message like `New package created in: demo-fastqc. Starting template added and committed to git. Please continue working on it`. Template code is added to the `demo-fastqc@0.1.0` branch,
+can pretty much use the default values in the prompt to advance forward, except for using `0.2.0` for package version. Upon completion,
+you should see a message like `New package created in: demo-fastqc. Starting template added and committed to git. Please continue working on it`. Template code is added to the `demo-fastqc@0.2.0` branch,
 and WFPM CLI sets the newly created package as currently *worked on* package, you may verify it by
 running:
 
@@ -179,8 +179,8 @@ You should see the following message:
 ```
 Packages released: <none>
 Packages in development:
-  demo-fastqc: 0.1.0
-Package being worked on: demo-fastqc@0.1.0
+  demo-fastqc: 0.2.0
+Package being worked on: demo-fastqc@0.2.0
 ```
 
 When creating your own package, the generated package template gives you the starting point, change the
@@ -188,7 +188,7 @@ code as needed. In this demo, the generated `demo-fastqc` pacakge is already ful
 just push the code to GitHub:
 
 ```
-git push -u origin demo-fastqc@0.1.0
+git push -u origin demo-fastqc@0.2.0
 ```
 
 Upon receiving the push, GitHub will automatically start CI/CD via GitHub Actions. If the test
@@ -204,14 +204,14 @@ as needed to match your org and repo), click on `Change Visibility`, then choose
 
 When you merge the above PR, as part of the comment, you may type a special
 instruction `[release]` to let GitHub Actions start the release process, as shown in
-the screenshot below. With this GitHub will first merge the `demo-fastqc@0.1.0` branch to the `main` branch,
+the screenshot below. With this GitHub will first merge the `demo-fastqc@0.2.0` branch to the `main` branch,
 then starts the release process, once tests are successful, a release of your first tool package
 will be made automatically.
 
 ![](https://raw.githubusercontent.com/icgc-argo/wfpm/8b966d125f815178fee13769c8e549b87ad44b96/docs/source/_static/merge-with-release.png)
 
 
-The release should be available at: [https://github.com/ICGC-TCGA-PanCancer/awesome-wfpkgs1/releases/tag/demo-fastqc.v0.1.0](https://github.com/ICGC-TCGA-PanCancer/awesome-wfpkgs1/releases/tag/demo-fastqc.v0.1.0)
+The release should be available at: [https://github.com/ICGC-TCGA-PanCancer/awesome-wfpkgs1/releases/tag/demo-fastqc.v0.2.0](https://github.com/ICGC-TCGA-PanCancer/awesome-wfpkgs1/releases/tag/demo-fastqc.v0.2.0)
 and can be imported and used by anyone (of course including yourself) in their
 workflows. How to do that? Please continue to the next demo use case.
 
@@ -219,7 +219,7 @@ workflows. How to do that? Please continue to the next demo use case.
 ### Demo use case 2: create and publish a `workflow` package
 
 In this demo we will be creating a new `workflow` package that makes use of the `demo-fastqc` tool package
-we created in demo use case 1 (by now it has been released [here](https://github.com/ICGC-TCGA-PanCancer/awesome-wfpkgs1/releases/tag/demo-fastqc.v0.1.0))
+we created in demo use case 1 (by now it has been released [here](https://github.com/ICGC-TCGA-PanCancer/awesome-wfpkgs1/releases/tag/demo-fastqc.v0.2.0))
 and another utility package published
 here: [https://github.com/icgc-argo/demo-wfpkgs/releases/tag/demo-utils.1.2.0](https://github.com/icgc-argo/demo-wfpkgs/releases/tag/demo-utils.1.2.0)
 
@@ -249,14 +249,14 @@ Let's name the first `workflow` package `demo-fastqc-wf`:
 wfpm new workflow demo-fastqc-wf
 ```
 
-You may response most of the fields with the default values. Notice that there are dependencies the new
+You may response most of the fields with the default values, except for using `0.2.0` for package version. Notice that there are dependencies the new
 workflow requires:
-* `github.com/icgc-tcga-pancancer/awesome-wfpkgs1/demo-fastqc@0.1.0`
+* `github.com/icgc-tcga-pancancer/awesome-wfpkgs1/demo-fastqc@0.2.0`
 * `github.com/icgc-argo/demo-wfpkgs/demo-utils@1.2.0`
 
 `wfpm` will automatically install and test dependent packages in a temporary directory, once verified
 all dependencies tested successfully, they will be copied over to the project space. You should see the
-message: `New package created in: demo-fastqc-wf. Starting template added and committed to git. Please continue working on it`. Template code is added to the `demo-fastqc-wf@0.1.0` branch,
+message: `New package created in: demo-fastqc-wf. Starting template added and committed to git. Please continue working on it`. Template code is added to the `demo-fastqc-wf@0.2.0` branch,
 and WFPM CLI sets the newly created package as currently *worked on* package, you may verify it by
 running:
 
@@ -269,15 +269,16 @@ The auto-generated workflow code is fully functional, you may invoke tests as:
 wfpm test
 ```
 
-This is equivalent to running the test using Nextflow command directly:
+This is equivalent to running the tests using Nextflow command directly:
 ```
 cd demo-fastqc-wf/tests
 nextflow run checker.nf -params-file test-job-1.json
+nextflow run checker.nf -params-file test-job-2.json
 ```
 
 You should see the test run successfully. We now simply push the code to GitHub:
 ```
-git push -u origin demo-fastqc-wf@0.1.0
+git push -u origin demo-fastqc-wf@0.2.0
 ```
 
 CI/CD process will be triggered on the new branch similar to demo 1. Once tests pass, you may create
@@ -286,7 +287,7 @@ a PR as usual.
 4. Publish your first workflow package
 
 When merge the PR, type the special instruction `[release]` in the comment (similar as in the previous demo)
-to trigger the CI/CD release process via GitHub Actions. Once released, the demo workflow package will be available at: [https://github.com/ICGC-TCGA-PanCancer/awesome-wfpkgs2/releases/tag/demo-fastqc-wf.v0.1.0](https://github.com/ICGC-TCGA-PanCancer/awesome-wfpkgs2/releases/tag/demo-fastqc-wf.v0.1.0)
+to trigger the CI/CD release process via GitHub Actions. Once released, the demo workflow package will be available at: [https://github.com/ICGC-TCGA-PanCancer/awesome-wfpkgs2/releases/tag/demo-fastqc-wf.v0.2.0](https://github.com/ICGC-TCGA-PanCancer/awesome-wfpkgs2/releases/tag/demo-fastqc-wf.v0.2.0)
 
 
 ### Summary
