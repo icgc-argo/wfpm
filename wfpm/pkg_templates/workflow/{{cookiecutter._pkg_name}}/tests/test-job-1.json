@@ -2,6 +2,7 @@
     "input_file": "input/test_rg_3.bam",
     "expected_output": "expected/expected.test_rg_3_fastqc.out.gz",
     "publish_dir": "outdir",
+    "cleanup": true,
     "cpus": 1,
     "mem": 0.5
 }

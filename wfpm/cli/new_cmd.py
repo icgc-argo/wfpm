@@ -407,17 +407,19 @@ def update_wf_pkg_scripts_nf(
     has_demo_fastqc_dep = len([dname for dname in dep_names if dname.startswith('demo-fastqc')]) > 0
 
     # hardcode test job file for now
-    test_job_file = os.path.join(Path(checker_script).parent, 'test-job-1.json')
+    test_file_names = ['test-job-1.json', 'test-job-2.json']
+    for test_file_name in test_file_names:
+        test_job_file = os.path.join(Path(checker_script).parent, test_file_name)
 
-    if os.path.isfile(test_job_file) and not has_demo_fastqc_dep:
-        job_dict = json.load(
-            open(test_job_file),
-            object_pairs_hook=OrderedDict
-        )
-        job_dict['expected_output'] = 'expected/expected.test_rg_3.bam'
+        if os.path.isfile(test_job_file) and not has_demo_fastqc_dep:
+            job_dict = json.load(
+                open(test_job_file),
+                object_pairs_hook=OrderedDict
+            )
+            job_dict['expected_output'] = 'expected/expected.test_rg_3.bam'
 
-        with open(test_job_file, 'w') as j:
-            j.write(json.dumps(job_dict, indent=4))
+            with open(test_job_file, 'w') as j:
+                j.write(json.dumps(job_dict, indent=4))
 
     main_call = 'demoCopyFile'
 
@@ -441,7 +443,8 @@ def update_wf_pkg_scripts_nf(
         include_statements.append(
                                     "include { " +
                                     '; '.join(import_items) + " } " +
-                                    f"from '{import_path}'"
+                                    f"from '{import_path}' " +
+                                    "params([*:params, 'cleanup': false])"
                                  )
 
     main_script_str = script_section_replacement(
