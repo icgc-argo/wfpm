@@ -21,7 +21,7 @@ params.container = ""
 params.input_file = ""
 params.expected_output = ""
 
-include { {{ cookiecutter._name }} } from '../{{ cookiecutter._pkg_name }}' params(['cleanup': false, *:params])
+include { {{ cookiecutter._name }} } from '../{{ cookiecutter._pkg_name }}'
 
 Channel
   .fromPath(params.input_file, checkIfExists: true)

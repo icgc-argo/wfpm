@@ -101,10 +101,10 @@ We present here step-by-step instructions how to use `wfpm` to create Nextflow D
 Our objective is to create a workflow that uses `FASTQC` tool to produce QC metrics for input sequencing
 reads. A utility `cleanupWorkdir` tool is also used to remove unneeded intermediate files. The diagram below
 illustrates how the workflow is structured, basically, workflow package `demo-fastqc-wf@0.2.0` contains two
-tool packages: `deom-fastqc@0.2.0` and `demo-utils@1.2.0`. We will be creating `demo-fastqc@0.2.0` and
-`demo-fastqc-wf@0.2.0` while `demo-utils@1.2.0` is already available, we just need to import it as a dependency.
+tool packages: `deom-fastqc@0.2.0` and `demo-utils@1.3.0`. We will be creating `demo-fastqc@0.2.0` and
+`demo-fastqc-wf@0.2.0` while `demo-utils@1.3.0` is already available, we just need to import it as a dependency.
 
-![](https://raw.githubusercontent.com/icgc-argo/wfpm/72d7a7e73fb09c7d18cc3d3918d19cb17cae2b76/docs/source/_static/packages-to-be-built.png)
+![](https://raw.githubusercontent.com/icgc-argo/wfpm/f7f19fc894b1bf1ba68941f65c1c616e80497a11/docs/source/_static/packages-to-be-built.png)
 
 The packages created by the demo cases can be found at:
 [https://github.com/ICGC-TCGA-PanCancer/awesome-wfpkgs1/releases/tag/demo-fastqc.v0.2.0](https://github.com/ICGC-TCGA-PanCancer/awesome-wfpkgs1/releases/tag/demo-fastqc.v0.2.0) and
@@ -221,7 +221,7 @@ workflows. How to do that? Please continue to the next demo use case.
 In this demo we will be creating a new `workflow` package that makes use of the `demo-fastqc` tool package
 we created in demo use case 1 (by now it has been released [here](https://github.com/ICGC-TCGA-PanCancer/awesome-wfpkgs1/releases/tag/demo-fastqc.v0.2.0))
 and another utility package published
-here: [https://github.com/icgc-argo/demo-wfpkgs/releases/tag/demo-utils.1.2.0](https://github.com/icgc-argo/demo-wfpkgs/releases/tag/demo-utils.1.2.0)
+here: [https://github.com/icgc-argo/demo-wfpkgs/releases/tag/demo-utils.v1.3.0](https://github.com/icgc-argo/demo-wfpkgs/releases/tag/demo-utils.v1.3.0)
 
 1. Prepare anthor GitHub repository under an organization account
 
@@ -252,7 +252,7 @@ wfpm new workflow demo-fastqc-wf
 You may response most of the fields with the default values, except for using `0.2.0` for package version. Notice that there are dependencies the new
 workflow requires:
 * `github.com/icgc-tcga-pancancer/awesome-wfpkgs1/demo-fastqc@0.2.0`
-* `github.com/icgc-argo/demo-wfpkgs/demo-utils@1.2.0`
+* `github.com/icgc-argo/demo-wfpkgs/demo-utils@1.3.0`
 
 `wfpm` will automatically install and test dependent packages in a temporary directory, once verified
 all dependencies tested successfully, they will be copied over to the project space. You should see the

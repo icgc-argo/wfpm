@@ -17,6 +17,7 @@ params.container_version = ""
 // tool specific parmas go here, add / change as needed
 params.input_file = ""
 params.expected_output = ""
+params.cleanup = false
 
 include { {{ cookiecutter._name }} } from '../{{ cookiecutter._pkg_name }}' params(['cleanup': false, *:params])
 // include section starts
