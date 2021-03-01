@@ -294,3 +294,6 @@ to trigger the CI/CD release process via GitHub Actions. Once released, the demo
 
 By now, you should have a clear picture how WFPM CLI helps to create independent workflow packages and how
 these packages may be used/reused as building blocks to build larger workflows.
+
+In addition to the packages created by the demo use cases, some more packages are available at:
+https://github.com/icgc-argo/demo-wfpkgs for your reference.
