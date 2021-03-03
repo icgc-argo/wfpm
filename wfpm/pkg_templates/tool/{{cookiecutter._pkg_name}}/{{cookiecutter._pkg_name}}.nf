@@ -55,6 +55,8 @@ process {{ cookiecutter._name }} {
 }
 
 
+// this provides an entry point for this main script, so it can be run directly without clone the repo
+// using this command: nextflow run <git_acc>/<repo>/<pkg_name>/<main_script>.nf -r <pkg_name>.v<pkg_version> --params-file xxx
 workflow {
   {{ cookiecutter._name }}(
     file(params.input_file)
