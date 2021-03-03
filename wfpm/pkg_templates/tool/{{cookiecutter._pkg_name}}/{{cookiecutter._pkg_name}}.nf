@@ -53,3 +53,10 @@ process {{ cookiecutter._name }} {
 
     """
 }
+
+
+workflow {
+  {{ cookiecutter._name }}(
+    file(params.input_file)
+  )
+}

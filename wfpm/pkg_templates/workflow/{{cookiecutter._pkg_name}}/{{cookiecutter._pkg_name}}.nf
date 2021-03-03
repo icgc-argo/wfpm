@@ -37,3 +37,10 @@ workflow {{ cookiecutter._name }} {
     output_file = demoCopyFile.out.output_file
     // output section ends
 }
+
+
+workflow {
+  {{ cookiecutter._name }}(
+    file(params.input_file)
+  )
+}
