@@ -90,6 +90,16 @@ def test_good_new_workflow_test(workdir, datafiles):
 
 
 @pytest.mark.datafiles(DATA_DIR)
+def test_good_new_workflow_test_main_script_directly(workdir, datafiles):
+    os.chdir(os.path.join(workdir, '_project_dir', 'demo-fastqc-wf', 'tests'))
+
+    stdout, stderr, retcode = run_cmd('nextflow run ../demo-fastqc-wf.nf -params-file test-job-1.json')
+
+    assert retcode == 0
+    assert ":demoFastqc     [100%] 1 of 1" in stdout
+
+
+@pytest.mark.datafiles(DATA_DIR)
 def test_good_new_workflow_workon(workdir, datafiles):
     os.chdir(os.path.join(workdir, '_project_dir', 'demo-fastqc-wf'))
 
