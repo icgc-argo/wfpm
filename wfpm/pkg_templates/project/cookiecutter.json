@@ -6,10 +6,11 @@
     "project_slug": "github-repo",
     "open_source_license": [
         "MIT",
-        "BSD",
+        "BSD-3-Clause",
         "ISC",
-        "Apache Software License 2.0",
+        "Apache License 2.0",
         "GNU General Public License v3",
+        "GNU Affero General Public License v3",
         "Not open source" ],
     "_copy_without_render": [".github"]
 }

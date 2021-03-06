@@ -13,7 +13,7 @@ params.publish_dir = ""
 
 
 process demoCopyFile {
-  publishDir "${params.publish_dir}/${task.process.replaceAll(':', '_')}", mode: "copy", enabled: "${params.publish_dir ? true : ''}"
+  publishDir "${params.publish_dir}/${task.process.replaceAll(':', '_')}", mode: "copy", enabled: params.publish_dir
 
   input:
     path input_file

@@ -2,10 +2,7 @@
     "name": "{{ cookiecutter._pkg_name }}",
     "version": "{{ cookiecutter.pkg_version }}",
     "description": "{{ cookiecutter.pkg_description }}",
-    "main": "{{ cookiecutter._pkg_name }}",
-    "scripts": {
-        "test": "wfpm test"
-    },
+    "main": "main.nf",
     "deprecated": false,
     "keywords": {{ cookiecutter.keywords.lower().split(',') | tojson }},
     "repository": {

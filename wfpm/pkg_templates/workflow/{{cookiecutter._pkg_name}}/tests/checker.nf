@@ -1,6 +1,12 @@
 #!/usr/bin/env nextflow
 
 /*
+{{ cookiecutter._license_text_short }}
+  Authors:
+    {{ cookiecutter.full_name }}
+*/
+
+/*
  This is an auto-generated checker workflow to test the generated main template workflow, it's
  meant to illustrate how testing works. Please update to suit your own needs.
 */
@@ -19,7 +25,7 @@ params.input_file = ""
 params.expected_output = ""
 params.cleanup = false
 
-include { {{ cookiecutter._name }} } from '../{{ cookiecutter._pkg_name }}' params(['cleanup': false, *:params])
+include { {{ cookiecutter._name }} } from '../main' params(['cleanup': false, *:params])
 // include section starts
 // include section ends
 

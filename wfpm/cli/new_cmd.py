@@ -50,6 +50,16 @@ def new_cmd(project, pkg_type, pkg_name, conf_json=None):
     workflow_name = ''.join([p.capitalize() for p in name_parts])  # workflow name starts with upper
     process_name = workflow_name[0].lower() + workflow_name[1:]  # tool/function name starts with lower
 
+    license_text_short = 'Please add your license short form text here.'
+
+    # read from 'LICENSE-short' file if exists
+    license_short_file = os.path.join(project.root, 'LICENSE-short')
+    if os.path.isfile(license_short_file):
+        with open(license_short_file, 'r') as f:
+            license_text_short = ''
+            for line in f:
+                license_text_short += f"  {line}"
+
     if pkg_type == 'tool':
         extra_context = {
             '_pkg_name': pkg_name,
@@ -58,6 +68,7 @@ def new_cmd(project, pkg_type, pkg_name, conf_json=None):
             '_repo_account': project.repo_account,
             '_repo_name': project.name,
             '_license': project.license,
+            '_license_text_short': license_text_short,
             '_name': process_name
         }
 
@@ -71,6 +82,7 @@ def new_cmd(project, pkg_type, pkg_name, conf_json=None):
             '_repo_account': project.repo_account,
             '_repo_name': project.name,
             '_license': project.license,
+            '_license_text_short': license_text_short,
             '_name': workflow_name
         }
 
@@ -179,6 +191,7 @@ def gen_template(
         "_repo_name": "{{ cookiecutter._repo_name }}",
         "_name": "{{ cookiecutter._name }}",
         "_license": "{{ cookiecutter._license }}",
+        "_license_text_short": "{{ cookiecutter._license_text_short }}",
         "_copy_without_render": ["*.gz"]
     }
 

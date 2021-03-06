@@ -1,5 +1,11 @@
 #!/usr/bin/env nextflow
 
+/*
+{{ cookiecutter._license_text_short }}
+  Authors:
+    {{ cookiecutter.full_name }}
+*/
+
 nextflow.enable.dsl = 2
 version = '{{ cookiecutter.pkg_version }}'  // package version
 

@@ -1,5 +1,11 @@
 #!/usr/bin/env nextflow
 
+/*
+{{ cookiecutter._license_text_short }}
+  Authors:
+    {{ cookiecutter.full_name }}
+*/
+
 /********************************************************************/
 /* this block is auto-generated based on info from pkg.json where   */
 /* changes can be made if needed, do NOT modify this block manually */
@@ -30,7 +36,7 @@ params.output_pattern = "*.html"  // fastqc output html report
 
 process {{ cookiecutter._name }} {
   container "${params.container ?: container[params.container_registry ?: default_container_registry]}:${params.container_version ?: version}"
-  publishDir "${params.publish_dir}/${task.process.replaceAll(':', '_')}", mode: "copy", enabled: "${params.publish_dir ? true : ''}"
+  publishDir "${params.publish_dir}/${task.process.replaceAll(':', '_')}", mode: "copy", enabled: params.publish_dir
 
   cpus params.cpus
   memory "${params.mem} GB"
@@ -47,7 +53,7 @@ process {{ cookiecutter._name }} {
     """
     mkdir -p output_dir
 
-    {{ cookiecutter._pkg_name }}.py \
+    main.py \
       -i ${input_file} \
       -o output_dir
 

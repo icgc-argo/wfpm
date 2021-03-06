@@ -33,12 +33,9 @@ DATA_DIR = os.path.join(TEST_DIR, 'data')
 
 @pytest.mark.datafiles(DATA_DIR)
 def test_good_new_workflow(workdir, datafiles):
-    # copy _project_dir to under workdir, then make it cwd
-    copytree(os.path.join(datafiles, '_project_dir'), os.path.join(workdir, '_project_dir'))
+    # unpack _project_dir.tar.gz to under workdir, then make it cwd
+    run_cmd(f'cd {datafiles} && tar xzf _project_dir.tar.gz -C {workdir}')
     os.chdir(os.path.join(workdir, '_project_dir'))
-
-    run_cmd('mv .git-db .git')
-    run_cmd('git checkout .')  # workaround for now
 
     runner = CliRunner()
     conf_json = os.path.join(datafiles, 'new_workflow', 'good', '01.conf.json')
@@ -93,7 +90,7 @@ def test_good_new_workflow_test(workdir, datafiles):
 def test_good_new_workflow_test_main_script_directly(workdir, datafiles):
     os.chdir(os.path.join(workdir, '_project_dir', 'demo-fastqc-wf', 'tests'))
 
-    stdout, stderr, retcode = run_cmd('nextflow run ../demo-fastqc-wf.nf -params-file test-job-1.json')
+    stdout, stderr, retcode = run_cmd('nextflow run ../main.nf -params-file test-job-1.json')
 
     assert retcode == 0
     assert ":demoFastqc     [100%] 1 of 1" in stdout

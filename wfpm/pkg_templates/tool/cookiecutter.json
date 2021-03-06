@@ -16,5 +16,6 @@
     "_repo_name": "{{ cookiecutter._repo_name }}",
     "_name": "{{ cookiecutter._name }}",
     "_license": "{{ cookiecutter._license }}",
+    "_license_text_short": "{{ cookiecutter._license_text_short }}",
     "_copy_without_render": ["*.gz"]
 }

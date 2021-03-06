@@ -117,7 +117,7 @@ def gen_project(
 
 def collect_project_init_info(project=None):
     defaults = {
-        "full_name": "Organization Name",
+        "full_name": "Your Organization Name",
         "email": f"{project.git.user_email}",
         "project_title": "Awesome Workflow Packages",
         "github_account": "github-account",
@@ -148,10 +148,11 @@ def collect_project_init_info(project=None):
         email=questionary.text(f"Your email [{defaults['email']}]:", default=""),
         open_source_license=questionary.select("Open source license:", choices=[
             "MIT",
-            "BSD",
+            "BSD-3-Clause",
             "ISC",
-            "Apache Software License 2.0",
+            "Apache License 2.0",
             "GNU General Public License v3",
+            "GNU Affero General Public License v3",
             "Not open source"
         ])
     ).ask()
