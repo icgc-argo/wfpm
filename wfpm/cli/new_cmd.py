@@ -192,7 +192,7 @@ def gen_template(
         "_name": "{{ cookiecutter._name }}",
         "_license": "{{ cookiecutter._license }}",
         "_license_text_short": "{{ cookiecutter._license_text_short }}",
-        "_copy_without_render": ["*.gz"]
+        "_copy_without_render": ["*.gz", "*.bam"]
     }
 
     conf_dict = {**conf_dict, **hidden_fields}
@@ -244,15 +244,20 @@ def gen_template(
             echo(f"Failed to install dependencies: {', '.join(failed_pkgs)}")
             sys.exit(1)
 
-        # update main script with proper include/call/output
+        main_script_name = pkg_dict['main'] if pkg_dict['main'].endswith('.nf') else f"{pkg_dict['main']}.nf"
         if pkg_type == 'workflow':
-            main_script_name = pkg_dict['main'] if pkg_dict['main'].endswith('.nf') else f"{pkg_dict['main']}.nf"
+            # update workflow main script with proper include/call/output
             update_wf_pkg_scripts_nf(
                 main_script=os.path.join(path, main_script_name),
                 checker_script=os.path.join(path, 'tests', 'checker.nf'),
                 package=Package(pkg_json=os.path.join(path, 'pkg.json')),
                 deps=installed_pkgs,
                 deps_installed_dir=tmpdirname
+            )
+        elif pkg_type == 'tool':
+            # update tool main scripts, ie, process and wrapper python script
+            update_tool_pkg_scripts_nf(
+                main_script=os.path.join(path, main_script_name)
             )
 
         # copy generated new package dir
@@ -419,7 +424,7 @@ def update_wf_pkg_scripts_nf(
     dep_names = [dep.name for dep in deps if dep.pkg_uri in package.dependencies]
     has_demo_fastqc_dep = len([dname for dname in dep_names if dname.startswith('demo-fastqc')]) > 0
 
-    # hardcode test job file for now
+    # hardcode test job files for now
     test_file_names = ['test-job-1.json', 'test-job-2.json']
     for test_file_name in test_file_names:
         test_job_file = os.path.join(Path(checker_script).parent, test_file_name)
@@ -582,3 +587,48 @@ def get_export_items(pkg_name=None, script_file=None):
                 export_items.append(function_name.groups()[0])
 
     return export_items
+
+
+def update_tool_pkg_scripts_nf(main_script=None):
+    # first detect base docker image, if it's not 'fastqc', then swap out `fastqc` command
+    # call with a simple `cp` command in the <main>.py file. Also need to update test job
+    # json files to replace expected file to a copy of input file
+    tool_dir = Path(main_script).parent
+    dockerfile = os.path.join(tool_dir, 'Dockerfile')
+    main_py_script = os.path.splitext(main_script)[0] + '.py'
+    test_dir = os.path.join(tool_dir, 'tests')
+
+    with open(dockerfile, 'r') as d:
+        for line in d:
+            line = line.strip()
+            if line.startswith('FROM ') and ('/fastqc:' in line or line.endswith('/fastqc')):
+                return  # done, do nothing
+
+    # update main_py_script, replace 'fastqc -o {args.output_dir} {args.input_file}' by 'cp {args.input_file} {args.output_dir}/'
+    with open(main_py_script, 'r') as f:
+        main_py_script_str = f.read()
+
+    updated_py_script_str = ''
+    for line in main_py_script_str.split('\n'):
+        if line.strip().startswith('subprocess.run'):
+            line = line.replace('fastqc -o {args.output_dir} {args.input_file}', 'cp {args.input_file} {args.output_dir}/', 1)
+
+        updated_py_script_str = updated_py_script_str + line + '\n'
+
+    with open(main_py_script, 'w') as f:
+        f.write(updated_py_script_str)
+
+    # hardcode test job files for now, a bit duplicated code with update_wf_pkg_scripts_nf
+    test_file_names = ['test-job-1.json', 'test-job-2.json']
+    for test_file_name in test_file_names:
+        test_job_file = os.path.join(test_dir, test_file_name)
+
+        if os.path.isfile(test_job_file):
+            job_dict = json.load(
+                open(test_job_file),
+                object_pairs_hook=OrderedDict
+            )
+            job_dict['expected_output'] = 'expected/expected.test_rg_3.bam'
+
+            with open(test_job_file, 'w') as j:
+                j.write(json.dumps(job_dict, indent=4))
