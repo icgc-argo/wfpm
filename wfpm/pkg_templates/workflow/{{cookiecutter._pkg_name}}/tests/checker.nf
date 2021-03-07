@@ -25,7 +25,7 @@ params.input_file = ""
 params.expected_output = ""
 params.cleanup = false
 
-include { {{ cookiecutter._name }} } from '../main' params(['cleanup': false, *:params])
+include { {{ cookiecutter._name }} } from '../main'
 // include section starts
 // include section ends
 

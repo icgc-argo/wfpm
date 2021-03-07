@@ -22,7 +22,6 @@
 import os
 import pytest
 from pathlib import Path
-from shutil import copytree
 from click.testing import CliRunner
 from wfpm.cli import main
 from wfpm.utils import run_cmd
