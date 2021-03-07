@@ -13,5 +13,6 @@
     "_repo_server": "{{ cookiecutter._repo_server }}",
     "_repo_name": "{{ cookiecutter._repo_name }}",
     "_name": "{{ cookiecutter._name }}",
-    "_license": "{{ cookiecutter._license }}"
+    "_license": "{{ cookiecutter._license }}",
+    "_license_text_short": "{{ cookiecutter._license_text_short }}"
 }

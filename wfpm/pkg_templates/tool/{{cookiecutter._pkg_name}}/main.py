@@ -1,6 +1,12 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
+"""
+{{ cookiecutter._license_text_short }}
+  Authors:
+    {{ cookiecutter.full_name }}
+"""
+
 import os
 import sys
 import argparse
