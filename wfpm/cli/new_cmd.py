@@ -58,7 +58,7 @@ def new_cmd(project, pkg_type, pkg_name, conf_json=None):
         with open(license_short_file, 'r') as f:
             license_text_short = ''
             for line in f:
-                license_text_short += f"  {line}"
+                license_text_short += f"  {line}" if line.strip() else line
 
     if pkg_type == 'tool':
         extra_context = {

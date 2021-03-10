@@ -34,10 +34,6 @@ params.expected_output = ""
 
 include { {{ cookiecutter._name }} } from '../main'
 
-Channel
-  .fromPath(params.input_file, checkIfExists: true)
-  .set { input_file }
-
 
 process file_smart_diff {
   container "${params.container ?: container[params.container_registry ?: default_container_registry]}:${params.container_version ?: version}"
