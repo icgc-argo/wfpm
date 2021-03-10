@@ -29,10 +29,6 @@ include { {{ cookiecutter._name }} } from '../main'
 // include section starts
 // include section ends
 
-Channel
-  .fromPath(params.input_file, checkIfExists: true)
-  .set { input_file }
-
 
 process file_smart_diff {
   input:
