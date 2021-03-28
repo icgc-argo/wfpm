@@ -1,4 +1,4 @@
-# WorkFlow Package Manager
+# WorkFlow Package Manager - Overview
 
 The WFPM CLI is a command line tool for workflow package authoring and management, it's developed in
 Python and runs on a Linux or Mac OS environment. WFPM CLI provides assistance to write shareable/reusable
