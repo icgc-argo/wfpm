@@ -1,5 +1,5 @@
-Basical Concepts
-================
+Basic Concepts
+==============
 
 About `WFPM` projects
 ---------------------
