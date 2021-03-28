@@ -4,5 +4,6 @@ coveralls>=2.2.0
 flake8>=3.8.4
 sphinx==3.4.3
 sphinx_rtd_theme==0.5.1
+sphinx-reload==0.2.0
 recommonmark>=0.7.1
 pytest-datafiles>=2.0

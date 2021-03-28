@@ -6,11 +6,5 @@ WFPM: WorkFlow Package Manager
    :caption: Contents:
 
    README
-
-
-Indices and tables
-==================
-
-* :ref:`genindex`
-* :ref:`modindex`
-* :ref:`search`
+   concepts
+   usage

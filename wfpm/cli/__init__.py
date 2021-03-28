@@ -177,7 +177,7 @@ def test(ctx):
 @click.pass_context
 def workon(ctx, pkg=None, stop=False, update=False):
     """
-    Start to work on a package or display/update package info.
+    Start work on a package, display packages released or in dev.
     """
     project = ctx.obj.get('PROJECT')
     if not project.root:
