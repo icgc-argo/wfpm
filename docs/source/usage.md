@@ -298,5 +298,5 @@ To start working on the `abc` package, simply run:
 wfpm workon abc
 ```
 
-With that, the current branch will be switch to `abc@0.1.0`, you may now continue
+With that, the current branch will be switched to `abc@0.1.0`, you may now continue
 to work on it.

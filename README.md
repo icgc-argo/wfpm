@@ -249,8 +249,9 @@ Let's name the first `workflow` package `demo-fastqc-wf`:
 wfpm new workflow demo-fastqc-wf
 ```
 
-You may response most of the fields with the default values, except for using `0.2.0` for package version. Notice that there are dependencies the new
-workflow requires:
+You may response most of the fields with the default values, except for using `0.2.0` for package version. Notice
+that below are dependencies the new workflow requires. Please replace `icgc-tcga-pancancer` with your own GitHub org
+name so the tool package you just released will be used.
 * `github.com/icgc-tcga-pancancer/awesome-wfpkgs1/demo-fastqc@0.2.0`
 * `github.com/icgc-argo/demo-wfpkgs/demo-utils@1.3.0`
 

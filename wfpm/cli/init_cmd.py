@@ -31,7 +31,7 @@ import traceback
 from shutil import copytree
 from click import echo
 from cookiecutter.main import cookiecutter
-from wfpm import PRJ_NAME_REGEX, GIT_ACCT_REGEX
+from wfpm import PRJ_NAME_REGEX, GIT_ACCT_REGEX, __version__ as ver
 from wfpm.project import Project
 from ..pkg_templates import project_tmplt
 from ..utils import run_cmd, validate_project_name
@@ -57,7 +57,7 @@ def init_cmd(project=None, conf_json=None):
     project = Project(project_root=project_dir, debug=project.debug)
 
     cmd = f"cd {project_dir} && git init && git add . " \
-          f" && git commit -m 'initial commit for {project.name} project' " \
+          f" && git commit -m '[wfpm v{ver}] initial commit for {project.name} project' " \
           f" && git branch -M main " \
           f" && git remote add origin git@{project.repo_server}:{project.repo_account}/{project.name}.git"
 

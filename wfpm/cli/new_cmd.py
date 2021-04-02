@@ -33,7 +33,7 @@ from shutil import copytree, rmtree
 from collections import OrderedDict
 from click import echo
 from cookiecutter.main import cookiecutter
-from wfpm import PKG_NAME_REGEX, PKG_VER_REGEX, CONTAINER_REG_ACCT_REGEX
+from wfpm import PKG_NAME_REGEX, PKG_VER_REGEX, CONTAINER_REG_ACCT_REGEX, __version__ as ver
 from wfpm.project import Project
 from wfpm.package import Package
 from ..pkg_templates import tool_tmplt
@@ -111,7 +111,7 @@ def new_cmd(project, pkg_type, pkg_name, conf_json=None):
     project = Project(project_root=project.root, debug=project.debug)
 
     paths_to_add = f"{path} {os.path.join(project.root, 'wfpr_modules')}"
-    project.git.cmd_add_and_commit(path=paths_to_add, message=f'added starting template for {project.pkg_workon}')
+    project.git.cmd_add_and_commit(path=paths_to_add, message=f'[wfpm v{ver}] added starting template for {project.pkg_workon}')
 
     echo(f"New package created in: {os.path.basename(path)}. Starting template added and "
          "committed to git. Please continue working on it.")
@@ -366,33 +366,40 @@ def collect_new_pkg_info(project=None, template=None):
         tool_only_answers = {}
 
     dependencies = questionary.text(
-            f"Dependencies (use ',' to separate dependencies) [{defaults['dependencies']}]:", default=""
+            f"Dependencies (enter 'n' to indicate no dependency; use ',' to separate dependencies) [{defaults['dependencies']}]:", default=""
         ).ask()
 
     if dependencies is None:
         sys.exit(1)
+    elif dependencies.lower() == 'n':
+        dependencies = ""
     elif dependencies == '':
         dependencies = defaults['dependencies']
 
     devDependencies = questionary.text(
-            f"devDependencies (use ',' to separate devDependencies) [{defaults['devDependencies']}]:", default=""
+            f"devDependencies (enter 'n' to indicate no dependency; use ',' to separate devDependencies) [{defaults['devDependencies']}]:", default=""
         ).ask()
 
     if devDependencies is None:
         sys.exit(1)
+    elif devDependencies.lower() == 'n':
+        devDependencies = ""
     elif devDependencies == '':
         devDependencies = defaults['devDependencies']
 
     answers = {
         **answers_1,
-        **tool_only_answers,
-        'dependencies': dependencies,
-        'devDependencies': devDependencies
+        **tool_only_answers
     }
 
     for q in answers:
         if answers[q] == "" and defaults.get(q):
             answers[q] = defaults[q]
+
+    answers.update({
+        'dependencies': dependencies,
+        'devDependencies': devDependencies
+    })
 
     echo(json.dumps(answers, indent=4))
     res = questionary.confirm("Please confirm the information and continue:", default=True).ask()
