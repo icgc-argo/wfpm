@@ -27,7 +27,7 @@ from distutils.version import LooseVersion
 from collections import OrderedDict
 from click import echo
 from wfpm.project import Project
-from wfpm import PKG_VER_REGEX
+from wfpm import PKG_VER_REGEX, __version__ as ver
 
 
 def nextver_cmd(
@@ -75,7 +75,7 @@ def nextver_cmd(
     paths_to_add = new_pkg.split('@')[0]
     project.git.cmd_add_and_commit(
         path=paths_to_add,
-        message=f'started a new version {new_pkg} from {pkg} ({start_from})'
+        message=f'[wfpm v.{ver}] started a new version {new_pkg} from {pkg} which was {start_from}'
     )
 
     echo(f"Started a new package version: {new_pkg}\n" +
