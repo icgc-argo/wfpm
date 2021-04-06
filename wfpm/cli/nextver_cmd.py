@@ -75,7 +75,7 @@ def nextver_cmd(
     paths_to_add = new_pkg.split('@')[0]
     project.git.cmd_add_and_commit(
         path=paths_to_add,
-        message=f'[wfpm v.{ver}] started a new version {new_pkg} from {pkg} which was {start_from}'
+        message=f'[wfpm v{ver}] started a new version {new_pkg} from {pkg} which was {start_from}'
     )
 
     echo(f"Started a new package version: {new_pkg}\n" +

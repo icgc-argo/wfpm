@@ -21,6 +21,7 @@
 
 import os
 import re
+import logging
 from click import echo
 from typing import List, Dict
 from functools import lru_cache
@@ -33,6 +34,7 @@ class Git(object):
     Git object keeps all information about the git availability/config/repo/branch etc
     """
     version: str = None
+    logger: logging.Logger = None
     user_name: str = ''
     user_email: str = ''
     remote_repo: bool = True
@@ -43,7 +45,8 @@ class Git(object):
     offline: bool = False
     releases: Dict = {}
 
-    def __init__(self):
+    def __init__(self, logger=None):
+        self.logger = logger
         self._get_git_info()
 
     def _get_git_info(self):
@@ -105,9 +108,15 @@ class Git(object):
             if pkg in self.releases:
                 x = cans[pkg] - set(self.releases[pkg])
                 if x:
-                    rel_cans[pkg] = sorted(x, key=LooseVersion, reverse=True)
+                    try:
+                        rel_cans[pkg] = sorted(x, key=LooseVersion, reverse=True)
+                    except Exception:
+                        rel_cans[pkg] = sorted(x, reverse=True)
             else:
-                rel_cans[pkg] = sorted(cans[pkg], key=LooseVersion, reverse=True)
+                try:
+                    rel_cans[pkg] = sorted(cans[pkg], key=LooseVersion, reverse=True)
+                except Exception:
+                    rel_cans[pkg] = sorted(cans[pkg], reverse=True)
 
         return rel_cans
 
@@ -125,7 +134,10 @@ class Git(object):
             unsorted_rels[name].add(ver)
 
         for r in unsorted_rels:
-            rels[r] = sorted(unsorted_rels[r], key=LooseVersion, reverse=True)
+            try:
+                rels[r] = sorted(unsorted_rels[r], key=LooseVersion, reverse=True)
+            except Exception:
+                rels[r] = sorted(unsorted_rels[r], reverse=True)
 
         return rels
 
