@@ -58,7 +58,6 @@ class Project(object):
     def __init__(self, debug=False, project_root=None):
         self.cwd = os.getcwd()
         self.debug = debug
-        self.git = Git()
 
         if project_root:
             if os.path.isfile(os.path.join(project_root, '.wfpm')):
@@ -72,6 +71,7 @@ class Project(object):
             )
 
         self._init_logger()
+        self.git = Git(logger=self.logger)
 
         if not self.root:
             self.logger.info('Project object initialized without root dir.')
