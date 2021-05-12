@@ -223,7 +223,7 @@ we created in demo use case 1 (by now it has been released [here](https://github
 and another utility package published
 here: [https://github.com/icgc-argo/demo-wfpkgs/releases/tag/demo-utils.v1.3.0](https://github.com/icgc-argo/demo-wfpkgs/releases/tag/demo-utils.v1.3.0)
 
-1. Prepare anthor GitHub repository under an organization account
+1. Prepare another GitHub repository under an organization account
 
 Similar to the first step of demo use case 1, create another repository (here we use `awesome-wfpkgs2`)
 in the same GitHub organization, add a PAT to it as a secret and name it `CR_PAT`.
