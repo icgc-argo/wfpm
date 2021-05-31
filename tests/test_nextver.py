@@ -68,6 +68,20 @@ def test_good_workon_nextver_ok(workdir, datafiles):
 
 
 @pytest.mark.datafiles(DATA_DIR)
+def test_new_version_value(workdir, datafiles):
+    os.chdir(os.path.join(workdir, 'awesome-wfpkgs2', 'fastqc-wf2'))
+
+    stdout, stderr, returncode = run_cmd("grep '\"version\"' pkg.json")
+    assert '"version": "0.1.1"' in stdout
+
+    stdout, stderr, returncode = run_cmd("grep '^version =' fastqc-wf2.nf")
+    assert stdout.startswith("version = '0.1.1'")
+
+    stdout, stderr, returncode = run_cmd("grep '^version =' tests/checker.nf")
+    assert stdout.startswith("version = '0.1.1'")
+
+
+@pytest.mark.datafiles(DATA_DIR)
 def test_good_workon_02(workdir, datafiles):
     run_cmd('git clone https://github.com/ICGC-TCGA-PanCancer/awesome-wfpkgs2.git')
     run_cmd('cd awesome-wfpkgs2 && git fetch --all --tags')
