@@ -54,6 +54,7 @@ class Project(object):
     pkg_workon: str = None
     pkgs_in_dev: List[str] = []
     pkgs_released: List[str] = []
+    _pkg_name_to_package: dict = {}
 
     def __init__(self, debug=False, project_root=None):
         self.cwd = os.getcwd()
@@ -101,6 +102,11 @@ class Project(object):
         if self.repo_server and self.repo_account and self.name:
             return f"{self.repo_server}/{self.repo_account}/{self.name}"
 
+    @property
+    def current_pkg(self):
+        if self.pkg_workon:
+            return self._pkg_name_to_package[self.pkg_workon.split('@')[0]]
+
     def __repr__(self):
         return self.fullname
 
@@ -115,6 +121,8 @@ class Project(object):
                 sys.exit(1)
 
             self.pkgs.append(pkg)
+
+            self._pkg_name_to_package[pkg.name] = pkg
 
             pkg_dir = os.path.join(os.path.dirname(pkg_json), '')
             if os.path.join(self.cwd, '').startswith(pkg_dir):

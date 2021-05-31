@@ -129,3 +129,11 @@ def pkg_asset_download_urls(url) -> List[str]:
         urls.append('/'.join(url_parts[:-2] + [release_tag, filename]))
 
     return urls
+
+
+def extract_version_str(script):
+    with open(script, 'r') as s:
+        for line in s:
+            m = re.match(r'^\s*version\s*=\s*(\S+?)\s*$', line)
+            if m:
+                return m.group(1).strip('\'"')
