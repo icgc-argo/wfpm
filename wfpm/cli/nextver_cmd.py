@@ -161,16 +161,28 @@ def update_pkg_json_and_main(project):
         pkg_name,
         main_script_name
     )
+    update_version_str(main_script, version)
 
-    new_main_script_str = ''
-    with open(main_script, 'r') as f:
+    # update version in checker script as well
+    checker_script = os.path.join(
+        project.root,
+        pkg_name,
+        'tests',
+        'checker.nf'
+    )
+    update_version_str(checker_script, version)
+
+
+def update_version_str(script, new_version):
+    new_script_str = ''
+    with open(script, 'r') as f:
         found = False
         for line in f:
             if not found and line.strip().startswith('version'):
-                line = f"version = '{version}'\n"
+                line = f"version = '{new_version}'\n"
                 found = True
 
-            new_main_script_str += line
+            new_script_str += line
 
-    with open(main_script, 'w') as f:
-        f.write(new_main_script_str)
+    with open(script, 'w') as f:
+        f.write(new_script_str)
