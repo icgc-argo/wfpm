@@ -186,16 +186,16 @@ class Package(object):
             issues.append(
                 f"Main script '{pkg_dict['main']}' specified in the pkg.json does not exist."
             )
-
-        version_in_main = extract_version_str(main_script)
-        if not version_in_main:
-            issues.append(
-                f"Main script '{main_script}' misses required 'version' variable."
-            )
-        elif pkg_dict['version'] != version_in_main:
-            issues.append(
-                f"Main script version '{version_in_main}' does not match version in pkg.json '{pkg_dict['version']}'"
-            )
+        else:
+            version_in_main = extract_version_str(main_script)
+            if not version_in_main:
+                issues.append(
+                    f"Main script '{main_script}' misses required 'version' variable."
+                )
+            elif pkg_dict['version'] != version_in_main:
+                issues.append(
+                    f"Main script version '{version_in_main}' does not match version in pkg.json '{pkg_dict['version']}'"
+                )
 
         checker_script = os.path.join(self.pkg_path, 'tests', 'checker.nf')
         if not os.path.isfile(checker_script):
