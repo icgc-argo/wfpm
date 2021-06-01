@@ -24,13 +24,14 @@ import json
 import requests
 import tempfile
 from typing import Set
-from .utils import run_cmd, pkg_uri_parser, pkg_asset_download_urls
+from .utils import run_cmd, pkg_uri_parser, pkg_asset_download_urls, extract_version_str
 
 
 class Package(object):
     name: str = None
     version: str = None
     main: str = None
+    pkg_path: str = None  # optional, available when a Package is initiated via local pkg.json file
 
     repo_type: str = 'git'  # hardcode for now
     repo_server: str = None
@@ -83,6 +84,8 @@ class Package(object):
         if pkg_json:
             with open(pkg_json, 'r') as f:
                 pkg_dict = json.load(f)
+            self.pkg_path = os.path.dirname(os.path.realpath(pkg_json))
+
         elif pkg_json_str:
             pkg_dict = json.loads(pkg_json_str)
         else:
@@ -148,6 +151,101 @@ class Package(object):
                 raise Exception(f"Unable to remove previously installed package: {err}")
 
         return self._download_and_install(target_path)
+
+    def validate(self):
+        """
+        Perform integrity validation on the package
+
+        Check the content of pkg.json:
+        - pkg_name, package name matches name of the containing folder
+        - main, package main points to workflow script that exists
+        - version, package version matches what's in the main and checker scripts
+        """
+        if not self.pkg_path:
+            raise Exception(f"{self.name} is not a local package, can not run validate.")
+
+        if not self.pkg_path:
+            return  # not applicable to validate non-local package
+
+        pkg_json = os.path.join(self.pkg_path, 'pkg.json')
+        with open(pkg_json, 'r') as j:
+            pkg_dict = json.load(j)
+
+        issues = []
+        # for local package
+        if 'wfpr_modules' not in self.pkg_path and pkg_dict['name'] != os.path.basename(self.pkg_path):
+            issues.append(
+                f"The name '{pkg_dict['name']}' in pkg.json does not match the name of the package "
+                f"containing folder '{os.path.basename(self.pkg_path)}'."
+            )
+
+        # for installed package
+        if 'wfpr_modules' in self.pkg_path and \
+                f"{pkg_dict['name']}@{pkg_dict['version']}" != os.path.basename(self.pkg_path):
+            issues.append(
+                f"Combination of name '{pkg_dict['name']}' and version '{pkg_dict['version']}' in pkg.json does not match "
+                f"the package containing folder name '{os.path.basename(self.pkg_path)}'."
+            )
+
+        main_script = os.path.join(self.pkg_path, pkg_dict['main'])
+        if not main_script.endswith('.nf'):
+            main_script = f"{main_script}.nf"
+
+        if not os.path.isfile(main_script):
+            issues.append(
+                f"Main script '{pkg_dict['main']}' specified in the pkg.json does not exist."
+            )
+        else:
+            version_in_main = extract_version_str(main_script)
+            if not version_in_main:
+                issues.append(
+                    f"Main script '{main_script}' misses required 'version' variable."
+                )
+            elif pkg_dict['version'] != version_in_main:
+                issues.append(
+                    f"Main script version '{version_in_main}' does not match version in pkg.json '{pkg_dict['version']}'"
+                )
+
+        checker_script = os.path.join(self.pkg_path, 'tests', 'checker.nf')
+        if not os.path.isfile(checker_script):
+            issues.append(
+                "Missing required checker.nf script to run tests."
+            )
+        else:
+            version_in_checker = extract_version_str(checker_script)
+            if version_in_checker and pkg_dict['version'] != version_in_checker:
+                issues.append(
+                    f"Checker script version '{version_in_checker}' does not match version in pkg.json '{pkg_dict['version']}'"
+                )
+
+        return issues
+
+    def outdated(self, pkg_name=None):
+        """
+        Check which packages are outdated, display new versions available
+        """
+        # TODO
+        pass
+
+    def update(self, pkg_name, pkg_version):
+        """
+        Update a dependent package to a given version
+        """
+        pass
+
+    def add(self, pkg_uri):
+        """
+        Add a new dependent package
+        """
+        # TODO
+        pass
+
+    def remove(self, pkg_name):
+        """
+        Add a new dependent package
+        """
+        # TODO
+        pass
 
     def _download_and_install(self, target_path=None):
         success = False

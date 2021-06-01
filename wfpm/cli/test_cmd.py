@@ -19,33 +19,34 @@
         Junjun Zhang <junjun.zhang@oicr.on.ca>
 """
 
-import os
 import sys
 from click import echo
 from ..utils import test_package
 
 
 def test_cmd(project):
-    if project.pkg_workon:  # test the current pkg only
-        pkg_path = os.path.join(project.root, project.pkg_workon.split('@')[0])
-        echo(f"Testing package: {pkg_path}")
-        failed_test_count = test_package(pkg_path)
+    pkg_count = 0
+    invalid_pkg_count = 0
+    failed_test_count = 0
+    for pkg in project.pkgs:
+        if project.current_pkg and project.current_pkg.name != pkg.name:
+            continue
 
-        if failed_test_count:
-            sys.exit(1)  # signal failure
+        pkg_count += 1
+        echo(f"Validating package: {pkg.pkg_path}")
+        pkg_issues = pkg.validate()
+        if pkg_issues:
+            echo("Package issues identified:")
+            for i in range(len(pkg_issues)):
+                echo(f"[{i+1}/{len(pkg_issues)}] {pkg_issues[i]}")
+            invalid_pkg_count += 1
+        else:
+            echo("Pakcage valid.")
+            echo(f"Testing package: {pkg.pkg_path}")
+            failed_test_count += test_package(pkg.pkg_path)
 
-    else:  # test all pkgs
-        pkg_names = sorted([pkg.name for pkg in project.pkgs])
-        pkg_count = len(pkg_names)
-        failed_test_count = 0
+    if not pkg_count:
+        echo("No package to test.")
 
-        for i in range(pkg_count):
-            pkg_path = os.path.join(project.root, pkg_names[i])
-            echo(f"Testing package: {pkg_path}")
-            failed_test_count += test_package(pkg_path)
-
-        if not pkg_count:
-            echo("No test to run.")
-
-        if failed_test_count:
-            sys.exit(1)  # signal failure
+    if invalid_pkg_count or failed_test_count:
+        sys.exit(1)  # signal failure
