@@ -82,6 +82,15 @@ def install_cmd(
             failed_pkgs.append(package)
 
         if not skip_tests and installed:
-            test_package(path)
+            installed_pkg = Package(pkg_json=os.path.join(os.path.join(path, 'pkg.json')))
+            pkg_issues = installed_pkg.validate()
+            if pkg_issues:
+                echo("Package issues identified:")
+                for i in range(len(pkg_issues)):
+                    echo(f"[{i+1}/{len(pkg_issues)}] {pkg_issues[i]}")
+            else:
+                echo("Pakcage valid.")
+                echo(f"Testing package: {path}")
+                test_package(path)
 
     return installed_pkgs, failed_pkgs

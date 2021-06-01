@@ -172,10 +172,19 @@ class Package(object):
             pkg_dict = json.load(j)
 
         issues = []
-        if pkg_dict['name'] != os.path.basename(self.pkg_path):
+        # for local package
+        if 'wfpr_modules' not in self.pkg_path and pkg_dict['name'] != os.path.basename(self.pkg_path):
             issues.append(
-                f"Name '{pkg_dict['name']}' in pkg.json does not match the name of the package "
-                f"containing folder '{self.pkg_path}'."
+                f"The name '{pkg_dict['name']}' in pkg.json does not match the name of the package "
+                f"containing folder '{os.path.basename(self.pkg_path)}'."
+            )
+
+        # for installed package
+        if 'wfpr_modules' in self.pkg_path and \
+                f"{pkg_dict['name']}@{pkg_dict['version']}" != os.path.basename(self.pkg_path):
+            issues.append(
+                f"Combination of name '{pkg_dict['name']}' and version '{pkg_dict['version']}' in pkg.json does not match "
+                f"the package containing folder name '{os.path.basename(self.pkg_path)}'."
             )
 
         main_script = os.path.join(self.pkg_path, pkg_dict['main'])
