@@ -111,18 +111,15 @@ The packages created by the demo cases can be found at:
 [https://github.com/ICGC-TCGA-PanCancer/awesome-wfpkgs2/releases/tag/demo-fastqc-wf.v0.2.0](https://github.com/ICGC-TCGA-PanCancer/awesome-wfpkgs2/releases/tag/demo-fastqc-wf.v0.2.0) for your reference.
 
 **NOTE**: You are encouraged to follow these steps to create your own tool / workflow packages. Simply replacing
-the GitHub organization `ICGC-TCGA-PanCancer` used here by your own GitHub org, it should just work.
+the GitHub organization `ICGC-TCGA-PanCancer` used here by your own GitHub account, it should just work.
 
 ### Demo use case 1: create and publish a demo `tool` package
 
-1. Prepare a GitHub repository under an organization account
+1. Prepare a GitHub repository
 
-Before you start, please make sure you create a repository (with name at your choice, but in the demo let's
-use `awesome-wfpkgs1`) under a GitHub organization account (here we use `ICGC-TCGA-PanCancer`).
-This is because GitHub Container Registry (GHCR, ghcr.io) is not available for personal account. GHCR is
-currently in beta, you need to enable it under your organization profile by: `Settings` =>
-`Packages` => `Enable improved container support`. We will be using ghcr.io registry to keep
-the container images created and used by the demo tool package.
+Before you start, please make sure you create a repository with name at your choice (in the demo let's
+use `awesome-wfpkgs1`) under a GitHub organization account you have admin access or your personal account
+(here we use `ICGC-TCGA-PanCancer`).
 
 You also need to create a Personal Access Token (PAT) in order to access GitHub Container Registry,
 follow these steps: your account => `Settings` => `Developer settings` => `Personal access tokens` =>
@@ -223,7 +220,7 @@ we created in demo use case 1 (by now it has been released [here](https://github
 and another utility package published
 here: [https://github.com/icgc-argo/demo-wfpkgs/releases/tag/demo-utils.v1.3.0](https://github.com/icgc-argo/demo-wfpkgs/releases/tag/demo-utils.v1.3.0)
 
-1. Prepare another GitHub repository under an organization account
+1. Prepare another GitHub repository
 
 Similar to the first step of demo use case 1, create another repository (here we use `awesome-wfpkgs2`)
 in the same GitHub organization, add a PAT to it as a secret and name it `CR_PAT`.
