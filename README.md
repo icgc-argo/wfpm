@@ -15,7 +15,7 @@ NOTE: WFPM CLI is in active development. More features, documentation and tutori
 
 - Documentation: [https://wfpm.readthedocs.io](https://wfpm.readthedocs.io)
 - Source code: [https://github.com/icgc-argo/wfpm](https://github.com/icgc-argo/wfpm)
-- Talk at BOSC 2021: [https://www.youtube.com/watch?v=kOC6SH0GFPQ](https://www.youtube.com/watch?v=kOC6SH0GFPQ)
+- Talk at BOSC 2021 (including demo): [https://www.youtube.com/watch?v=kOC6SH0GFPQ](https://www.youtube.com/watch?v=kOC6SH0GFPQ); [slides](https://docs.google.com/presentation/d/1uEcAYvUvjyFptOT_BD-vkhXnhQoFO5X8RulxORTGubY/edit?usp=sharing).
 
 ## Best practices for scientific workflow development
 
