@@ -13,21 +13,24 @@ development via reusable packages.
 
 NOTE: WFPM CLI is in active development. More features, documentation and tutorials are coming.
 
-* Documentation: [https://wfpm.readthedocs.io](https://wfpm.readthedocs.io)
-* Source code: [https://github.com/icgc-argo/wfpm](https://github.com/icgc-argo/wfpm)
-
+- Documentation: [https://wfpm.readthedocs.io](https://wfpm.readthedocs.io)
+- Source code: [https://github.com/icgc-argo/wfpm](https://github.com/icgc-argo/wfpm)
+- Talk at BOSC 2021: [https://www.youtube.com/watch?v=kOC6SH0GFPQ](https://www.youtube.com/watch?v=kOC6SH0GFPQ)
 
 ## Best practices for scientific workflow development
 
-* **Reproducible** - same input, same code, same result
+- **Reproducible** - same input, same code, same result
+
   - containerize all software tools (including scripts, binary executables) and specific OS environment
   - tag every image build and associate it with workflow source code release
 
-* **Portable** - run on different platforms, by different users
+- **Portable** - run on different platforms, by different users
+
   - containerize all software tools (containerization appeared again, it is a good friend :blush:)
   - use cross-platform workflow languages and orchestration systems, eg, Nextflow, WDL etc
 
-* **Composable** - enable collaborative development
+- **Composable** - enable collaborative development
+
   - break down big tasks into small tasks (each carried out by a small software tool)
   - one tool per container image
   - version and release independently every tool and its associated container image
@@ -35,14 +38,14 @@ NOTE: WFPM CLI is in active development. More features, documentation and tutori
   - a workflow can also be imported as sub-workflow to build a larger workflow
   - similar to tools, workflows are versioned, immutable once released
 
-* **Findable** - easy to find by research community members
+- **Findable** - easy to find by research community members
+
   - register components and workflows in public tool registries, such as Dockstore, BioContainers etc
   - release workflow source code via GitHub Releases
 
-* **Testable** - deliver with high confidence
+- **Testable** - deliver with high confidence
   - must have tests for every tool, component and workflow
   - configure and enable continuous integration testing
-
 
 ## ICGC ARGO workflow implementation
 
@@ -55,10 +58,10 @@ of a tool into a workflow codebase was extremely easy, we were able to reuse sam
 months, prototyping and testing assured us this was the right approach. Eventually, the aforementioned best
 practices were established, following which four ICGC ARGO production workflows have been implemented:
 
-* [DNA Sequence Alignment Workflow](https://github.com/icgc-argo/dna-seq-processing-wfs)
-* [Sanger WGS Somatic Variant Calling Workflow](https://github.com/icgc-argo/sanger-wgs-variant-calling)
-* [Sanger WXS Somatic Variant Calling Workflow](https://github.com/icgc-argo/sanger-wxs-variant-calling)
-* [GATK Mutect2 Somatic Variant Calling Workflow](https://github.com/icgc-argo/gatk-mutect2-variant-calling)
+- [DNA Sequence Alignment Workflow](https://github.com/icgc-argo/dna-seq-processing-wfs)
+- [Sanger WGS Somatic Variant Calling Workflow](https://github.com/icgc-argo/sanger-wgs-variant-calling)
+- [Sanger WXS Somatic Variant Calling Workflow](https://github.com/icgc-argo/sanger-wxs-variant-calling)
+- [GATK Mutect2 Somatic Variant Calling Workflow](https://github.com/icgc-argo/gatk-mutect2-variant-calling)
 
 Before having the WFPM CLI tool, [a development procedure](https://github.com/icgc-argo/dna-seq-processing-tools/blob/c58a6fa3bae998a7a12778bc2950acd4776de314/README.md#development) was followed manually to ensure adherence to
 the best practices, which was undoubtedly cumbersome and error-prone. Aimed to provide maximized automation and
@@ -66,7 +69,6 @@ development productivity, the WFPM CLI tool is able to generate templates that i
 code for testing, and GitHub Actions code for automated continuous integration (CI) and continuous delivery (CD).
 We expect WFPM to significantly lower the barriers for scientific workflow developers to adopt the established
 best practices and accelerate collaborative workflow development within the ICGC ARGO community and beyond.
-
 
 ## Installation
 
@@ -92,7 +94,6 @@ pip install wfpm
 To update to the latest version, run `pip install --upgrade wfpm`
 
 To show usage information of WFPM CLI, run `wfpm --help`, or simply `wfpm`
-
 
 ## Demo use cases
 
@@ -134,7 +135,6 @@ CI/CD is an integral part of the workflow package development life cycle. To ena
 for your organization: `Settings` => `Actions` => `Allow all actions`. WFPM CLI generated workflow
 package templates include all necessary components to perform CI/CD with no work required from you.
 
-
 2. Initialize a project directory for developing/managing packages
 
 ```
@@ -154,7 +154,6 @@ git push -u origin main
 When you are ready, as suggested above you can push the code to GitHub. Upon push received at
 GitHub, CI/CD process will be automatically triggered. You should see CI tests pass, which indicates everything went well.
 
-
 3. Create your first tool package
 
 ```
@@ -164,7 +163,7 @@ wfpm new tool demo-fastqc
 We use the bioinformatics tool `fastqc` as an example here. You
 can pretty much use the default values in the prompt to advance forward, except for using `0.2.0` for package version. Upon completion,
 you should see a message like `New package created in: demo-fastqc. Starting template added and committed to git. Please continue working on it`. Template code is added to the `demo-fastqc@0.2.0` branch,
-and WFPM CLI sets the newly created package as currently *worked on* package, you may verify it by
+and WFPM CLI sets the newly created package as currently _worked on_ package, you may verify it by
 running:
 
 ```
@@ -196,7 +195,6 @@ it public so that anyone is able to pull the image. In this demo case, it can be
 [https://github.com/orgs/ICGC-TCGA-PanCancer/packages/container/awesome-wfpkgs1.demo-fastqc/settings](https://github.com/orgs/ICGC-TCGA-PanCancer/packages/container/awesome-wfpkgs1.demo-fastqc/settings) (change the URL
 as needed to match your org and repo), click on `Change Visibility`, then choose `Public` and confirm.
 
-
 4. Publish your first tool package
 
 When you merge the above PR, as part of the comment, you may type a special
@@ -207,11 +205,9 @@ will be made automatically.
 
 ![](https://raw.githubusercontent.com/icgc-argo/wfpm/8b966d125f815178fee13769c8e549b87ad44b96/docs/source/_static/merge-with-release.png)
 
-
 The release should be available at: [https://github.com/ICGC-TCGA-PanCancer/awesome-wfpkgs1/releases/tag/demo-fastqc.v0.2.0](https://github.com/ICGC-TCGA-PanCancer/awesome-wfpkgs1/releases/tag/demo-fastqc.v0.2.0)
 and can be imported and used by anyone (of course including yourself) in their
 workflows. How to do that? Please continue to the next demo use case.
-
 
 ### Demo use case 2: create and publish a `workflow` package
 
@@ -238,10 +234,10 @@ for this demo.
 Upon completion, the scaffold of our second project will be generated and first git commit will be done
 automatically. You may push the code to GitHub once verified everything is fine.
 
-
 3. Create your first workflow package
 
 Let's name the first `workflow` package `demo-fastqc-wf`:
+
 ```
 wfpm new workflow demo-fastqc-wf
 ```
@@ -249,13 +245,14 @@ wfpm new workflow demo-fastqc-wf
 You may response most of the fields with the default values, except for using `0.2.0` for package version. Notice
 that below are dependencies the new workflow requires. Please replace `icgc-tcga-pancancer` with your own GitHub org
 name so the tool package you just released will be used.
-* `github.com/icgc-tcga-pancancer/awesome-wfpkgs1/demo-fastqc@0.2.0`
-* `github.com/icgc-argo/demo-wfpkgs/demo-utils@1.3.0`
+
+- `github.com/icgc-tcga-pancancer/awesome-wfpkgs1/demo-fastqc@0.2.0`
+- `github.com/icgc-argo/demo-wfpkgs/demo-utils@1.3.0`
 
 `wfpm` will automatically install and test dependent packages in a temporary directory, once verified
 all dependencies tested successfully, they will be copied over to the project space. You should see the
 message: `New package created in: demo-fastqc-wf. Starting template added and committed to git. Please continue working on it`. Template code is added to the `demo-fastqc-wf@0.2.0` branch,
-and WFPM CLI sets the newly created package as currently *worked on* package, you may verify it by
+and WFPM CLI sets the newly created package as currently _worked on_ package, you may verify it by
 running:
 
 ```
@@ -263,11 +260,13 @@ wfpm workon
 ```
 
 The auto-generated workflow code is fully functional, you may invoke tests as:
+
 ```
 wfpm test
 ```
 
 This is equivalent to running the tests using Nextflow command directly:
+
 ```
 cd demo-fastqc-wf/tests
 nextflow run checker.nf -params-file test-job-1.json
@@ -275,6 +274,7 @@ nextflow run checker.nf -params-file test-job-2.json
 ```
 
 You should see the test run successfully. We now simply push the code to GitHub:
+
 ```
 git push -u origin demo-fastqc-wf@0.2.0
 ```
@@ -286,7 +286,6 @@ a PR as usual.
 
 When merge the PR, type the special instruction `[release]` in the comment (similar as in the previous demo)
 to trigger the CI/CD release process via GitHub Actions. Once released, the demo workflow package will be available at: [https://github.com/ICGC-TCGA-PanCancer/awesome-wfpkgs2/releases/tag/demo-fastqc-wf.v0.2.0](https://github.com/ICGC-TCGA-PanCancer/awesome-wfpkgs2/releases/tag/demo-fastqc-wf.v0.2.0)
-
 
 ### Summary
 
