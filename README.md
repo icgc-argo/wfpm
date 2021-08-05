@@ -15,7 +15,8 @@ NOTE: WFPM CLI is in active development. More features, documentation and tutori
 
 - Documentation: [https://wfpm.readthedocs.io](https://wfpm.readthedocs.io)
 - Source code: [https://github.com/icgc-argo/wfpm](https://github.com/icgc-argo/wfpm)
-- Talk at BOSC 2021 (including demo): [https://www.youtube.com/watch?v=kOC6SH0GFPQ](https://www.youtube.com/watch?v=kOC6SH0GFPQ); [slides](https://docs.google.com/presentation/d/1uEcAYvUvjyFptOT_BD-vkhXnhQoFO5X8RulxORTGubY/edit?usp=sharing).
+- Talk at BOSC 2021 (including demo): [talk](https://www.youtube.com/watch?v=kOC6SH0GFPQ); [slides](https://docs.google.com/presentation/d/1uEcAYvUvjyFptOT_BD-vkhXnhQoFO5X8RulxORTGubY/edit?usp=sharing).
+- Blog: [Build workflows collaboratively using reusable and shareable packages](https://softeng.oicr.on.ca/junjun_zhang/2021/03/31/build-workflows-collaboratively-using-packages)
 
 ## Best practices for scientific workflow development
 
