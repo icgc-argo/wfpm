@@ -68,3 +68,7 @@ docs/_build
 work
 outdir
 wfpr_modules/github.com/*/*/*/tests
+
+# singularity images
+**/*.img
+**/*.sif
