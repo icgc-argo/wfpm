@@ -59,10 +59,10 @@ of a tool into a workflow codebase was extremely easy, we were able to reuse sam
 months, prototyping and testing assured us this was the right approach. Eventually, the aforementioned best
 practices were established, following which four ICGC ARGO production workflows have been implemented:
 
-- [DNA Sequence Alignment Workflow](https://github.com/icgc-argo/dna-seq-processing-wfs)
-- [Sanger WGS Somatic Variant Calling Workflow](https://github.com/icgc-argo/sanger-wgs-variant-calling)
-- [Sanger WXS Somatic Variant Calling Workflow](https://github.com/icgc-argo/sanger-wxs-variant-calling)
-- [GATK Mutect2 Somatic Variant Calling Workflow](https://github.com/icgc-argo/gatk-mutect2-variant-calling)
+- [DNA Sequence Alignment Workflow](https://github.com/icgc-argo-workflows/dna-seq-processing-wfs)
+- [Sanger WGS Somatic Variant Calling Workflow](https://github.com-workflows/icgc-argo/sanger-wgs-variant-calling)
+- [Sanger WXS Somatic Variant Calling Workflow](https://github.com/icgc-argo-workflows/sanger-wxs-variant-calling)
+- [GATK Mutect2 Somatic Variant Calling Workflow](https://github.com/icgc-argo-workflows/gatk-mutect2-variant-calling)
 
 Before having the WFPM CLI tool, [a development procedure](https://github.com/icgc-argo/dna-seq-processing-tools/blob/c58a6fa3bae998a7a12778bc2950acd4776de314/README.md#development) was followed manually to ensure adherence to
 the best practices, which was undoubtedly cumbersome and error-prone. Aimed to provide maximized automation and
