@@ -60,7 +60,7 @@ months, prototyping and testing assured us this was the right approach. Eventual
 practices were established, following which four ICGC ARGO production workflows have been implemented:
 
 - [DNA Sequence Alignment Workflow](https://github.com/icgc-argo-workflows/dna-seq-processing-wfs)
-- [Sanger WGS Somatic Variant Calling Workflow](https://github.com-workflows/icgc-argo/sanger-wgs-variant-calling)
+- [Sanger WGS Somatic Variant Calling Workflow](https://github.com/icgc-argo-workflows/sanger-wgs-variant-calling)
 - [Sanger WXS Somatic Variant Calling Workflow](https://github.com/icgc-argo-workflows/sanger-wxs-variant-calling)
 - [GATK Mutect2 Somatic Variant Calling Workflow](https://github.com/icgc-argo-workflows/gatk-mutect2-variant-calling)
 
