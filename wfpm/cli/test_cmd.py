@@ -34,7 +34,7 @@ def test_cmd(project):
 
         pkg_count += 1
         echo(f"Validating package: {pkg.pkg_path}")
-        pkg_issues = pkg.validate()
+        pkg_issues = pkg.validate(project.repo_server, project.repo_account, project.name)
         if pkg_issues:
             echo("Package issues identified:")
             for i in range(len(pkg_issues)):

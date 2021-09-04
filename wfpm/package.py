@@ -152,7 +152,7 @@ class Package(object):
 
         return self._download_and_install(target_path)
 
-    def validate(self):
+    def validate(self, repo_server=None, repo_account=None, repo_name=None):
         """
         Perform integrity validation on the package
 
@@ -163,9 +163,6 @@ class Package(object):
         """
         if not self.pkg_path:
             raise Exception(f"{self.name} is not a local package, can not run validate.")
-
-        if not self.pkg_path:
-            return  # not applicable to validate non-local package
 
         pkg_json = os.path.join(self.pkg_path, 'pkg.json')
         with open(pkg_json, 'r') as j:
@@ -217,6 +214,28 @@ class Package(object):
                 issues.append(
                     f"Checker script version '{version_in_checker}' does not match version in pkg.json '{pkg_dict['version']}'"
                 )
+
+        # repo_server, repo_account, repo_name
+        if repo_server and repo_server != self.repo_server:
+            issues.append(
+                f"Repository server as part of 'repository.url' in 'pkg.json': '{self.repo_server}' does "
+                f"not match what's kept in the WFPM project: '{repo_server}'. "
+                f"Package path: {self.pkg_path}"
+            )
+
+        if repo_account and repo_account != self.repo_account:
+            issues.append(
+                f"Repository account as part of 'repository.url' in 'pkg.json': '{self.repo_account}' does "
+                f"not match what's kept in the WFPM project: '{repo_account}'. "
+                f"Package path: {self.pkg_path}"
+            )
+
+        if repo_name and repo_name != self.repo_name:
+            issues.append(
+                f"Repository name as part of 'repository.url' in 'pkg.json': '{self.repo_name}' does "
+                f"not match WFPM project name: '{repo_name}'. "
+                f"Package path: {self.pkg_path}"
+            )
 
         return issues
 
