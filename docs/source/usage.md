@@ -39,16 +39,26 @@ wfpm new --help
 
 To create a new *WFPM* project, please use the `wfpm init` command which will
 start an interactive step-by-step questionnaire to collect information for the
-new *WFPM* project. A summary of the collected info will show before proceeding
-with project creation, such as the example below:
+new *WFPM* project. As the example showing below:
+
+```
+Please provide project information. Default value is in [] for each question, type your answer or hit enter to accept default.
+? Project name / GitHub repo name (project_slug) [repo-name]: my-awesome-wfpm-project
+? Project title [Awesome Workflow Packages]:
+? Organization or your GitHub account (under which source code is hosted) [github-account]: your-github-account
+? Organization or your name (used as copyright owner in License) [Your Organization Name]:
+? Open source license: MIT
+```
+
+A summary of the collected info will show before proceeding with project creation,
+it may look like the example below:
 
 ```
 {
     "project_slug": "my-awesome-wfpm-project",
-    "github_account": "your-github-account",
     "project_title": "Awesome Workflow Packages",
+    "github_account": "your-github-account",
     "full_name": "Your Organization Name",
-    "email": "you@example.com",
     "open_source_license": "MIT"
 }
 ```

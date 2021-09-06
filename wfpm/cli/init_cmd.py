@@ -118,15 +118,16 @@ def gen_project(
 def collect_project_init_info(project=None):
     defaults = {
         "full_name": "Your Organization Name",
-        "email": f"{project.git.user_email}",
         "project_title": "Awesome Workflow Packages",
         "github_account": "github-account",
-        "project_slug": "github-repo",
+        "project_slug": "repo-name",
     }
 
+    echo('Please provide project information. Default value is in [] for each question, type your answer or hit enter to accept default.')
+
     project_slug = questionary.text(
-            f"Project name / GitHub repo name [{defaults['project_slug']}]:", default=""
-        ).ask()
+        f"Project name / GitHub repo name (project_slug) [{defaults['project_slug']}]:", default=""
+    ).ask()
 
     if project_slug is None:
         sys.exit(1)
@@ -142,10 +143,11 @@ def collect_project_init_info(project=None):
         sys.exit(1)
 
     answers = questionary.form(
-        github_account=questionary.text(f"GitHub account [{defaults['github_account']}]:", default=""),
         project_title=questionary.text(f"Project title [{defaults['project_title']}]:", default=""),
-        full_name=questionary.text(f"Organization or your name [{defaults['full_name']}]:", default=""),
-        email=questionary.text(f"Your email [{defaults['email']}]:", default=""),
+        github_account=questionary.text(
+            f"Organization or your GitHub account (under which source code is hosted) [{defaults['github_account']}]:", default=""),
+        full_name=questionary.text(
+            f"Organization or your name (used as copyright owner in License) [{defaults['full_name']}]:", default=""),
         open_source_license=questionary.select("Open source license:", choices=[
             "MIT",
             "BSD-3-Clause",
