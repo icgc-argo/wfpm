@@ -82,8 +82,9 @@ def install_cmd(
             failed_pkgs.append(package)
 
         if not skip_tests and installed:
-            installed_pkg = Package(pkg_json=os.path.join(os.path.join(path, 'pkg.json')))
-            pkg_issues = installed_pkg.validate()
+            installed_pkg = Package(pkg_json=os.path.join(path, 'pkg.json'))
+            repo_server, repo_account, repo_name = path.split(os.sep)[-4:-1]
+            pkg_issues = installed_pkg.validate(repo_server, repo_account, repo_name)
             if pkg_issues:
                 echo("Package issues identified:")
                 for i in range(len(pkg_issues)):

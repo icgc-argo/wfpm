@@ -152,7 +152,7 @@ class Package(object):
 
         return self._download_and_install(target_path)
 
-    def validate(self):
+    def validate(self, repo_server=None, repo_account=None, repo_name=None, installed_pkgs=list()):
         """
         Perform integrity validation on the package
 
@@ -163,9 +163,6 @@ class Package(object):
         """
         if not self.pkg_path:
             raise Exception(f"{self.name} is not a local package, can not run validate.")
-
-        if not self.pkg_path:
-            return  # not applicable to validate non-local package
 
         pkg_json = os.path.join(self.pkg_path, 'pkg.json')
         with open(pkg_json, 'r') as j:
@@ -217,6 +214,35 @@ class Package(object):
                 issues.append(
                     f"Checker script version '{version_in_checker}' does not match version in pkg.json '{pkg_dict['version']}'"
                 )
+
+        # repo_server, repo_account, repo_name
+        if repo_server and repo_server != self.repo_server:
+            issues.append(
+                f"Repository server as part of 'repository.url' in 'pkg.json': '{self.repo_server}' does "
+                f"not match what's kept in the WFPM project: '{repo_server}'. "
+                f"Package path: {self.pkg_path}"
+            )
+
+        if repo_account and repo_account != self.repo_account:
+            issues.append(
+                f"Repository account as part of 'repository.url' in 'pkg.json': '{self.repo_account}' does "
+                f"not match what's kept in the WFPM project: '{repo_account}'. "
+                f"Package path: {self.pkg_path}"
+            )
+
+        if repo_name and repo_name != self.repo_name:
+            issues.append(
+                f"Repository name as part of 'repository.url' in 'pkg.json': '{self.repo_name}' does "
+                f"not match WFPM project name: '{repo_name}'. "
+                f"Package path: {self.pkg_path}"
+            )
+
+        uninstalled_deps = self.dependencies - set([str(p) for p in installed_pkgs])
+        if installed_pkgs and uninstalled_deps:
+            issues.append(
+                f"Dependencies declared in 'pkg.json', but not installed: '{', '.join(uninstalled_deps)}'. "
+                f"Please run 'wfpm install' command to install missing dependencies."
+            )
 
         return issues
 
