@@ -152,7 +152,7 @@ class Package(object):
 
         return self._download_and_install(target_path)
 
-    def validate(self, repo_server=None, repo_account=None, repo_name=None):
+    def validate(self, repo_server=None, repo_account=None, repo_name=None, installed_pkgs=list()):
         """
         Perform integrity validation on the package
 
@@ -235,6 +235,13 @@ class Package(object):
                 f"Repository name as part of 'repository.url' in 'pkg.json': '{self.repo_name}' does "
                 f"not match WFPM project name: '{repo_name}'. "
                 f"Package path: {self.pkg_path}"
+            )
+
+        uninstalled_deps = self.dependencies - set([str(p) for p in installed_pkgs])
+        if installed_pkgs and uninstalled_deps:
+            issues.append(
+                f"Dependencies declared in 'pkg.json', but not installed: '{', '.join(uninstalled_deps)}'. "
+                f"Please run 'wfpm install' command to install missing dependencies."
             )
 
         return issues
