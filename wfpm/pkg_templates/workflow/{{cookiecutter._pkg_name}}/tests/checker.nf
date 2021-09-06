@@ -44,7 +44,7 @@ process file_smart_diff {
     # in this example, we need to remove date field before comparison eg, <div id="header_filename">Tue 19 Jan 2021<br/>test_rg_3.bam</div>
     # sed -e 's#"header_filename">.*<br/>test_rg_3.bam#"header_filename"><br/>test_rg_3.bam</div>#'
 
-    cat ${output_file} \
+    cat ${output_file[0]} \
       | sed -e 's#"header_filename">.*<br/>#"header_filename"><br/>#' > normalized_output
 
     ([[ '${expected_file}' == *.gz ]] && gunzip -c ${expected_file} || cat ${expected_file}) \
