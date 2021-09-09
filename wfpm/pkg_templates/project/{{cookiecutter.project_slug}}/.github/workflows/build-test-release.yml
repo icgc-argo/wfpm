@@ -178,6 +178,7 @@ jobs:
           * Release `${{ steps.get_pkg_info.outputs.pkg_name }}.v${{ steps.get_pkg_info.outputs.pkg_ver }}` (${{ github.sha }})
           * Package `${{ steps.prep_assets.outputs.pkg_tar }}` (sha256: `${{ steps.prep_assets.outputs.pkg_tar_sha }}`)
           * Package URI `github.com/${{ needs.build.outputs.repo_lowercase }}/${{ steps.get_pkg_info.outputs.pkg_name }}@${{ steps.get_pkg_info.outputs.pkg_ver }}`
+          * Run the package: `nextflow run ${{ needs.build.outputs.repo_lowercase }}/${{ steps.get_pkg_info.outputs.pkg_name }}/main.nf -r ${{ steps.get_pkg_info.outputs.pkg_name }}.v${{ steps.get_pkg_info.outputs.pkg_ver }} -params-file <params-json-file>`
         draft: false
         prerelease: false
 
