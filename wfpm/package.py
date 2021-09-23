@@ -142,7 +142,7 @@ class Package(object):
         )
 
         if os.path.isdir(target_path) and not force:
-            raise Exception(f"Pakcage already installed: {target_path.replace(os.path.join(os.getcwd(), ''), '')}, "
+            raise Exception(f"Package already installed: {target_path.replace(os.path.join(os.getcwd(), ''), '')}, "
                             "skip unless force option is specified.")
 
         if force:

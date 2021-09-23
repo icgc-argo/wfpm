@@ -45,7 +45,7 @@ def test_cmd(project):
                 echo(f"[{i+1}/{len(pkg_issues)}] {pkg_issues[i]}")
             invalid_pkg_count += 1
         else:
-            echo("Pakcage valid.")
+            echo("Package valid.")
             echo(f"Testing package: {pkg.pkg_path}")
             failed_test_count += test_package(pkg.pkg_path)
 

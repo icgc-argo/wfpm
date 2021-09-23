@@ -59,7 +59,7 @@ def test_good_new_workflow_install(workdir, datafiles):
     cli_option = ['install']
     result = runner.invoke(main, cli_option)
 
-    assert "Pakcage already installed: " in result.output
+    assert "Package already installed: " in result.output
 
 
 @pytest.mark.datafiles(DATA_DIR)

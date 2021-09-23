@@ -142,7 +142,7 @@ my-awesome-tool
 └── wfpr_modules -> ../wfpr_modules
 ```
 
-Please note that the code for the new pakcage resides on a new branch named as
+Please note that the code for the new package resides on a new branch named as
 `my-awesome-tool@0.1.0` (pattern: `<pkg_name>@<version>`). Development should continue
 on this branch utill it's merged into the `main` branch after PR (pull request)
 creation and code review approval.

@@ -90,7 +90,7 @@ def install_cmd(
                 for i in range(len(pkg_issues)):
                     echo(f"[{i+1}/{len(pkg_issues)}] {pkg_issues[i]}")
             else:
-                echo("Pakcage valid.")
+                echo("Package valid.")
                 echo(f"Testing package: {path}")
                 test_package(path)
 
