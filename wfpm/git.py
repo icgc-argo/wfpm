@@ -172,6 +172,19 @@ class Git(object):
         else:
             self.current_branch = branch
 
+    def cmd_rm_branch(self, branch=None):
+        if not branch:
+            raise Exception("Error: must specify a branch name.")
+
+        if '@' not in branch:
+            raise Exception("Error: can only remove a package branch which contains '@' in its name.")
+
+        self.cmd_checkout_branch('main')  # first switch to 'main' branch which always exists
+
+        stdout, stderr, ret = run_cmd(f'git branch -D {branch}')
+        if ret != 0:
+            raise Exception(f"Failed to remove branch '{branch}'.\nSTDOUT: {stdout}\nSTDERR: {stderr}")
+
     def cmd_new_branch_from_tag(self, tag=None, branch=None):
         if not tag or not branch:
             raise Exception("Error: must specify both the tag and new branch name.")
@@ -193,7 +206,7 @@ class Git(object):
 
     def branch_clean(self):
         stdout, stderr, ret = run_cmd('git status')
-        if 'working tree clean' in stdout:
+        if 'working tree clean' in stdout or 'working directory clean' in stdout:
             return True
         return False
 
@@ -213,23 +226,24 @@ class Git(object):
     def get_status(self):
         stdout, stderr, ret = run_cmd('git status')
         if ret == 0:
-            if 'branch is behind ' in stdout and 'working tree clean' in stdout:
+            if 'branch is behind ' in stdout and ('working tree clean' in stdout or 'working directory clean' in stdout):
                 return 'behind-clean'
             elif 'branch is behind ' in stdout:
                 return 'behind'
-            elif 'branch is ahead of ' in stdout and 'working tree clean' in stdout:
+            elif 'branch is ahead of ' in stdout and ('working tree clean' in stdout or 'working directory clean' in stdout):
                 return 'ahead-clean'
             elif 'branch is ahead of ' in stdout:
                 return 'ahead'
-            elif 'have diverged' in stdout and 'working tree clean' in stdout:
+            elif 'have diverged' in stdout and ('working tree clean' in stdout or 'working directory clean' in stdout):
                 return 'diverged-clean'
             elif 'have diverged' in stdout:
                 return 'diverged'
-            elif 'branch is up to date' in stdout and 'working tree clean' in stdout:
+            elif 'branch is up to date' in stdout and ('working tree clean' in stdout or 'working directory clean' in stdout):
                 return 'up_to_date-clean'
             elif 'branch is up to date' in stdout:
                 return 'up_to_date'
-            elif 'working tree clean' in stdout:  # this is when local branch does not have a tracking remote branch yet
+            # this is when local branch does not have a tracking remote branch yet
+            elif ('working tree clean' in stdout or 'working directory clean' in stdout):
                 return 'clean'
             else:
                 return ''

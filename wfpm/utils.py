@@ -134,6 +134,9 @@ def pkg_asset_download_urls(url) -> List[str]:
 def extract_version_str(script):
     with open(script, 'r') as s:
         for line in s:
-            m = re.match(r'^\s*version\s*=\s*["\'](.+)["\']\s*.*$', line)
-            if m:
-                return m.group(1)
+            m1 = re.match(r'^\s*version\s*=\s*"(.+?)"\s*.*$', line)
+            m2 = re.match(r'^\s*version\s*=\s*\'(.+?)\'\s*.*$', line)
+            if m1:
+                return m1.group(1)
+            elif m2:
+                return m2.group(1)

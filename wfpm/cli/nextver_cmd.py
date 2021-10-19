@@ -70,7 +70,13 @@ def nextver_cmd(
     # refreshed the project object
     project = Project(project_root=project.root, debug=project.debug)
 
-    update_pkg_json_and_main(project)
+    try:
+        update_pkg_json_and_main(project)
+    except Exception as ex:
+        # clean up the created new package branch
+        project.git.cmd_rm_branch(branch=new_pkg)
+        echo(f"Unable to complete 'nextver', updating version string in pkg.json or workflow script failed. More info: {ex}")
+        sys.exit(1)
 
     paths_to_add = new_pkg.split('@')[0]
     project.git.cmd_add_and_commit(
