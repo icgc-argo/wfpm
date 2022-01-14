@@ -114,7 +114,7 @@ def new_cmd(project, pkg_type, pkg_name, conf_json=None):
     project.git.cmd_add_and_commit(path=paths_to_add, message=f'[wfpm v{ver}] added starting template for {project.pkg_workon}')
 
     echo(f"New package created in: {os.path.basename(path)}. Starting template added and "
-         "committed to git. Please continue working on it.")
+         "committed to git. Please update README.md and continue working on the package.")
 
 
 def validate_input(project, pkg_name):
