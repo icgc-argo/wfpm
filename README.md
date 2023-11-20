@@ -12,7 +12,7 @@ is one of the most successful package mangement systems. The bioinformatics work
 community would greatly appreciate something like NPM to facilitate and accelerate collaborative
 development via reusable packages.
 
-~~ NOTE: WFPM CLI is in active development. More features, documentation and tutorials are coming. ~~ See note below
+~~NOTE: WFPM CLI is in active development. More features, documentation and tutorials are coming.~~ See Notice on development below. 
 
 - Documentation: [https://wfpm.readthedocs.io](https://wfpm.readthedocs.io)
 - Source code: [https://github.com/icgc-argo/wfpm](https://github.com/icgc-argo/wfpm)
