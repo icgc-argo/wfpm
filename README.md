@@ -1,5 +1,6 @@
 # WorkFlow Package Manager - Overview
 
+
 The WFPM CLI is a command line tool for workflow package authoring and management, it's developed in
 Python and runs on a Linux or Mac OS environment. WFPM CLI provides assistance to write shareable/reusable
 workflow packages. A package can include one or more of these items: a single step tool
@@ -11,12 +12,16 @@ is one of the most successful package mangement systems. The bioinformatics work
 community would greatly appreciate something like NPM to facilitate and accelerate collaborative
 development via reusable packages.
 
-NOTE: WFPM CLI is in active development. More features, documentation and tutorials are coming.
+~~ NOTE: WFPM CLI is in active development. More features, documentation and tutorials are coming. ~~ See note below
 
 - Documentation: [https://wfpm.readthedocs.io](https://wfpm.readthedocs.io)
 - Source code: [https://github.com/icgc-argo/wfpm](https://github.com/icgc-argo/wfpm)
 - Talk at BOSC 2021 (including demo): [talk](https://www.youtube.com/watch?v=kOC6SH0GFPQ); [slides](https://docs.google.com/presentation/d/1uEcAYvUvjyFptOT_BD-vkhXnhQoFO5X8RulxORTGubY/edit?usp=sharing).
 - Blog: [Build workflows collaboratively using reusable and shareable packages](https://softeng.oicr.on.ca/junjun_zhang/2021/03/31/build-workflows-collaboratively-using-packages)
+
+## Notice on development
+
+The WFPM package is no longer being actively maintained or developed. ICGC-ARGO is working to transition workflows and packages to utilize the [NF-core](https://nf-co.re/) package manager. This repo will be archived upon completion of full transition.
 
 ## Best practices for scientific workflow development
 
